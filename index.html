@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>송악고등학교 온라인 보건실</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 500px; background: white; margin: 50px auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 20px; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 15px 0; background-color: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .btn:hover { background-color: #2980b9; }
+        .footer { margin-top: 30px; font-size: 12px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🏥 송악고등학교 온라인 보건실</h1>
+        <p>원하는 보건실 서비스를 선택해 주세요.</p>
+        
+        <button class="btn" onclick="location.href='/api/getdata'">📋 보건실 이용 기록 조회하기</button>
+        <button class="btn" onclick="alert('준비 중인 서비스입니다.')">✏️ 보건실 방문 신청하기</button>
+        
+        <div class="footer">© 송악고등학교 보건실 - All Rights Reserved.</div>
+    </div>
+
+</body>
+</html>
