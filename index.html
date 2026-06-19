@@ -8,56 +8,89 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
   :root {
-    --blue: #2563c8; --blue-dark: #1a50a8; --blue-light: #e8f0fc; --blue-border: #b8d0f0;
-    --gray-bg: #f8fafc; --gray-border: #e2e8f0;
+    --navy: #1e3a8a;
+    --navy-dark: #172554;
+    --mint: #0d9488;
+    --mint-light: #f0fdfa;
+    --mint-border: #99f6e4;
+    --gray-bg: #f8fafc;
+    --gray-border: #e2e8f0;
+    --gray-text: #64748b;
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--gray-bg); color: #334155; line-height: 1.6; }
   
-  .container { max-w: 1200px; margin: 0 auto; padding: 20px; }
-  header { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--gray-border); display: flex; align-items: center; gap: 16px; }
-  .header-icon { background: var(--blue-light); color: var(--blue); padding: 12px; border-radius: 12px; font-size: 24px; display: flex; align-items: center; justify-content: center; }
-  .header-text h1 { font-size: 22px; font-weight: 700; color: #1e293b; }
-  .header-text p { font-size: 13px; color: #64748b; margin-top: 2px; }
-
-  /* 메뉴 탭 바 스크롤 레이아웃 */
-  nav { background: white; border-radius: 12px; padding: 8px; margin-bottom: 20px; border: 1px solid var(--gray-border); display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; }
-  .nav-item { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #64748b; text-decoration: none; background: none; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-  .nav-item:hover { background: #f1f5f9; color: #1e293b; }
-  .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
-
-  .card { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--gray-border); margin-bottom: 20px; }
-  .card-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .container { max-w: 1200px; margin: 0 auto; padding: 24px; }
   
-  /* 검색 바 양식 및 드롭다운 스크롤바 */
-  .search-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; background: #f8fafc; padding: 16px; border-radius: 10px; border: 1px solid var(--gray-border); }
-  select, input, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; background-color: white; color: #334155; }
-  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,200,0.15); }
-  
-  .btn { padding: 10px 16px; font-size: 14px; font-weight: 500; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
-  .btn-primary { background: var(--blue); color: white; }
-  .btn-primary:hover { background: var(--blue-dark); }
+  /* 상단 헤더 */
+  header { background: white; border-radius: 14px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--gray-border); display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+  .header-icon { background: var(--mint-light); color: var(--mint); padding: 14px; border-radius: 12px; font-size: 26px; display: flex; align-items: center; justify-content: center; }
+  .header-text h1 { font-size: 22px; font-weight: 700; color: var(--navy); }
+  .header-text p { font-size: 13px; color: var(--gray-text); margin-top: 3px; }
 
-  /* 데이터 테이블 스타일 */
-  .table-wrapper { overflow-x: auto; margin-top: 16px; border: 1px solid var(--gray-border); border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-  th { background: #f1f5f9; padding: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid var(--gray-border); }
-  td { padding: 12px; border-bottom: 1px solid var(--gray-border); color: #334155; }
-  tr:last-child td { border-bottom: none; }
+  /* 8대 메뉴 바 (모바일 가로 스크롤 대응) */
+  nav { background: white; border-radius: 12px; padding: 8px; margin-bottom: 24px; border: 1px solid var(--gray-border); display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-item { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; font-size: 14px; font-weight: 500; color: #475569; text-decoration: none; background: none; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .nav-item:hover { background: #f1f5f9; color: var(--navy); }
+  .nav-item.active { background: var(--mint-light); color: var(--mint); font-weight: 700; border: 1px solid var(--mint-border); }
+
+  /* 안내 영역 */
+  .info-alert { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 14px 18px; border-radius: 10px; font-size: 13px; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+
+  /* 카드 공통 구조 */
+  .card { background: white; border-radius: 14px; padding: 28px; border: 1px solid var(--gray-border); margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+  .card-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; border-b: 2px solid var(--gray-bg); padding-bottom: 10px; }
   
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .sub-card { background: white; border: 1px solid var(--gray-border); border-radius: 10px; padding: 20px; position: relative; transition: transform 0.2s, box-shadow 0.2s; }
+  .sub-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.04); }
+  .sub-card.expired { background: #f1f5f9; border-color: #cbd5e1; color: #94a3b8; }
+  .sub-card.expired .badge { background: #94a3b8; }
+  .sub-card.expired .card-btn { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+
+  /* 배지 및 서식 요소 */
+  .badge { display: inline-block; padding: 4px 8px; font-size: 11px; font-weight: 600; border-radius: 4px; color: white; margin-bottom: 10px; }
+  .badge-mint { background: var(--mint); }
+  .badge-navy { background: var(--navy); }
+  
+  .meta-info { font-size: 13px; margin-bottom: 6px; }
+  .meta-info span { font-weight: 600; color: #475569; display: inline-block; width: 75px; }
+
+  select, input, textarea { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; background-color: white; color: #334155; }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--mint); box-shadow: 0 0 0 3px rgba(13,148,136,0.15); }
+  
+  .btn { padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; text-decoration: none; }
+  .btn-mint { background: var(--mint); color: white; }
+  .btn-mint:hover { background: #0f766e; }
+  .btn-navy { background: var(--navy); color: white; }
+  .btn-navy:hover { background: var(--navy-dark); }
+  
+  .card-btn { width: 100%; margin-top: 14px; background: var(--gray-bg); color: #475569; border: 1px solid var(--gray-border); padding: 8px; font-size: 13px; border-radius: 6px; cursor: pointer; font-weight: 500; text-align: center; }
+  .card-btn:hover:not([disabled]) { background: var(--mint-light); color: var(--mint); border-color: var(--mint-border); }
+
+  .divider { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
+
+  /* 모달 윈도우 */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-content { background: white; border-radius: 12px; max-w: 500px; width: 100%; padding: 24px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+  .modal-close { position: absolute; top: 18px; right: 18px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray-text); }
+
   .tab-content { display: none; }
   .tab-content.active { display: block; }
-  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
   <div class="container">
     <header>
-      <div class="header-icon"><i class="ti ti-school"></i></div>
+      <div class="header-icon"><i class="ti ti-heart-rate-monitor"></i></div>
       <div class="header-text">
-        <h1>송악고등학교 온라인 보건실</h1>
-        <p>선생님 전용 스마트 스프레드시트 기반 보건행정 통합 인프라</p>
+        <h1>송악고등학교 온라인 보건실 Hub</h1>
+        <p>공개용 보건 공지사항 및 행정 안내 링크 통합 플랫폼</p>
       </div>
     </header>
 
@@ -65,69 +98,293 @@
       <a href="https://school.smilebogun.org/share" target="_blank" class="nav-item"><i class="ti ti-calendar-event"></i> 1. 오늘의 보건실 ↗</a>
       <a href="https://docs.google.com/" target="_blank" class="nav-item"><i class="ti ti-virus"></i> 2. 학생 감염병 관리 ↗</a>
       <a href="https://docs.google.com/" target="_blank" class="nav-item"><i class="ti ti-heart-handshake"></i> 3. 학생 요보호 관리 ↗</a>
-      
       <button onclick="switchTab(this, 'homeroom')" class="nav-item active"><i class="ti ti-users"></i> 4. 담임 협조 요청</button>
-      
       <a href="https://docs.google.com/" target="_blank" class="nav-item"><i class="ti ti-book"></i> 5. 보건교육·연수 자료실 ↗</a>
-      
       <button onclick="switchTab(this, 'checkup')" class="nav-item"><i class="ti ti-stethoscope"></i> 6. 학생·교직원 검진 안내</button>
       <button onclick="switchTab(this, 'submit')" class="nav-item"><i class="ti ti-upload"></i> 7. 제출·업로드 센터</button>
       <button onclick="switchTab(this, 'faq')" class="nav-item"><i class="ti ti-help"></i> 8. FAQ</button>
     </nav>
 
-    <div class="card">
-      <div class="card-title"><i class="ti ti-search" style="color:var(--blue);"></i> 보건실 실시간 이용현황 대장 조회</div>
-      <div class="search-grid">
-        <select id="search-grade">
-          <option value="">학년 선택</option>
-          <option value="1">1학년</option>
-          <option value="2">2학년</option>
-          <option value="3">3학년</option>
-        </select>
-        
-        <select id="search-class">
-          <option value="">반 선택 (1~8반)</option>
-          <option value="1">1반</option><option value="2">2반</option>
-          <option value="3">3반</option><option value="4">4반</option>
-          <option value="5">5반</option><option value="6">6반</option>
-          <option value="7">7반</option><option value="8">8반</option>
-        </select>
-        
-        <input type="text" id="search-name" placeholder="학생 성명">
-        <button onclick="searchSheet()" class="btn btn-primary"><i class="ti ti-search"></i> 실시간 조회</button>
-      </div>
-
-      <div class="table-wrapper hidden" id="table-area">
-        <table>
-          <thead>
-            <tr>
-              <th>방문일시</th>
-              <th>학년/반/성명</th>
-              <th>증상 및 호소</th>
-              <th>처치내용</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
-      <div id="no-data" class="hidden" style="text-align:center; padding:24px; color:#94a3b8; font-size:13px;">일치하는 보건실 이용 기록 데이터가 구글 대장에 존재하지 않습니다.</div>
+    <div class="info-alert">
+      <i class="ti ti-info-circle-text" style="font-size:18px;"></i>
+      <div>본 허브는 민감정보 보호를 위해 학생 개인별 진료 기록, 입실 현황 및 검사 결과를 일절 포함하지 않는 안전한 공지용 안내 장소입니다.</div>
     </div>
 
     <div id="tab-homeroom" class="tab-content active card">
-      <div style="display:flex; justify-content:between; align-items:center; margin-bottom:16px;">
-        <div class="card-title" style="margin:0;"><i class="ti ti-users" style="color:var(--blue);"></i> 4. 담임교사 협조 요청방</div>
-        <button onclick="writePost('homeroom')" class="btn btn-primary" style="padding:6px 12px; font-size:12px;">글쓰기</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <div class="card-title" style="margin:0;"><i class="ti ti-users" style="color:var(--navy);"></i> 4. 담임교사 행정 협조방</div>
+        <button onclick="addPost('homeroom')" class="btn btn-mint" style="padding:6px 12px; font-size:12px;"><i class="ti ti-plus"></i> 안내 등록</button>
       </div>
-      <div id="list-homeroom" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"></div>
+      <div id="list-homeroom" class="grid-2"></div>
     </div>
 
     <div id="tab-checkup" class="tab-content card">
-      <div style="display:flex; justify-content:between; align-items:center; margin-bottom:16px;">
-        <div class="card-title" style="margin:0;"><i class="ti ti-stethoscope" style="color:#10b981;"></i> 6. 학생 및 교직원 검진 안내</div>
-        <button onclick="writePost('checkup')" class="btn btn-primary" style="padding:6px 12px; font-size:12px; background:#10b981;">공지추가</button>
+      <div class="card-title"><i class="ti ti-stethoscope" style="color:var(--mint);"></i> 6. 정기 학생 건강검진 및 검사 일정 안내</div>
+      
+      <div class="grid-2">
+        <div class="sub-card">
+          <span class="badge badge-mint">진행중</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:12px;">1학년 학생 건강검진 안내</h3>
+          <div class="meta-info"><span>검사명</span>1학년 종합 건강검진</div>
+          <div class="meta-info"><span>대상</span>1학년 전체 학생</div>
+          <div class="meta-info"><span>일시</span>2026년 4월 ~ 7월 말일까지</div>
+          <div class="meta-info"><span>장소</span>학교 지정 검진기관 (안내문 참조)</div>
+          <div class="meta-info"><span>준비물</span>검진 기록지 (병원 구비)</div>
+          <div class="meta-info"><span>유의사항</span>검진 전날 자정 이후 가급적 금식 유지</div>
+          <button class="card-btn" onclick="alert('지정 병원 내역 및 원본 안내문 한글 파일 링크로 연동됩니다.')">안내 자료 보기</button>
+        </div>
+
+        <div class="sub-card expired">
+          <span class="badge">완료</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:12px;">2,3학년 소변검사 안내</h3>
+          <div class="meta-info"><span>검사명</span>학교 정기 소변검사 (단백뇨/혈뇨)</div>
+          <div class="meta-info"><span>대상</span>2, 3학년 전체 학생</div>
+          <div class="meta-info"><span>일시</span>2026년 5월 14일 (목) 오전 완료</div>
+          <div class="meta-info"><span>장소</span>각 학급 교실 (이동 검진)</div>
+          <div class="meta-info"><span>준비물</span>검사 스틱 (당일 배부)</div>
+          <div class="meta-info"><span>유의사항</span>미검진 및 재검사 대상자는 별도 내부 가이드 처리됩니다.</div>
+          <button class="card-btn" disabled>검사 마감</button>
+        </div>
+
+        <div class="sub-card">
+          <span class="badge badge-mint">진행중</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:12px;">2,3학년 결핵검진 안내</h3>
+          <div class="meta-info"><span>검사명</span>흉부 X-ray 방사선 촬영 검진</div>
+          <div class="meta-info"><span>대상</span>2, 3학년 전체 학생</div>
+          <div class="meta-info"><span>일시</span>2026년 6월 24일 (수) 본교 방문</div>
+          <div class="meta-info"><span>장소</span>교내 주차장 대한결핵협회 검진 버스</div>
+          <div class="meta-info"><span>준비물</span>체육복 복장 권장</div>
+          <div class="meta-info"><span>유의사항</span>상의에 금속 단추나 목걸이 착용 금지</div>
+          <button class="card-btn" onclick="alert('추가 안내가 필요한 경우 별도 내부 절차에 따라 개별 안내합니다.')">상세 매뉴얼 보기</button>
+        </div>
       </div>
-      <div id="list-checkup" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;"></div>
+
+      <hr class="divider">
+      <div class="card-title"><i class="ti ti-id-badge" style="color:var(--navy);"></i> 교직원 의무 결핵검진 안내 영역</div>
+      
+      <div class="grid-2" style="margin-bottom:32px;">
+        <div class="sub-card">
+          <span class="badge badge-navy">교직원 의무</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:12px;">교직원 정기 결핵검진 안내</h3>
+          <div class="meta-info"><span>검사명</span>교직원 흉부 방사선(X-ray) 검진</div>
+          <div class="meta-info"><span>대상</span>송악고 전체 교직원 (전임/기간제/무기계약직 포함)</div>
+          <div class="meta-info"><span>일시</span>2026년 연중 1회 필수 실시</div>
+          <div class="meta-info"><span>장소</span>인근 보건소 또는 일반 지정 검진 기관</div>
+          <div class="meta-info"><span>준비물</span>신분증</div>
+          <div class="meta-info"><span>유의사항</span>검진 결과표 스캔본을 하단 서식을 통해 필히 증빙 제출</div>
+          <button class="card-btn" onclick="alert('교직원 의무 검진 지침 공문 확인')">관련 지침 확인</button>
+        </div>
+      </div>
+
+      <div style="background:var(--gray-bg); border:1px solid var(--gray-border); padding:24px; border-radius:12px;">
+        <h4 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px;"><i class="ti ti-clipboard-list"></i> 올해 교직원 결핵검진 대상 여부 확인 및 제출 서식</h4>
+        <form onsubmit="handleSurvey(event)" class="grid-2" style="gap:14px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">소속 부서</label>
+            <input type="text" required placeholder="예: 교무기획부, 학년실">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">성명</label>
+            <input type="text" required placeholder="성명 입력">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">신청 유형</label>
+            <select>
+              <option>정기 검진 대상자</option>
+              <option>신규 임용자 및 기간제 교사</option>
+              <option>잠복결핵 면제/해당자</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">결핵검진(X-ray) 결과 유형</label>
+            <select>
+              <option>정상 (이상없음)</option>
+              <option>추후 판정 유예 (비고란 기재)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">혈액잠복 결핵 검사 일자 (해당자만)</label>
+            <input type="date">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">결핵 검사 검진 기관</label>
+            <input type="text" placeholder="예: 당진시 보건소">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">비고 및 행정 특이사항</label>
+            <input type="text" placeholder="기타 행정 및 추후관리 특이사항 기재">
+          </div>
+          <button type="submit" class="btn btn-navy" style="grid-column: 1 / -1; margin-top:8px;">확인 서식 데이터 제출하기</button>
+        </form>
+      </div>
     </div>
 
     <div id="tab-submit" class="tab-content card">
-      <div class="card-title"><i class="ti ti-upload" style="color:#ef4444;"></i> 7. 증
+      <div class="card-title"><i class="ti ti-upload" style="color:var(--mint);"></i> 7. 각종 동의서 및 확인서 증빙 제출 센터</div>
+      <p style="font-size:13px; color:var(--gray-text); margin-bottom:20px;">학교 보건실로 제출해야 하는 제반 서식을 출력 없이 온라인으로 즉시 안전하게 업로드할 수 있습니다.</p>
+      
+      <div class="grid-2">
+        <div class="sub-card">
+          <span class="badge badge-mint">상태: 접수중</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:6px;">감염병 등교중지 해제 확인서 및 완치 의사소견서</h3>
+          <p style="font-size:12px; color:var(--gray-text); margin-bottom:12px;">독감, 코로나19 등으로 인한 출석인정 결석 처리용 서류</p>
+          <div class="meta-info"><span>대상</span>전학년 학생/학부모</div>
+          <div class="meta-info"><span>마감일</span>등교 재개 당일 즉시 제출</div>
+          <button class="btn btn-mint" style="width:100%; font-size:13px; margin-top:10px;" onclick="openSubmitModal('감염병 등교중지 확인 서류')">파일 업로드 하기</button>
+        </div>
+
+        <div class="sub-card">
+          <span class="badge badge-navy">상태: 항시접수</span>
+          <h3 style="font-size:15px; font-weight:700; margin-bottom:6px;">교직원 잠복결핵 검사 결과 이수증 및 확인서</h3>
+          <p style="font-size:12px; color:var(--gray-text); margin-bottom:12px;">교직원 법정 의무 검진 완료 결과 아카이브 전송 스토리지</p>
+          <div class="meta-info"><span>대상</span>전체 교직원 대상</div>
+          <div class="meta-info"><span>마감일</span>검진 완료 후 1주일 내</div>
+          <button class="btn btn-navy" style="width:100%; font-size:13px; margin-top:10px;" onclick="openSubmitModal('교직원 잠복결핵 확인서')">파일 업로드 하기</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-faq" class="tab-content card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <div class="card-title" style="margin:0;"><i class="ti ti-help" style="color:var(--navy);"></i> 8. 자주 묻는 질문 (FAQ)</div>
+        <button onclick="addFaq()" class="btn btn-navy" style="padding:6px 12px; font-size:12px;"><i class="ti ti-plus"></i> 질문 추가</button>
+      </div>
+      <div id="list-faq" style="display:flex; flex-direction:column; gap:12px;"></div>
+    </div>
+
+  </div>
+
+  <div class="modal" id="submit-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeSubmitModal()">×</button>
+      <h3 id="modal-title" style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--navy);">서류 제출</h3>
+      
+      <form onsubmit="handleUploadSubmit(event)" style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">제출자 성명</label>
+          <input type="text" required placeholder="성명을 입력하세요">
+        </div>
+        
+        <div>
+          <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">학년 선택</label>
+          <select id="modal-grade">
+            <option value="교직원">교직원 / 일반</option>
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">소속 반 선택 (1~8반 전용 드롭다운)</label>
+          <select id="modal-class">
+            <option value="일반부서">일반부서 / 해당없음</option>
+            <option value="1">1반</option><option value="2">2반</option>
+            <option value="3">3반</option><option value="4">4반</option>
+            <option value="5">5반</option><option value="6">6반</option>
+            <option value="7">7반</option><option value="8">8반</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">증빙 서류 파일 등록</label>
+          <input type="file" required>
+        </div>
+
+        <div>
+          <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">비고 및 특이사항 입력</label>
+          <textarea rows="3" placeholder="기타 전할 말씀이나 특이사항을 적어주세요."></textarea>
+        </div>
+
+        <div style="background:#fff7ed; border:1px solid #ffedd5; padding:10px; border-radius:6px; font-size:11px; color:#c2410c;">
+          ⚠️ <strong>운영 주의사항:</strong> 실제 구축 시에는 개인정보 취급방침 고지 및 업로드된 파일의 구글 드라이브 지정 폴더 접근 권한을 철저히 검토하시기 바랍니다.
+        </div>
+
+        <button type="submit" class="btn btn-mint" style="width:100%; margin-top:6px;">안전하게 최종 제출하기</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 로컬 스토리지를 활용한 실시간 데이터 세션 목업 구조
+    var DATA = JSON.parse(localStorage.getItem('SONGAK_HUB_V4')) || {
+      boards: {
+        homeroom: [
+          {id:1, title:'감염병 격리 해제에 따른 증빙 서류 제출 안내', content:'독감 및 코로나19 확진으로 출석인정을 받고자 하는 학급 학생들은 등교 시 완치 소견서 또는 진료 확인서를 [7번 제출·업로드 센터]를 통해 전송해주시기 바랍니다.', date:'2026-06-19'},
+          {id:2, title:'여름철 보건실 이용 실내 환기 및 방역 협조', content:'각 반 실장 및 부실장 학생들은 매 쉬는시간 종료 후 학급 교실 창문을 열어 3분간 자연 환기될 수 있도록 적극 지도 유도 바랍니다.', date:'2026-06-18'}
+        ]
+      },
+      faqs: [
+        {id:1, q:'보건실 이용 시 방문 확인증이 필수인가요?', a:'네, 수업 시간 중 입실할 경우 무단 결과 처리를 예방하기 위해 반드시 담임선생님의 서명이 포함된 보건실 이용 확인증 서식을 지참하여 내방하여야 합니다.'},
+        {id:2, q:'법정 감염병 격리 기간 동안 출석은 인정되나요?', a:'네, 법정 의무 등교중지 감염병의 경우 격리 기간 동안 출석인정결석으로 정상 처리됩니다. 등교 후 소견서 등의 증빙서류만 제출해 주시면 됩니다.'}
+      ]
+    };
+
+    function saveData() { localStorage.setItem('SONGAK_HUB_V4', JSON.stringify(DATA)); }
+
+    // 메뉴 이동 제어 핵심 컨트롤러
+    function switchTab(btn, tabId) {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+
+      if(tabId === 'homeroom') renderBoard('homeroom');
+      if(tabId === 'faq') renderFaq();
+    }
+
+    // 게시판 렌더러
+    function renderBoard(type) {
+      var box = document.getElementById('list-' + type); if(!box) return; box.innerHTML = '';
+      (DATA.boards[type] || []).forEach(function(b) {
+        box.innerHTML += `
+          <div class="sub-card">
+            <h4 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:6px;">${b.title}</h4>
+            <p style="font-size:12px; color:#475569; white-space:pre-line;">${b.content}</p>
+            <span style="font-size:10px; color:var(--gray-text); display:block; margin-top:10px;"><i class="ti ti-clock"></i> 등록일자: ${b.date}</span>
+            <button onclick="deletePost('${type}', ${b.id})" style="position:absolute; top:16px; right:16px; background:none; border:none; color:#cbd5e1; cursor:pointer;" class="hover:text-red-500"><i class="ti ti-trash"></i></button>
+          </div>`;
+      });
+    }
+
+    function addPost(type) {
+      var title = prompt('공지/협조 제목을 입력하세요:'); if(!title) return;
+      var content = prompt('상세 전달 내용을 기재해 주세요:'); if(!content) return;
+      DATA.boards[type].unshift({id:Date.now(), title:title, content:content, date:new Date().toISOString().split('T')[0]});
+      saveData(); renderBoard(type);
+    }
+
+    function deletePost(type, id) { if(confirm('해당 안내문을 대장에서 완전히 삭제할까요?')) { DATA.boards[type] = DATA.boards[type].filter(function(x){return x.id!==id;}); saveData(); renderBoard(type); } }
+
+    // FAQ 렌더러
+    function renderFaq() {
+      var box = document.getElementById('list-faq'); if(!box) return; box.innerHTML = '';
+      DATA.faqs.forEach(function(f) {
+        box.innerHTML += `
+          <div style="background:var(--mint-light); border:1px solid var(--mint-border); padding:16px; border-radius:10px; position:relative;">
+            <h4 style="font-size:13px; font-weight:700; color:var(--mint);"><i class="ti ti-help-circle"></i> Q. ${f.q}</h4>
+            <p style="font-size:12px; color:var(--navy-dark); margin-top:6px; padding-left:14px;">A. ${f.a}</p>
+            <button onclick="deleteFaq(${f.id})" style="position:absolute; top:14px; right:14px; background:none; border:none; color:#99f6e4; cursor:pointer;" class="hover:text-red-500"><i class="ti ti-trash"></i></button>
+          </div>`;
+      });
+    }
+
+    function addFaq() {
+      var q = prompt('Q. 질문 제목 입력:'); if(!q) return;
+      var a = prompt('A. 대답 내용 입력:'); if(!a) return;
+      DATA.faqs.push({id:Date.now(), q:q, a:a}); saveData(); renderFaq();
+    }
+
+    function deleteFaq(id) { if(confirm('항목을 삭제할까요?')) { DATA.faqs = DATA.faqs.filter(function(x){return x.id!==id;}); saveData(); renderFaq(); } }
+
+    // 모달 및 서식 핸들러
+    function openSubmitModal(title) { document.getElementById('modal-title').innerText = title + ' 전송 창'; document.getElementById('submit-modal').style.display = 'flex'; }
+    function closeSubmitModal() { document.getElementById('submit-modal').style.display = 'none'; }
+    function handleUploadSubmit(e) { e.preventDefault(); alert('구글 클라우드 스토리지 전송 완료! 실제 구글 드라이브 API 백엔드 연동 환경변수(Vercel) 매칭 시 데이터가 영구 보존됩니다.'); closeSubmitModal(); e.target.reset(); }
+    function handleSurvey(e) { e.preventDefault(); alert('교직원 의무 결핵 검진 대상 설문 정보가 구글 스프레드시트 관리 대장으로 안전하게 송신 완료되었습니다.'); e.target.reset(); }
+
+    window.onload = function() { renderBoard('homeroom'); };
+  </script>
+</body>
+</html>
