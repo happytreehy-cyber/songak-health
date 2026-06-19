@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* 기본 초기화 스타일 */
+        /* 기본 스타일 초기화 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -28,7 +28,7 @@
             color: inherit;
         }
 
-        /* 1. 최상단 글로벌 내비게이션 바 */
+        /* 1. 최상단 최외곽 글로벌 내비게이션 바 (GNB) */
         .navbar {
             background-color: #ffffff;
             height: 65px;
@@ -42,12 +42,9 @@
             z-index: 1000;
         }
         .nav-left {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1e293b;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .nav-logo-circle {
             width: 28px;
@@ -63,11 +60,29 @@
             border: 1px solid #cbd5e1;
             background-image: radial-gradient(#0f75bd 3px, #e2e8f0 4px);
         }
+        .nav-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-main-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        /* GNB 내부 폰트가 얇은 형태의 서브타이틀 */
+        .nav-sub-title {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 400;
+            margin-left: 4px;
+        }
         .nav-right {
             display: flex;
             align-items: center;
             gap: 14px;
         }
+        /* 하늘색 라운드 액션 버튼 */
         .btn-slides {
             background-color: #bae6fd;
             color: #0369a1;
@@ -94,7 +109,7 @@
             justify-content: center;
         }
 
-        /* 메인 컨테이너 구조 */
+        /* 메인 콘텐츠 컨테이너 (정렬 가이드라인) */
         .main-container {
             max-width: 1100px;
             margin: 0 auto;
@@ -104,15 +119,20 @@
             gap: 20px;
         }
 
-        /* 2. 날짜 및 캘린더 스트립 위젯 */
-        .date-widget {
+        /* 2. 대시보드 2단: 날짜 위젯 + 관리자 로그인 수평 레이아웃 */
+        .date-control-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 16px;
             padding: 16px 24px;
+        }
+        .date-widget-left {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 20px;
         }
         .date-badge {
             font-family: 'Poppins', sans-serif;
@@ -147,13 +167,32 @@
             padding: 2px 7px;
             margin: -2px -7px;
         }
+        /* 옐로우 계열의 열쇠 아이콘 관리자 버튼 */
+        .btn-admin {
+            background-color: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-admin:hover {
+            background-color: #fef3c7;
+        }
 
-        /* 3. 중앙 안내 배너 카드 플레이트 */
+        /* 3. 중앙 안내 인트로 배너 카드 */
         .intro-card {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
             padding: 36px;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -203,8 +242,22 @@
             font-size: 16px;
             color: #3b82f6;
         }
+        /* 우측 상단 송악고 마크 배치를 고려한 여백 확보 마크 배치 구현 */
+        .intro-card::after {
+            content: '';
+            position: absolute;
+            top: 36px;
+            right: 36px;
+            width: 65px;
+            height: 65px;
+            background-color: #eab308;
+            border-radius: 50%;
+            opacity: 0.15;
+            background-image: radial-gradient(#ca8a04 4px, transparent 5px);
+            background-size: 10px 10px;
+        }
 
-        /* 4. 8대 메뉴 모듈형 그리드 */
+        /* 4. 8대 메뉴 플레이트 그리드 구조 */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -221,7 +274,6 @@
             justify-content: space-between;
             height: 155px;
             cursor: pointer;
-            position: relative;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-card:hover {
@@ -243,7 +295,8 @@
         .menu-icon {
             font-size: 18px;
         }
-        /* 스크린샷 기반 아이콘 디자인 색상 지정 */
+        
+        /* 스크린샷 8대 전용 컬러 아이콘 셋업 */
         .icon-01 { color: #3b82f6; }
         .icon-02 { color: #10b981; }
         .icon-03 { color: #f59e0b; }
@@ -282,213 +335,9 @@
             padding-bottom: 2px;
         }
 
-        /* 5. 하단 관리자 로그인 유틸리티 라인 */
-        .footer-utility-bar {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-top: 8px;
-        }
-        .btn-admin {
-            background-color: #fffbeb;
-            color: #b45309;
-            border: 1px solid #fde68a;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-admin:hover {
-            background-color: #fef3c7;
-        }
-
-        /* 스마트 기기 환경을 위한 모바일 반응형 처리 */
+        /* 반응형 뷰포트 분기점 가이드 */
         @media (max-width: 1024px) {
             .menu-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
-            .menu-grid { grid-template-columns: 1fr; }
-            .date-widget { flex-direction: column; align-items: flex-start; gap: 12px; }
-        }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar">
-        <div class="nav-left">
-            <div class="nav-logo-circle">송악</div>
-            <span>송악고등학교 온라인 보건실 최종본</span>
-        </div>
-        <div class="nav-right">
-            <button class="btn-slides" onclick="alert('Google Slides 아카이브로 내보내기를 처리합니다.')">Slides로 내보내기</button>
-            <button class="icon-btn" title="자료 다운로드"><i class="fa-solid fa-download"></i></button>
-            <button class="icon-btn" title="창 닫기"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-    </nav>
-
-    <main class="main-container">
-
-        <section class="date-widget">
-            <div class="date-badge">19</div>
-            <div class="date-info-block">
-                <div class="date-full">2026년 6월 19일 금요일</div>
-                <div class="calendar-strip">
-                    <span class="day-item sunday">14</span>
-                    <span class="day-item">15</span>
-                    <span class="day-item">16</span>
-                    <span class="day-item">17</span>
-                    <span class="day-item">18</span>
-                    <span class="day-item today">19</span>
-                    <span class="day-item">20</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="intro-card">
-            <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용 보건업무 포털</div>
-            <h1 class="main-title">송악고등학교 온라인 보건실</h1>
-            <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
-            
-            <div class="notice-container">
-                <div class="notice-box">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <span>학생 개인정보 및 민감정보는 앱 화면에 직접 표시하지 않습니다.</span>
-                </div>
-                <div class="notice-box">
-                    <i class="fa-solid fa-file-shield"></i>
-                    <span>제출 자료는 보건실 확인용으로만 처리되며 외부 공유되지 않습니다.</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="menu-grid">
-            
-            <a href="#today-health" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">01</span>
-                    <i class="fa-solid fa-calendar-check menu-icon icon-01"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">오늘의 보건실</span>
-                        <span class="menu-desc">주간 보건 업무 및 월별 소식지 아카이브</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#disease" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">02</span>
-                    <i class="fa-solid fa-virus menu-icon icon-02"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">학생 감염병 관리</span>
-                        <span class="menu-desc">격리 지침 가이드 및 방역 서식 연동</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#protection" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">03</span>
-                    <i class="fa-solid fa-hand-holding-heart menu-icon icon-03"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">학생 요보호 관리</span>
-                        <span class="menu-desc">건강 취약 학생 집중 케어 지침 조회</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#request" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">04</span>
-                    <i class="fa-solid fa-paste menu-icon icon-04"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">담임 협조 요청</span>
-                        <span class="menu-desc">학급 전달 행정 공지 및 소통 창구</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#education" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">05</span>
-                    <i class="fa-solid fa-graduation-cap menu-icon icon-05"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">보건교육 연수실</span>
-                        <span class="menu-desc">교직원 의무 연수자료 아카이브</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#checkup" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">06</span>
-                    <i class="fa-solid fa-stethoscope menu-icon icon-06"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">학생·교직원 검진</span>
-                        <span class="menu-desc">종합 검진 일정 및 결과 제출</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#upload-center" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">07</span>
-                    <i class="fa-solid fa-cloud-arrow-up menu-icon icon-07"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">제출 업로드 센터</span>
-                        <span class="menu-desc">각종 서식 파일 온라인 즉시 전송</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
-                </div>
-            </a>
-
-            <a href="#faq" class="menu-card">
-                <div class="card-top">
-                    <span class="menu-num">08</span>
-                    <i class="fa-solid fa-circle-question menu-icon icon-08"></i>
-                </div>
-                <div class="card-bottom">
-                    <div class="text-group">
-                        <span class="menu-name">FAQ</span>
-                        <span class="menu-desc">보건실 이용 규칙 및 자주 묻는 질문</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
-                </div>
-            </a>
-
-        </section>
-
-        <section class="footer-utility-bar">
-            <button class="btn-admin" onclick="alert('보건관리자 통합 인증 세션으로 이동합니다.')">
-                <i class="fa-solid fa-key"></i> 관리자 로그인
-            </button>
-        </section>
-
-    </main>
-
-</body>
-</html>
+            .menu-grid { grid-template-columns
