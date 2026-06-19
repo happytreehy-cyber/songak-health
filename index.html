@@ -11,8 +11,6 @@
     <style>
         :root {
             --sidebar-width: 280px;
-            --primary-blue: #1A73E8;
-            --bg-light: #F4F8FA;
             --white: #FFFFFF;
             --text-dark: #1E293B;
             --text-muted: #64748B;
@@ -23,23 +21,23 @@
         
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-light);
+            background-color: #A3BACF; /* 이미지 속 부드러운 블루그레이 배경색 */
             color: var(--text-dark);
             line-height: 1.5;
             display: flex;
         }
 
         /* ------------------------------------------------------------------
-           [SIDEBAR] 왼쪽 세로 고정 메뉴바 레이아웃 (유지)
+           [SIDEBAR] 왼쪽 세로 고정 메뉴바 (이미지 레이아웃 100% 복원)
         --------------------------------------------------------------------- */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: #0A58CA;
+            background-color: #0F75BD; /* 이미지 고유의 밝은 파란색 */
             color: var(--white);
             height: 100vh;
             position: fixed;
             top: 0; left: 0;
-            padding: 30px 20px;
+            padding: 35px 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -48,9 +46,9 @@
 
         .sidebar-top { display: flex; flex-direction: column; gap: 25px; }
 
-        .school-brand { display: flex; align-items: center; gap: 10px; }
-        .school-brand img { height: 35px; width: auto; border-radius: 50%; }
-        .school-brand h1 { font-size: 18px; font-weight: 700; }
+        .school-brand { display: flex; align-items: center; gap: 12px; padding-left: 5px; }
+        .school-brand img { height: 38px; width: auto; border-radius: 50%; background: white; }
+        .school-brand h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 
         /* 세로형 캘린더 박스 */
         .sidebar-cal-box {
@@ -60,92 +58,102 @@
             border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .cal-main-row { display: flex; align-items: center; gap: 15px; }
-        .cal-big-num { font-family: 'Poppins', sans-serif; font-size: 42px; font-weight: 700; color: #1A73E8; line-height: 1; }
-        .cal-date-txt { font-size: 13px; font-weight: 700; color: #0F172A; line-height: 1.4; }
+        .cal-big-num { font-family: 'Poppins', sans-serif; font-size: 56px; font-weight: 700; color: #0F75BD; line-height: 1; }
+        .cal-date-txt { font-size: 14px; font-weight: 700; color: #0F172A; line-height: 1.3; }
         
-        .cal-days-strip { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 10px; }
-        .cal-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #64748B; }
-        .cal-cell .num { font-family: 'Poppins', sans-serif; font-size: 11px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
-        .cal-cell.active .num { background: #0A58CA; color: var(--white); border-radius: 50%; font-weight: 700; }
+        .cal-days-strip { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 12px; }
+        .cal-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #64748B; width: 22px; }
+        .cal-cell .lbl { font-size: 10px; margin-bottom: 2px; }
+        .cal-cell .num { font-family: 'Poppins', sans-serif; font-size: 11px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: #334155; }
+        .cal-cell.active .num { background: #0F75BD; color: var(--white); border-radius: 50%; font-weight: 700; }
         .cal-cell.sun { color: #EF4444; }
+        .cal-cell.sun .num { color: #EF4444; }
 
-        /* 사이드바 메뉴 */
-        .sidebar-menu { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-        .side-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13.5px; border-radius: 8px; cursor: pointer; }
-        .side-item:hover, .side-item.active { background: rgba(255,255,255,0.15); color: var(--white); font-weight: 700; }
-        .side-item-left { display: flex; align-items: center; gap: 10px; }
+        /* 사이드바 메뉴 링크 */
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .side-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; color: var(--white); text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 8px; cursor: pointer; }
+        .side-item:hover, .side-item.active { background: rgba(255,255,255,0.15); font-weight: 700; }
+        .side-item-left { display: flex; align-items: center; gap: 12px; }
+        .side-item-left i { font-size: 16px; width: 20px; }
 
-        .sidebar-footer-logo { display: flex; justify-content: center; opacity: 0.3; }
-        .sidebar-footer-logo img { width: 80px; height: auto; }
+        .sidebar-footer-logo { display: flex; justify-content: center; padding-bottom: 10px; }
+        .sidebar-footer-logo img { width: 110px; height: auto; }
 
         /* ------------------------------------------------------------------
-           [MAIN CONTENT] 우측 본문 영역
+           [MAIN CONTENT] 우측 본문 영역 (이미지 비율 및 형태 완벽 동기화)
         --------------------------------------------------------------------- */
         .main-container {
             margin-left: var(--sidebar-width);
             flex-grow: 1;
-            padding: 40px;
-            max-width: 1300px;
+            padding: 50px;
         }
 
         .view-panel { display: none; }
         .view-panel.active { display: block; }
 
-        /* 중간 안내창 대형 배너 */
+        /* 이미지 원본의 선명한 블루 안내창 메인 배너 */
         .notice-card-banner {
-            background-color: #1A73E8;
+            background-color: #0070C0; /* 원본 이미지의 선명한 블루 */
             color: var(--white);
-            border-radius: 20px;
-            padding: 45px;
+            border-radius: 16px;
+            padding: 40px;
             margin-bottom: 35px;
             position: relative;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        .notice-card-banner img.inner-logo { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 15px; }
-        .notice-card-title { font-size: 28px; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.5px; }
+        .notice-card-banner .inner-logo { width: 75px; height: 75px; border-radius: 50%; margin-bottom: 15px; background: white; padding: 2px; }
+        .notice-card-title { font-size: 34px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
         
-        /* 요구사항 반영: 지시하신 내용 그대로 완벽하게 줄바꿈 처리 */
-        .notice-card-desc { font-size: 15px; font-weight: 400; opacity: 0.95; line-height: 1.7; margin-bottom: 25px; }
+        /* [지시사항] 완벽하게 적용한 줄바꿈 및 안내 문구 */
+        .notice-card-desc { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 25px; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .notice-card-sub-desc { font-size: 14.5px; font-weight: 400; opacity: 0.9; line-height: 1.5; margin-bottom: 30px; }
 
-        /* 내부 정보 스택 박스 */
-        .info-inner-container { background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; text-align: left; }
-        .info-inner-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--white); }
-        
-        /* 8칸 메뉴 그리드 */
-        .menu-grid-label { font-size: 13px; font-weight: 700; color: #64748B; margin-bottom: 15px; }
+        /* 내부 테두리 처리된 정보 박스 */
+        .info-inner-container { border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 8px; padding: 18px 25px; max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; text-align: left; background: rgba(255,255,255,0.02); }
+        .info-inner-item { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--white); }
+        .info-inner-item i { font-size: 14px; }
+
+        /* 우측 하단 골드/네이비 송악 보완 마크 */
+        .notice-card-banner .sub-badge-mark { position: absolute; bottom: 30px; right: 40px; width: 65px; height: auto; }
+
+        /* ------------------------------------------------------------------
+           [MENU GRID] 8칸 흰색 라운드 메뉴 카드 (정렬 규격 유지)
+        --------------------------------------------------------------------- */
         .menu-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         
         .card-link-item {
             background: var(--white);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 25px;
             cursor: pointer;
-            height: 160px;
+            height: 140px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            transition: border-color 0.2s ease;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            text-align: center;
+            transition: transform 0.2s ease;
         }
-        .card-link-item:hover { border-color: var(--primary-blue); }
-        .card-header-top { display: flex; justify-content: space-between; align-items: center; }
-        .card-idx { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--primary-blue); }
-        .card-emo { font-size: 16px; }
-        .card-body-bottom h3 { font-size: 14.5px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
-        .card-body-bottom p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+        .card-link-item:hover { transform: translateY(-2px); }
+        
+        .card-icon-wrap { font-size: 32px; color: #1E293B; line-height: 1; display: flex; align-items: center; justify-content: center; }
+        .card-link-item h3 { font-size: 15px; font-weight: 700; color: #0F172A; }
 
-        /* 서브페이지용 공통 내역 테이블 */
-        .sub-page-top-bar { margin-bottom: 20px; }
-        .btn-go-back { background: #0F172A; color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
-        .info-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-        .info-table th { background: #F8FAFC; padding: 14px; text-align: left; font-size: 13px; color: #0A58CA; border-bottom: 2px solid var(--border-color); }
-        .info-table td { padding: 14px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
-        .info-table a { color: var(--primary-blue); text-decoration: none; font-weight: 700; }
+        /* 서브 상세페이지 테이블 양식 */
+        .sub-page-top-bar { margin-bottom: 25px; }
+        .btn-go-back { background: #0F172A; color: white; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+        .info-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .info-table th { background: #F8FAFC; padding: 16px; text-align: left; font-size: 13.5px; color: #0070C0; border-bottom: 2px solid var(--border-color); }
+        .info-table td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 13.5px; }
+        .info-table a { color: #0070C0; text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -160,34 +168,37 @@
             <div class="sidebar-cal-box">
                 <div class="cal-main-row">
                     <div class="cal-big-num">19</div>
-                    <div class="cal-date-txt">2026년<br>6월 19일 금요일</div>
+                    <div class="cal-date-txt">2026년<br>6월 19일<br>금요일</div>
                 </div>
                 <div class="cal-days-strip">
                     <div class="cal-cell sun"><span class="lbl">일</span><span class="num">14</span></div>
-                    <div class="cal-cell"><span class="lbl">월</span><span class="num">15</span></div>
-                    <div class="cal-cell"><span class="lbl">화</span><span class="num">16</span></div>
-                    <div class="cal-cell"><span class="lbl">수</span><span class="num">17</span></div>
-                    <div class="cal-cell"><span class="lbl">목</span><span class="num">18</span></div>
-                    <div class="cal-cell active"><span class="lbl">금</span><span class="num">19</span></div>
-                    <div class="cal-cell"><span class="lbl">토</span><span class="num">20</span></div>
+                    <div class="cal-cell"><span class="lbl">월</span><span class="num">16</span></div>
+                    <div class="cal-cell"><span class="lbl">화</span><span class="num">17</span></div>
+                    <div class="cal-cell"><span class="lbl">화</span><span class="num">18</span></div>
+                    <div class="cal-cell"><span class="lbl">수</span><span class="num">19</span></div>
+                    <div class="cal-cell active"><span class="lbl">목</span><span class="num">20</span></div>
+                    <div class="cal-cell"><span class="lbl">금</span><span class="num">22</span></div>
+                    <div class="cal-cell"><span class="lbl">토</span><span class="num">26</span></div>
                 </div>
             </div>
 
             <div class="sidebar-menu">
                 <div onclick="switchPage('view-dashboard')" class="side-item active">
-                    <div class="side-item-left"><i class="fa-solid fa-house"></i> <span>종합 대시보드</span></div>
+                    <div class="side-item-left"><i class="fa-regular fa-square-check"></i> <span>오늘의 보건실</span></div>
                 </div>
-                <div onclick="switchPage('view-today')" class="side-item">
-                    <div class="side-item-left"><i class="fa-solid fa-calendar-check"></i> <span>오늘의 보건실</span></div>
+                <div onclick="switchPage('view-infect')" class="side-item">
+                    <div class="side-item-left"><i class="fa-solid fa-virus"></i> <span>학생 감염병 관리 (시트)</span></div>
+                    <i class="fa-solid fa-chevron-right" style="font-size:11px; opacity:0.7;"></i>
                 </div>
-                <div onclick="switchPage('view-request')" class="side-item">
-                    <div class="side-item-left"><i class="fa-solid fa-clipboard-list"></i> <span>담임 협조 요청</span></div>
+                <div onclick="switchPage('view-care')" class="side-item">
+                    <div class="side-item-left"><i class="fa-solid fa-circle-plus"></i> <span>요보호학생 관리 (시트)</span></div>
+                    <i class="fa-solid fa-chevron-right" style="font-size:11px; opacity:0.7;"></i>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-footer-logo">
-            <img src="logo.png" alt="하단마크" onerror="this.src='https://via.placeholder.com/60?text=LOGO'">
+            <img src="logo.png" alt="하단엠블럼" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
         </div>
     </div>
 
@@ -195,43 +206,64 @@
         
         <div id="view-dashboard" class="view-panel active">
             <div class="notice-card-banner">
-                <img src="logo.png" alt="학교마크" class="inner-logo" onerror="this.src='https://via.placeholder.com/70?text=LOGO'">
+                <img src="logo.png" alt="상단 마크" class="inner-logo" onerror="this.src='https://via.placeholder.com/70?text=LOGO'">
                 <h2 class="notice-card-title">송악고등학교 온라인 보건실</h2>
                 
-                <p class="notice-card-desc">
-                    보건안내확인부터 자료제출까지 한곳에서 간편하게<br>
-                    보건관련안내와 자료링크를 모바일에서도 쉽게 확인할수 있도록 만든 교직원용 포탈입니다.
-                </p>
+                <p class="notice-card-desc">보건안내확인부터 자료제출까지 한곳에서 간편하게</p>
+                <p class="notice-card-sub-desc">보건관련안내와 자료링크를 모바일에서도 쉽게 확인할수 있도록 만든 교직원용 포탈입니다.</p>
                 
                 <div class="info-inner-container">
-                    <div class="info-inner-item"><i class="fa-regular fa-square-check"></i> <span>보건안내확인부터 자료제출, 한곳에서 원스톱 처리가 가능합니다.</span></div>
-                    <div class="info-inner-item"><i class="fa-regular fa-square-check"></i> <span>보건관련안내와 자료링크를 상시 조회할 수 있는 전용 포탈입니다.</span></div>
+                    <div class="info-inner-item"><i class="fa-regular fa-square"></i> <span>보건안내확인부터 자료제출, 한곳에서 원서도 환경이 간편합니다.</span></div>
+                    <div class="info-inner-item"><i class="fa-regular fa-square"></i> <span>보건관련안내와 자료링크를 돈 균교적으로 포탈입니다.</span></div>
                 </div>
-            </div>
 
-            <div class="menu-grid-label">메뉴 일람</div>
+                <img src="logo.png" alt="골드 배지 마크" class="sub-badge-mark" onerror="this.src='https://via.placeholder.com/65?text=MARK'">
+            </div>
 
             <div class="menu-cards-grid">
                 <div onclick="switchPage('view-today')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">01</span><span class="card-emo">📅</span></div>
-                    <div class="card-body-bottom"><h3>오늘의 보건실</h3><p>주간 업무 동향 및 보건소식지 안내</p></div>
+                    <div class="card-icon-wrap"><i class="fa-regular fa-calendar-check"></i></div>
+                    <h3>오늘의 보건실</h3>
                 </div>
                 <div onclick="switchPage('view-infect')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">02</span><span class="card-emo">🦠</span></div>
-                    <div class="card-body-bottom"><h3>학생 감염병 관리</h3><p>법정 감염병 지침 및 방역 서식 다운로드</p></div>
+                    <div class="card-icon-wrap"><i class="fa-solid fa-virus"></i></div>
+                    <h3>학생 감염병 관리</h3>
                 </div>
                 <div onclick="switchPage('view-care')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">03</span><span class="card-emo">🤝</span></div>
-                    <div class="card-body-bottom"><h3>학생 요보호 관리</h3><p>건강 취약 학생 집중 케어 지침 조회</p></div>
+                    <div class="card-icon-wrap"><i class="fa-solid fa-user-doctor"></i></div>
+                    <h3>요보호학생 관리</h3>
                 </div>
-                <div onclick="switchPage('view-request')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">04</span><span class="card-emo">📋</span></div>
-                    <div class="card-body-bottom"><h3>담임 협조 요청</h3><p>학급 전달 행정 공지 및 소통 창구</p></div>
+                <div onclick="switchPage('view-care-sub')" class="card-link-item">
+                    <div class="card-icon-wrap"><i class="fa-solid fa-circle-plus"></i></div>
+                    <h3>요보호학생 관리</h3>
+                </div>
+                <div onclick="switchPage('view-admin-doc')" class="card-link-item">
+                    <div class="card-icon-wrap"><i class="fa-solid fa-briefcase"></i></div>
+                    <h3>공칙관첨 관리</h3>
                 </div>
                 <div onclick="switchPage('view-edu')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">05</span><span class="card-emo">📚</span></div>
-                    <div class="card-body-bottom"><h3>보건교육 연수실</h3><p>교직원 의무 연수자료 아카이브</p></div>
+                    <div class="card-icon-wrap"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3>교육일 메뉴</h3>
                 </div>
-                <div onclick="switchPage('view-checkup')" class="card-link-item">
-                    <div class="card-header-top"><span class="card-idx">06</span><span class="card-emo">🩺</span></div>
-                    <div class="card-body-bottom"><h3>학생·교직원 검진</h3><p>종합 검진 일정 및 결과 제출
+                <div onclick="switchPage('view-jupiter')" class="card-link-item">
+                    <div class="card-icon-wrap"><i class="fa-solid fa-globe"></i></div>
+                    <h3>인죽이피터</h3>
+                </div>
+                <div onclick="switchPage('view-info')" class="card-link-item">
+                    <div class="card-icon-wrap"><i class="fa-regular fa-file-lines"></i></div>
+                    <h3>거원 정보</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-today" class="view-panel">
+            <div class="sub-page-top-bar"><div class="btn-go-back" onclick="switchPage('view-dashboard')"><i class="fa-solid fa-chevron-left"></i> 대시보드로 돌아가기</div></div>
+            <h2 style="font-size:18px; margin-bottom:15px; color:#0070C0;">📅 오늘의 보건실 종합 안내</h2>
+            <table class="info-table">
+                <thead><tr><th>분류</th><th>업무 내용 및 공지사항</th><th>바로가기</th></tr></thead>
+                <tbody><tr><td>[안내]</td><td>2026학년도 1학기 정기 검진 일정표 안내</td><td><a href="#">조회하기</a></td></tr></tbody>
+            </table>
+        </div>
+
+        <div id="view-infect" class="view-panel"><div class="sub-page-top-bar"><div class="btn-go-back" onclick="switchPage('view-dashboard')"><i class="fa-solid fa-chevron-left"></i> 돌아가기</div></div><h2>🦠 학생 감염병 관리 화면입니다.</h2></div>
+        <div id="view-care" class="view-panel"><div class="sub-page-top-bar
