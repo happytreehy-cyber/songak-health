@@ -1,328 +1,304 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>송악고등학교 온라인 보건실</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-  :root {
-    --navy: #1e3a8a;
-    --navy-dark: #172554;
-    --mint: #0d9488;
-    --mint-light: #f0fdfa;
-    --mint-border: #99f6e4;
-    --gray-bg: #f8fafc;
-    --gray-border: #e2e8f0;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>송악고등학교 온라인 보건실</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --navy: #1e3a8a;
+            --mint: #10b981;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1e293b;
+        }
 
-  /* 화면 전체를 꽉 차게 활용하는 기본 설정 */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--gray-bg); color: #334155; line-height: 1.6; min-height: 100vh; }
-  
-  /* 꽉 찬 레이아웃을 위한 컨테이너 */
-  .container { width: 100%; max-width: 100%; padding: 40px; margin: 0 auto; }
-  
-  /* [요청 반영] 로고와 날짜가 바로 밑에 위치 (왼쪽 정렬 정돈) */
-  header { margin-bottom: 40px; text-align: left; }
-  .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .logo-icon { background: var(--mint-light); color: var(--mint); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .logo-title { font-size: 26px; font-weight: 700; color: var(--navy); letter-spacing: -0.5px; }
-  
-  .date-area { padding-left: 2px; }
-  .date-text { font-size: 16px; font-weight: 600; color: var(--mint); }
-  .date-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f1f5f9; color: var(--text); min-height: 100vh; }
 
-  /* [요청 반영] 8개의 탭 메뉴가 깔끔한 사각형 박스식(그리드)으로 보여지는 메인 화면 */
-  .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px; }
-  @media (max-width: 1024px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 640px) { .menu-grid { grid-template-columns: 1fr; } }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 40px; }
 
-  /* 사각형 메뉴 박스 스타일 */
-  .menu-box { background: white; border: 1px solid var(--gray-border); border-radius: 16px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px; text-decoration: none; color: inherit; cursor: pointer; transition: all 0.25s ease; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-  .menu-box:hover { border-color: var(--mint); transform: translateY(-4px); box-shadow: 0 12px 20px -3px rgba(13,148,136,0.08); }
-  .menu-box-icon { width: 48px; height: 48px; background: var(--gray-bg); color: var(--navy); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; transition: all 0.25s; }
-  .menu-box:hover .menu-box-icon { background: var(--mint-light); color: var(--mint); }
-  .menu-box-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
-  .menu-box-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-  .menu-box-num { position: absolute; top: 24px; right: 24px; font-size: 12px; font-weight: 700; color: #cbd5e1; }
+        /* 상단 헤더 및 달력 레이아웃 */
+        header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+        
+        .header-left { display: flex; flex-direction: column; gap: 15px; }
+        
+        .school-logo { display: flex; align-items: center; gap: 15px; }
+        .logo-img { width: 60px; height: 60px; background: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px; }
+        .school-name { font-size: 28px; font-weight: 700; color: var(--navy); }
 
-  /* [요청 반영] 뒤로 돌아가기 버튼 상단 배치 구조 */
-  .back-bar { display: flex; align-items: center; margin-bottom: 24px; }
-  .btn-back { background: white; border: 1px solid var(--gray-border); padding: 10px 18px; border-radius: 8px; color: var(--text-dark); font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
-  .btn-back:hover { background: #f1f5f9; border-color: #cbd5e1; color: var(--navy); }
+        .calendar-box { display: flex; align-items: center; gap: 30px; background: white; padding: 20px; border-radius: 15px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .today-big { text-align: center; border-right: 2px solid var(--border); padding-right: 30px; }
+        .today-big .day { font-size: 48px; font-weight: 700; color: var(--navy); line-height: 1; }
+        .today-big .month { font-size: 16px; color: var(--mint); font-weight: 700; }
 
-  /* 콘텐트 카드 기본 배치 */
-  .content-card { background: white; border-radius: 16px; padding: 36px; border: 1px solid var(--gray-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-  .card-title { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
-  
-  /* 반응형 내부 카드 그리드 (2열 구조) */
-  .sub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  @media (max-width: 768px) { .sub-grid { grid-template-columns: 1fr; } }
-  
-  .sub-card { background: var(--gray-bg); border: 1px solid var(--gray-border); border-radius: 12px; padding: 24px; }
-  .badge { display: inline-block; padding: 4px 8px; font-size: 11px; font-weight: 600; border-radius: 4px; color: white; margin-bottom: 12px; }
-  .badge-mint { background: var(--mint); }
-  .badge-navy { background: var(--navy); }
+        .week-strip { display: flex; gap: 15px; }
+        .day-slot { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .day-slot span { font-size: 12px; color: #94a3b8; }
+        .day-num { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700; font-size: 14px; }
+        .day-num.active { background: var(--navy); color: white; }
+        .day-num.sun { color: #ef4444; }
+        .day-num.sat { color: #3b82f6; }
 
-  /* 서식 공통 */
-  select, input, textarea { width: 100%; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; background-color: white; }
-  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--mint); box-shadow: 0 0 0 3px rgba(13,148,136,0.15); }
-  .btn { padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-  .btn-navy { background: var(--navy); color: white; }
-  .btn-navy:hover { background: var(--navy-dark); }
+        /* 관리자 버튼 */
+        .admin-btn { background: white; border: 1px solid var(--border); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #64748b; transition: 0.3s; }
+        .admin-btn.on { background: #ef4444; color: white; border-color: #ef4444; }
 
-  /* 화면 분기 전환용 제어 */
-  .view-section { display: none; }
-  .view-section.active { display: block; }
-</style>
+        /* 메인 메뉴 그리드 */
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
+        .menu-card { background: white; border-radius: 20px; padding: 35px; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 220px; }
+        .menu-card:hover { transform: translateY(-10px); border-color: var(--mint); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        .card-icon { font-size: 45px; margin-bottom: 20px; transition: 0.3s; }
+        .menu-card:nth-child(1) .card-icon { color: #3b82f6; } /* 파랑 */
+        .menu-card:nth-child(2) .card-icon { color: #f59e0b; } /* 주황 */
+        .menu-card:nth-child(3) .card-icon { color: #ef4444; } /* 빨강 */
+        .menu-card:nth-child(4) .card-icon { color: #10b981; } /* 민트 */
+        .menu-card:nth-child(5) .card-icon { color: #6366f1; } /* 보라 */
+        .menu-card:nth-child(6) .card-icon { color: #ec4899; } /* 핑크 */
+        .menu-card:nth-child(7) .card-icon { color: #14b8a6; } /* 청록 */
+        .menu-card:nth-child(8) .card-icon { color: #64748b; } /* 그레이 */
+
+        .card-title { font-size: 19px; font-weight: 700; margin-bottom: 10px; color: var(--navy); }
+        .card-desc { font-size: 14px; color: #64748b; line-height: 1.5; }
+        .card-num { position: absolute; top: 30px; right: 35px; font-size: 14px; font-weight: 700; color: #cbd5e1; font-family: 'Poppins'; }
+
+        /* 서브 페이지 스타일 */
+        .page-view { display: none; background: white; border-radius: 30px; padding: 50px; border: 1px solid var(--border); min-height: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .page-view.active { display: block; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 25px; background: #f1f5f9; border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 700; margin-bottom: 30px; transition: 0.3s; }
+        .back-btn:hover { background: var(--navy); color: white; }
+
+        /* 수정 가능 모드 표시 */
+        [contenteditable="true"] { border: 2px dashed var(--mint) !important; padding: 5px; border-radius: 5px; background-color: #f0fdf4; }
+        .save-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--navy); color: white; padding: 15px 30px; border-radius: 50px; display: none; gap: 20px; align-items: center; z-index: 9999; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        @media (max-width: 1100px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .menu-grid { grid-template-columns: 1fr; } header { flex-direction: column; gap: 20px; } }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    
+<div class="container">
     <header>
-      <div class="logo-area">
-        <div class="logo-icon"><i class="ti ti-heart-rate-monitor"></i></div>
-        <div class="logo-title">송악고등학교 온라인 보건실</div>
-      </div>
-      <div class="date-area">
-        <div class="date-text" id="live-date">2026년 6월 19일 금요일</div>
-        <div class="date-sub">선생님·학생·보호자를 위한 안전 가이드 및 원스톱 보건행정 안내 허브</div>
-      </div>
+        <div class="header-left">
+            <div class="school-logo">
+                <div class="logo-img"><i class="fa-solid fa-school"></i></div>
+                <div class="school-name" contenteditable="false">송악고등학교 온라인 보건실</div>
+            </div>
+            <div class="calendar-box">
+                <div class="today-big">
+                    <div class="month" id="cal-month">JUNE</div>
+                    <div class="day" id="cal-day">19</div>
+                </div>
+                <div class="week-strip" id="week-strip">
+                    </div>
+            </div>
+        </div>
+        <button class="admin-btn" onclick="checkAdmin()">
+            <i class="fa-solid fa-lock"></i> <span id="admin-text">관리자 로그인</span>
+        </button>
     </header>
 
-    <div id="view-main" class="view-section active">
-      <div class="menu-grid">
+    <div id="main-grid" class="menu-grid">
+        <div class="menu-card" onclick="location.href='https://school.smilebogun.org/share'">
+            <span class="card-num">01</span>
+            <div class="card-icon"><i class="fa-solid fa-calendar-check"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">오늘의 보건실</div>
+                <div class="card-desc" contenteditable="false">오늘의 주요 업무 및 보건실 공지사항 확인</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="location.href='https://docs.google.com/'">
+            <span class="card-num">02</span>
+            <div class="card-icon"><i class="fa-solid fa-file-video"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">보건교육 연수자료실</div>
+                <div class="card-desc" contenteditable="false">법정 의무 교육 영상 및 교직원 연수 자료</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="location.href='https://docs.google.com/'">
+            <span class="card-num">03</span>
+            <div class="card-icon"><i class="fa-solid fa-virus-slash"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">학생 감염병 관리</div>
+                <div class="card-desc" contenteditable="false">감염병 등교중지 지침 및 출석 인정 안내</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="location.href='https://docs.google.com/'">
+            <span class="card-num">04</span>
+            <div class="card-icon"><i class="fa-solid fa-house-medical-circle-check"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">요보호학생 관리</div>
+                <div class="card-desc" contenteditable="false">만성질환 및 건강 취약 학생 특별 관리 대장</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="showPage('homeroom')">
+            <span class="card-num">05</span>
+            <div class="card-icon"><i class="fa-solid fa-user-group"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">담임 협조 요청</div>
+                <div class="card-desc" contenteditable="false">보건 행정 관련 학급 협조 및 전달 사항</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="showPage('checkup')">
+            <span class="card-num">06</span>
+            <div class="card-icon"><i class="fa-solid fa-stethoscope"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">학생·교직원 검진 안내</div>
+                <div class="card-desc" contenteditable="false">학년별 정기 건강검진 및 결핵 검사 일정</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="showPage('volunteer')">
+            <span class="card-num">07</span>
+            <div class="card-icon"><i class="fa-solid fa-hands-holding-circle"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">동아리·보건봉사활동</div>
+                <div class="card-desc" contenteditable="false">보건 동아리 운영 및 학생 봉사활동 신청</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="showPage('faq')">
+            <span class="card-num">08</span>
+            <div class="card-icon"><i class="fa-solid fa-circle-question"></i></div>
+            <div>
+                <div class="card-title" contenteditable="false">FAQ</div>
+                <div class="card-desc" contenteditable="false">보건실 이용 수칙 및 자주 묻는 질문</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-homeroom" class="page-view">
+        <a href="javascript:void(0)" class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> 메인으로 돌아가기</a>
+        <h2 style="font-size:32px; color:var(--navy); margin-bottom:20px;">📋 담임 협조 요청 게시판</h2>
+        <div style="background:#f8fafc; padding:30px; border-radius:20px; border:1px solid var(--border);" contenteditable="false">
+            <p>• 1학년 건강검진 문진표 회수 요청 (이번 주 금요일까지)</p><br>
+            <p>• 학급 방역물품 수령 안내 (보건실 방문 요망)</p>
+        </div>
+    </div>
+
+    <div id="page-checkup" class="page-view">
+        <a href="javascript:void(0)" class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> 메인으로 돌아가기</a>
+        <h2 style="font-size:32px; color:var(--navy); margin-bottom:20px;">🩺 학생·교직원 검진 안내</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+            <div style="padding:20px; border:1px solid var(--border); border-radius:15px;">
+                <h4 style="color:var(--mint); margin-bottom:10px;">1학년 건강검진</h4>
+                <p contenteditable="false">기간: 4월~7월 / 장소: 지정 병원</p>
+            </div>
+            <div style="padding:20px; border:1px solid var(--border); border-radius:15px;">
+                <h4 style="color:var(--navy); margin-bottom:10px;">교직원 결핵검진</h4>
+                <p contenteditable="false">연중 1회 실시 후 확인증 제출</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="save-bar" id="save-bar">
+    <span>수정 모드 활성화 중입니다. 수정을 마치셨나요?</span>
+    <button onclick="copyCurrentCode()" style="background:var(--mint); border:none; color:white; padding:8px 20px; border-radius:20px; cursor:pointer; font-weight:700;">전체 코드 복사하기</button>
+    <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; padding:8px 20px; border-radius:20px; cursor:pointer;">취소</button>
+</div>
+
+<script>
+    // 1. 달력 생성 스크립트
+    function initCalendar() {
+        const now = new Date();
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        document.getElementById('cal-month').innerText = months[now.getMonth()];
+        document.getElementById('cal-day').innerText = now.getDate();
+
+        const strip = document.getElementById('week-strip');
+        const startOfWeek = now.getDate() - now.getDay();
         
-        <a href="https://school.smilebogun.org/share" target="_blank" class="menu-box">
-          <span class="menu-box-num">01</span>
-          <div class="menu-box-icon"><i class="ti ti-calendar-event"></i></div>
-          <div>
-            <div class="menu-box-title">1. 오늘의 보건실 ↗</div>
-            <div class="menu-box-desc">실시간 보건실 공지사항 및 당직 교사 일정 안내</div>
-          </div>
-        </a>
-
-        <a href="https://docs.google.com/" target="_blank" class="menu-box">
-          <span class="menu-box-num">02</span>
-          <div class="menu-box-icon"><i class="ti ti-virus"></i></div>
-          <div>
-            <div class="menu-box-title">2. 학생 감염병 관리 ↗</div>
-            <div class="menu-box-desc">법정 감염병 격리 기준 및 등교 중지 지침 서식</div>
-          </div>
-        </a>
-
-        <a href="https://docs.google.com/" target="_blank" class="menu-box">
-          <span class="menu-box-num">03</span>
-          <div class="menu-box-icon"><i class="ti ti-heart-handshake"></i></div>
-          <div>
-            <div class="menu-box-title">3. 학생 요보호 관리 ↗</div>
-            <div class="menu-box-desc">만성질환 및 건강 취약 학생을 위한 맞춤형 행정 가이드</div>
-          </div>
-        </a>
-
-        <div onclick="showView('homeroom')" class="menu-box">
-          <span class="menu-box-num">04</span>
-          <div class="menu-box-icon"><i class="ti ti-users"></i></div>
-          <div>
-            <div class="menu-box-title">4. 담임 협조 요청 ➔</div>
-            <div class="menu-box-desc">각 학급 담임선생님 협조문 및 보건 일지 전달 소통 공간</div>
-          </div>
-        </div>
-
-        <a href="https://docs.google.com/" target="_blank" class="menu-box">
-          <span class="menu-box-num">05</span>
-          <div class="menu-box-icon"><i class="ti ti-book"></i></div>
-          <div>
-            <div class="menu-box-title">5. 보건교육·연수 자료실 ↗</div>
-            <div class="menu-box-desc">의무 보건교육 컨텐츠 및 연수 배포 자료 확인</div>
-          </div>
-        </a>
-
-        <div onclick="showView('checkup')" class="menu-box">
-          <span class="menu-box-num">06</span>
-          <div class="menu-box-icon"><i class="ti ti-stethoscope"></i></div>
-          <div>
-            <div class="menu-box-title">6. 학생·교직원 검진 안내 ➔</div>
-            <div class="menu-box-desc">학년별 종합 정기 건강검진 및 교직원 결핵검사 가이드</div>
-          </div>
-        </div>
-
-        <div onclick="showView('submit')" class="menu-box">
-          <span class="menu-box-num">07</span>
-          <div class="menu-box-icon"><i class="ti ti-upload"></i></div>
-          <div>
-            <div class="menu-box-title">7. 제출·업로드 센터 ➔</div>
-            <div class="menu-box-desc">각종 진단 확인서, 동의서, 소견서 원스톱 파일 전송 스토리지</div>
-          </div>
-        </div>
-
-        <div onclick="showView('faq')" class="menu-box">
-          <span class="menu-box-num">08</span>
-          <div class="menu-box-icon"><i class="ti ti-help"></i></div>
-          <div>
-            <div class="menu-box-title">8. FAQ ➔</div>
-            <div class="menu-box-desc">학교 보건실 이용 규칙 및 자주 들어오는 질문 총정리</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div id="view-homeroom" class="view-section">
-      <div class="back-bar">
-        <button onclick="goMain()" class="btn-back"><i class="ti ti-arrow-left"></i> ← 메인 대시보드로 돌아가기</button>
-      </div>
-      <div class="content-card">
-        <div class="card-title"><i class="ti ti-users" style="color:var(--navy);"></i> 4. 담임교사 행정 협조 안내방</div>
-        <div class="sub-grid">
-          <div class="sub-card">
-            <span class="badge badge-mint">긴급협조</span>
-            <h4 style="font-size:15px; font-weight:700; margin-bottom:8px;">감염병 격리 해제에 따른 증빙 취합 건</h4>
-            <p style="font-size:13px; color:var(--text-muted);">독감 확진으로 등교중지 처리된 학급 학생들은 등교 재개 당일 완치 증빙 소견서를 7번 제출센터로 업로드할 수 있도록 안내 지도 바랍니다.</p>
-          </div>
-          <div class="sub-card">
-            <span class="badge badge-navy">일반공지</span>
-            <h4 style="font-size:15px; font-weight:700; margin-bottom:8px;">학급 방역물품(체온계, 필터마스크) 불출 안내</h4>
-            <p style="font-size:13px; color:var(--text-muted);">학급 구급함 내 소독약품 및 마스크 수량이 부족한 학급은 쉬는 시간 또는 점심시간을 활용해 보건실에 내방하여 보충해 가시기 바랍니다.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-checkup" class="view-section">
-      <div class="back-bar">
-        <button onclick="goMain()" class="btn-back"><i class="ti ti-arrow-left"></i> ← 메인 대시보드로 돌아가기</button>
-      </div>
-      <div class="content-card">
-        <div class="card-title"><i class="ti ti-stethoscope" style="color:var(--navy);"></i> 6. 학생 및 교직원 정기 검진 안내</div>
-        
-        <div class="sub-grid" style="margin-bottom:32px;">
-          <div class="sub-card">
-            <span class="badge badge-mint">안내 중</span>
-            <h4 style="font-size:15px; font-weight:700; margin-bottom:8px;">1학년 학생 건강검진 및 흉부 X-ray 촬영</h4>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">• 대상: 1학년 전체 학생</p>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">• 일시: 2026년 4월 ~ 7월 말일까지</p>
-            <p style="font-size:13px; color:var(--text-muted);">• 장소: 학교 지정 공식 검진 병원 (개별 내방)</p>
-          </div>
-          <div class="sub-card" style="opacity:0.6; background:#f1f5f9;">
-            <span class="badge" style="background:#94a3b8;">기간 만료</span>
-            <h4 style="font-size:15px; font-weight:700; margin-bottom:8px;">2,3학년 소변검사</h4>
-            <p style="font-size:13px; color:var(--text-muted);">당해 연도 정기 학교 소변검사는 전 학급 순회 진료를 통해 정상 완료되었습니다. 미검진자 추가 처리는 개별 가이드 합니다.</p>
-          </div>
-        </div>
-
-        <div style="background:var(--gray-bg); padding:24px; border-radius:12px; border:1px solid var(--gray-border);">
-          <h4 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px;"><i class="ti ti-clipboard-list"></i> 교직원 의무 결핵검진 결과 확인 설문 대장</h4>
-          <form onsubmit="alert('교직원 의무 결핵검진 설문 데이터가 정상 송신되었습니다.'); this.reset(); return false;" class="sub-grid" style="gap:14px;">
-            <div>
-              <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">소속 부서명</label>
-              <input type="text" required placeholder="예: 교무기획부, 과학정보부">
-            </div>
-            <div>
-              <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">성명</label>
-              <input type="text" required placeholder="성명 입력">
-            </div>
-            <div>
-              <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">신청/검진 유형</label>
-              <select>
-                <option>올해 정기 결핵검진 대상자</option>
-                <option>신규 임용자 면제 대상</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">결핵 검진 결과</label>
-              <select>
-                <option>정상 판정 (이상없음)</option>
-                <option>추후 재검 필요 (비고란 기술)</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-navy" style="grid-column: 1 / -1; margin-top:6px;">설문지 데이터 전송</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-submit" class="view-section">
-      <div class="back-bar">
-        <button onclick="goMain()" class="btn-back"><i class="ti ti-arrow-left"></i> ← 메인 대시보드로 돌아가기</button>
-      </div>
-      <div class="content-card">
-        <div class="card-title"><i class="ti ti-upload" style="color:var(--navy);"></i> 7. 동의서 및 확인서 증빙서류 제출 센터</div>
-        
-        <div style="background:var(--mint-light); border:1px solid var(--mint-border); padding:20px; border-radius:12px; margin-bottom:24px;">
-          <form onsubmit="alert('증빙 서류 파일이 암호화 저장소 인프라로 전송되었습니다.'); this.reset(); return false;" style="display:flex; flex-direction:column; gap:14px;">
-            <div class="sub-grid">
-              <div>
-                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">제출자 성명</label>
-                <input type="text" required placeholder="성명">
-              </div>
-              <div>
-                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">소속 반 선택 (1반~8반 전용 드롭다운 스크롤)</label>
-                <select required>
-                  <option value="">클릭하여 선택하세요</option>
-                  <option>1반</option><option>2반</option><option>3반</option><option>4반</option>
-                  <option>5반</option><option>6반</option><option>7반</option><option>8반</option>
-                  <option>교직원/해당없음</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">증빙서류 첨부 (스캔본/사진)</label>
-              <input type="file" required>
-            </div>
-            <div style="font-size:11px; color:var(--text-muted);">
-              ※ 실제 연동 가동 시 데이터 관리자의 클라우드 권한 및 보안 검토가 사전에 완료되어야 안전합니다.
-            </div>
-            <button type="submit" class="btn btn-navy" style="background:var(--mint);">온라인 서류 확정 전송</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-faq" class="view-section">
-      <div class="back-bar">
-        <button onclick="goMain()" class="btn-back"><i class="ti ti-arrow-left"></i> ← 메인 대시보드로 돌아가기</button>
-      </div>
-      <div class="content-card">
-        <div class="card-title"><i class="ti ti-help" style="color:var(--navy);"></i> 8. 자주 묻는 질문 및 이용 가이드 매뉴얼</div>
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <div style="background:var(--gray-bg); padding:18px; border-radius:10px;">
-            <h5 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:4px;">Q. 등교중지 확인서 양식은 어디서 받나요?</h5>
-            <p style="font-size:13px; color:var(--text-dark);">A. 학교 홈페이지 공지사항 또는 본 허브의 [2번 학생 감염병 관리] 원본 서식 링크를 통해 다운로드 인쇄가 가능합니다.</p>
-          </div>
-          <div style="background:var(--gray-bg); padding:18px; border-radius:10px;">
-            <h5 style="font-size:14px; font-weight:700; color:var(--navy); margin-bottom:4px;">Q. 일시적 보건실 안정이 필요할 땐 어떻게 하죠?</h5>
-            <p style="font-size:13px; color:var(--text-dark);">A. 교과 수업 시간 중에는 원칙적으로 교과 선생님 또는 담임선생님의 서명이 담긴 보건실 이용 확인용 서식을 지참하여 입실해야 정상 인정됩니다.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // 메인화면 ➔ 세부화면 전환 엔진
-    function showView(viewId) {
-      document.querySelectorAll('.view-section').forEach(function(el) {
-        el.classList.remove('active');
-      });
-      document.getElementById('view-' + viewId).classList.add('active');
-      window.scrollTo(0, 0);
+        for(let i=0; i<7; i++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), startOfWeek + i);
+            const slot = document.createElement('div');
+            slot.className = 'day-slot';
+            
+            let dayClass = '';
+            if(i === 0) dayClass = 'sun';
+            if(i === 6) dayClass = 'sat';
+            if(date.getDate() === now.getDate()) dayClass += ' active';
+            
+            slot.innerHTML = `
+                <span>${['일','월','화','수','목','금','토'][i]}</span>
+                <div class="day-num ${dayClass}">${date.getDate()}</div>
+            `;
+            strip.appendChild(slot);
+        }
     }
 
-    // 뒤로 가기 ➔ 메인으로 복귀 엔진
-    function goMain() {
-      document.querySelectorAll('.view-section').forEach(function(el) {
-        el.classList.remove('active');
-      });
-      document.getElementById('view-main').classList.add('active');
-      window.scrollTo(0, 0);
+    // 2. 페이지 전환 기능
+    function showPage(id) {
+        document.getElementById('main-grid').style.display = 'none';
+        document.getElementById('page-' + id).classList.add('active');
+        window.scrollTo(0,0);
     }
-  </script>
+
+    function goHome() {
+        document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+        document.getElementById('main-grid').style.display = 'grid';
+    }
+
+    // 3. 관리자 모드 기능
+    let isAdmin = false;
+    function checkAdmin() {
+        if(!isAdmin) {
+            const pw = prompt("관리자 비밀번호를 입력하세요.");
+            if(pw === "1004") {
+                alert("관리자 모드가 활성화되었습니다. 모든 글자를 직접 클릭하여 수정할 수 있습니다.");
+                enableEdit(true);
+            } else {
+                alert("비밀번호가 틀렸습니다.");
+            }
+        } else {
+            location.reload();
+        }
+    }
+
+    function enableEdit(on) {
+        isAdmin = on;
+        const targets = document.querySelectorAll('[contenteditable]');
+        targets.forEach(t => t.contentEditable = on);
+        
+        const btn = document.querySelector('.admin-btn');
+        const txt = document.getElementById('admin-text');
+        
+        if(on) {
+            btn.classList.add('on');
+            txt.innerText = "수정 모드 종료(로그아웃)";
+            document.getElementById('save-bar').style.display = 'flex';
+        }
+    }
+
+    // 4. 수정한 코드 복사 기능 (깃허브 업데이트용)
+    function copyCurrentCode() {
+        // 편집 모드 비활성화 상태의 코드를 복사하기 위해 잠시 끔
+        const targets = document.querySelectorAll('[contenteditable]');
+        targets.forEach(t => t.contentEditable = "false");
+        document.getElementById('save-bar').style.display = 'none';
+        
+        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        
+        navigator.clipboard.writeText(htmlContent).then(() => {
+            alert("수정된 전체 코드가 복사되었습니다! 이제 깃허브(GitHub) index.html에 들어가서 전체 붙여넣기(Ctrl+V) 하시면 모든 사람에게 반영됩니다.");
+            location.reload();
+        });
+    }
+
+    window.onload = initCalendar;
+</script>
+
 </body>
 </html>
