@@ -340,4 +340,188 @@
             .menu-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
-            .menu-grid { grid-template-columns
+            .menu-grid { grid-template-columns: 1fr; }
+            .date-control-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .btn-admin { width: 100%; justify-content: center; }
+            .intro-card::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="nav-logo-circle">송악</div>
+            <div class="nav-title-group">
+                <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+                <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-slides" onclick="alert('Google Slides 프레젠테이션 문서 아카이브 생성을 시작합니다.')">Slides로 내보내기</button>
+            <button class="icon-btn" title="포털 패키지 다운로드"><i class="fa-solid fa-download"></i></button>
+            <button class="icon-btn" title="세션 종료 및 닫기"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </nav>
+
+    <main class="main-container">
+
+        <section class="date-control-row">
+            <div class="date-widget-left">
+                <div class="date-badge">19</div>
+                <div class="date-info-block">
+                    <div class="date-full">2026년 6월 19일 금요일</div>
+                    <div class="calendar-strip">
+                        <span class="day-item sunday">14</span>
+                        <span class="day-item">15</span>
+                        <span class="day-item">16</span>
+                        <span class="day-item">17</span>
+                        <span class="day-item">18</span>
+                        <span class="day-item today">19</span>
+                        <span class="day-item">20</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-admin" onclick="alert('통합 보건 행정 관리자 인증 창으로 진입합니다.')">
+                <i class="fa-solid fa-key"></i> 관리자 로그인
+            </button>
+        </section>
+
+        <section class="intro-card">
+            <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용</div>
+            <h1 class="main-title">송악고등학교 온라인 보건실</h1>
+            <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
+            
+            <div class="notice-container">
+                <div class="notice-box">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>학생 개인정보 및 민감정보는 앱 화면에 직접 표시하지 않습니다.</span>
+                </div>
+                <div class="notice-box">
+                    <i class="fa-solid fa-file-shield"></i>
+                    <span>제출 자료는 보건실 확인용으로만 처리되며 외부 공유되지 않습니다.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-grid">
+            
+            <a href="#today-health" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">01</span>
+                    <i class="fa-solid fa-calendar-check menu-icon icon-01"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">오늘의 보건실</span>
+                        <span class="menu-desc">주간 보건 업무 및 월별 소식지 아카이브</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#disease" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">02</span>
+                    <i class="fa-solid fa-virus menu-icon icon-02"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">학생 감염병 관리</span>
+                        <span class="menu-desc">격리 지침 가이드 및 방역 서식 연동</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#protection" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">03</span>
+                    <i class="fa-solid fa-hand-holding-heart menu-icon icon-03"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">학생 요보호 관리</span>
+                        <span class="menu-desc">건강 취약 학생 집중 케어 지침 조회</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#request" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">04</span>
+                    <i class="fa-solid fa-paste menu-icon icon-04"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">담임 협조 요청</span>
+                        <span class="menu-desc">학급 전달 행정 공지 및 소통 창구</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#education" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">05</span>
+                    <i class="fa-solid fa-graduation-cap menu-icon icon-05"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">보건교육 연수실</span>
+                        <span class="menu-desc">교직원 의무 연수자료 아카이브</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#checkup" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">06</span>
+                    <i class="fa-solid fa-stethoscope menu-icon icon-06"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">학생·교직원 검진</span>
+                        <span class="menu-desc">종합 검진 일정 및 결과 제출</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#upload-center" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">07</span>
+                    <i class="fa-solid fa-cloud-arrow-up menu-icon icon-07"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">제출 업로드 센터</span>
+                        <span class="menu-desc">각종 서식 파일 온라인 즉시 전송</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                </div>
+            </a>
+
+            <a href="#faq" class="menu-card">
+                <div class="card-top">
+                    <span class="menu-num">08</span>
+                    <i class="fa-solid fa-circle-question menu-icon icon-08"></i>
+                </div>
+                <div class="card-bottom">
+                    <div class="text-group">
+                        <span class="menu-name">FAQ</span>
+                        <span class="menu-desc">보건실 이용 규칙 및 자주 묻는 질문</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                </div>
+            </a>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
