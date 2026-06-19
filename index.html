@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* 기본 초기화 및 스타일 설정 */
+        /* 기본 초기화 스타일 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -28,7 +28,7 @@
             color: inherit;
         }
 
-        /* 1. 최상단 내비게이션 바 */
+        /* 1. 최상단 글로벌 내비게이션 바 */
         .navbar {
             background-color: #ffffff;
             height: 65px;
@@ -42,22 +42,36 @@
             z-index: 1000;
         }
         .nav-left {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #1e293b;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        .nav-logo-circle {
+            width: 28px;
+            height: 28px;
+            background-color: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e3a8a;
+            border: 1px solid #cbd5e1;
+            background-image: radial-gradient(#0f75bd 3px, #e2e8f0 4px);
+        }
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
         .btn-slides {
             background-color: #bae6fd;
             color: #0369a1;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: 700;
@@ -75,19 +89,22 @@
             color: #64748b;
             cursor: pointer;
             padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 메인 컨테이너 (수직 구조) */
+        /* 메인 컨테이너 구조 */
         .main-container {
             max-width: 1100px;
             margin: 0 auto;
             padding: 24px 20px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
-        /* 2. 날짜 위젯 바 */
+        /* 2. 날짜 및 캘린더 스트립 위젯 */
         .date-widget {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -116,7 +133,7 @@
         }
         .calendar-strip {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             font-size: 13px;
             color: #94a3b8;
             font-weight: 500;
@@ -127,17 +144,19 @@
             color: #ffffff;
             font-weight: 700;
             border-radius: 50%;
-            padding: 1px 7px;
-            margin: -1px -7px;
+            padding: 2px 7px;
+            margin: -2px -7px;
         }
 
-        /* 3. 메인 안내 배너 카드 */
+        /* 3. 중앙 안내 배너 카드 플레이트 */
         .intro-card {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
-            padding: 32px;
-            position: relative;
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
         .tag-share {
             background-color: #e0f2fe;
@@ -152,10 +171,10 @@
             margin-bottom: 16px;
         }
         .main-title {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             color: #1e3a8a;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .sub-title {
             font-size: 14px;
@@ -166,43 +185,31 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            width: 100%;
         }
         .notice-box {
             background-color: #f0f9ff;
             border-radius: 10px;
-            padding: 12px 16px;
+            padding: 14px 18px;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 13px;
+            font-size: 13.5px;
             color: #334155;
             font-weight: 500;
+            border-left: 4px solid #3b82f6;
         }
         .notice-box i {
             font-size: 16px;
             color: #3b82f6;
         }
-        /* 이미지 영역 플레이스홀더 (우측 상단 상징 아이콘용 공간 확보) */
-        .intro-card::after {
-            content: '';
-            position: absolute;
-            top: 32px;
-            right: 32px;
-            width: 80px;
-            height: 80px;
-            background-color: #cbd5e1;
-            border-radius: 8px;
-            opacity: 0.3;
-            background-image: radial-gradient(#94a3b8 2px, transparent 2px);
-            background-size: 8px 8px;
-        }
 
-        /* 4. 8대 메뉴 그리드 레이아웃 */
+        /* 4. 8대 메뉴 모듈형 그리드 */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-top: 8px;
+            margin-top: 4px;
         }
         .menu-card {
             background-color: #ffffff;
@@ -212,30 +219,31 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 150px;
+            height: 155px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
             border-color: #cbd5e1;
         }
         .card-top {
             display: flex;
             justify-content: space-between;
-            align-items: start;
+            align-items: center;
         }
         .menu-num {
             font-family: 'Poppins', sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: #1e3a8a;
         }
         .menu-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
-        /* 각 메뉴 아이콘별 고유 컬러 */
+        /* 스크린샷 기반 아이콘 디자인 색상 지정 */
         .icon-01 { color: #3b82f6; }
         .icon-02 { color: #10b981; }
         .icon-03 { color: #f59e0b; }
@@ -248,12 +256,13 @@
         .card-bottom {
             display: flex;
             justify-content: space-between;
-            align-items: end;
+            align-items: flex-end;
         }
         .text-group {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            max-width: 85%;
         }
         .menu-name {
             font-size: 15px;
@@ -263,6 +272,9 @@
         .menu-desc {
             font-size: 11px;
             color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .arrow-icon {
             font-size: 12px;
@@ -270,21 +282,18 @@
             padding-bottom: 2px;
         }
 
-        /* 5. 하단 유틸리티 버튼 바 */
+        /* 5. 하단 관리자 로그인 유틸리티 라인 */
         .footer-utility-bar {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 24px;
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            margin-top: 8px;
         }
         .btn-admin {
             background-color: #fffbeb;
             color: #b45309;
             border: 1px solid #fde68a;
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 700;
@@ -292,19 +301,19 @@
             align-items: center;
             gap: 6px;
             cursor: pointer;
+            transition: background 0.2s;
         }
         .btn-admin:hover {
             background-color: #fef3c7;
         }
 
-        /* 반응형 모바일 브레이크포인트 설정 */
+        /* 스마트 기기 환경을 위한 모바일 반응형 처리 */
         @media (max-width: 1024px) {
             .menu-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
             .menu-grid { grid-template-columns: 1fr; }
             .date-widget { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .intro-card::after { display: none; }
         }
     </style>
 </head>
@@ -312,12 +321,13 @@
 
     <nav class="navbar">
         <div class="nav-left">
+            <div class="nav-logo-circle">송악</div>
             <span>송악고등학교 온라인 보건실 최종본</span>
         </div>
         <div class="nav-right">
-            <button class="btn-slides" onclick="alert('Slides 파일로 내보내기를 시작합니다.')">Slides로 내보내기</button>
-            <button class="icon-btn" title="다운로드"><i class="fa-solid fa-download"></i></button>
-            <button class="icon-btn" title="닫기"><i class="fa-solid fa-xmark"></i></button>
+            <button class="btn-slides" onclick="alert('Google Slides 아카이브로 내보내기를 처리합니다.')">Slides로 내보내기</button>
+            <button class="icon-btn" title="자료 다운로드"><i class="fa-solid fa-download"></i></button>
+            <button class="icon-btn" title="창 닫기"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </nav>
 
@@ -340,7 +350,7 @@
         </section>
 
         <section class="intro-card">
-            <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용</div>
+            <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용 보건업무 포털</div>
             <h1 class="main-title">송악고등학교 온라인 보건실</h1>
             <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
             
@@ -361,7 +371,7 @@
             <a href="#today-health" class="menu-card">
                 <div class="card-top">
                     <span class="menu-num">01</span>
-                    <i class="fa-solid fa-calendar-days menu-icon icon-01"></i>
+                    <i class="fa-solid fa-calendar-check menu-icon icon-01"></i>
                 </div>
                 <div class="card-bottom">
                     <div class="text-group">
@@ -372,21 +382,21 @@
                 </div>
             </a>
 
-            <a href="#disease-control" class="menu-card">
+            <a href="#disease" class="menu-card">
                 <div class="card-top">
                     <span class="menu-num">02</span>
-                    <i class="fa-solid fa-virus-covid menu-icon icon-02"></i>
+                    <i class="fa-solid fa-virus menu-icon icon-02"></i>
                 </div>
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">학생 감염병 관리</span>
-                        <span class="menu-desc">격리 지침 가이드 및 방역 물품 신청</span>
+                        <span class="menu-desc">격리 지침 가이드 및 방역 서식 연동</span>
                     </div>
                     <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
                 </div>
             </a>
 
-            <a href="#care-students" class="menu-card">
+            <a href="#protection" class="menu-card">
                 <div class="card-top">
                     <span class="menu-num">03</span>
                     <i class="fa-solid fa-hand-holding-heart menu-icon icon-03"></i>
@@ -394,27 +404,27 @@
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">학생 요보호 관리</span>
-                        <span class="menu-desc">건강 취약 학생 지원 및 관리 지침</span>
+                        <span class="menu-desc">건강 취약 학생 집중 케어 지침 조회</span>
                     </div>
                     <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
                 </div>
             </a>
 
-            <a href="#cooperation" class="menu-card">
+            <a href="#request" class="menu-card">
                 <div class="card-top">
                     <span class="menu-num">04</span>
-                    <i class="fa-solid fa-clipboard-list menu-icon icon-04"></i>
+                    <i class="fa-solid fa-paste menu-icon icon-04"></i>
                 </div>
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">담임 협조 요청</span>
-                        <span class="menu-desc">학급 보건 행정 소통 및 전달 사항</span>
+                        <span class="menu-desc">학급 전달 행정 공지 및 소통 창구</span>
                     </div>
                     <i class="fa-solid fa-arrow-right arrow-icon"></i>
                 </div>
             </a>
 
-            <a href="#training-room" class="menu-card">
+            <a href="#education" class="menu-card">
                 <div class="card-top">
                     <span class="menu-num">05</span>
                     <i class="fa-solid fa-graduation-cap menu-icon icon-05"></i>
@@ -422,7 +432,7 @@
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">보건교육 연수실</span>
-                        <span class="menu-desc">의무 교육 영상 및 교직원 연수 자료</span>
+                        <span class="menu-desc">교직원 의무 연수자료 아카이브</span>
                     </div>
                     <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
                 </div>
@@ -436,7 +446,7 @@
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">학생·교직원 검진</span>
-                        <span class="menu-desc">건강검진 일정 및 결과 확인증 제출</span>
+                        <span class="menu-desc">종합 검진 일정 및 결과 제출</span>
                     </div>
                     <i class="fa-solid fa-arrow-right arrow-icon"></i>
                 </div>
@@ -450,7 +460,7 @@
                 <div class="card-bottom">
                     <div class="text-group">
                         <span class="menu-name">제출 업로드 센터</span>
-                        <span class="menu-desc">각종 서식 파일 온라인 전송</span>
+                        <span class="menu-desc">각종 서식 파일 온라인 즉시 전송</span>
                     </div>
                     <i class="fa-solid fa-arrow-right arrow-icon"></i>
                 </div>
@@ -473,7 +483,7 @@
         </section>
 
         <section class="footer-utility-bar">
-            <button class="btn-admin" onclick="alert('관리자 로그인 페이지로 이동합니다.')">
+            <button class="btn-admin" onclick="alert('보건관리자 통합 인증 세션으로 이동합니다.')">
                 <i class="fa-solid fa-key"></i> 관리자 로그인
             </button>
         </section>
