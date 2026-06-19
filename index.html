@@ -30,7 +30,7 @@
             color: inherit;
         }
 
-        /* [상시 고정] 스크롤 시 최상단에 고정되는 헤더 영역 wrapper */
+        /* [고정] 스크롤 시 상단에 항상 고정되는 컨테이너 래퍼 */
         .sticky-header-wrapper {
             position: sticky;
             top: 0;
@@ -39,7 +39,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* 1. 최상단 타이틀 바 (우측 상단 관리자 로그인 배치 완료) */
+        /* 1. 최상단 타이틀 바 */
         .navbar {
             background-color: #ffffff;
             height: 60px;
@@ -52,11 +52,12 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         .nav-logo-img {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             object-fit: contain;
         }
         .nav-title-group {
@@ -75,12 +76,33 @@
             font-weight: 400;
         }
         
-        /* 관리자 로그인 버튼 우측 상단 원상 복구 */
-        .btn-admin {
+        /* [구조 개선] 우측 상단 액션 공간 통합 정렬 */
+        .nav-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-slides-export {
+            background-color: #bae6fd;
+            color: #0369a1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-slides-export:hover {
+            background-color: #7dd3fc;
+        }
+        
+        /* 관리자 로그인 우측 상단 정밀 매칭 스타일 */
+        .btn-admin-auth {
             background-color: #ffffff;
             color: #334155;
             border: 1px solid #cbd5e1;
-            padding: 6px 14px;
+            padding: 7px 14px;
             border-radius: 6px;
             font-size: 13px;
             font-weight: 500;
@@ -89,12 +111,25 @@
             gap: 6px;
             cursor: pointer;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            height: 34px;
         }
-        .btn-admin i {
-            color: #f59e0b; /* 열쇠 모양 노란색 */
+        .btn-admin-auth i {
+            color: #f59e0b; /* 열쇠 아이콘 노란색 고정 */
+        }
+        
+        .nav-icon-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #64748b;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 2. 고정 헤더 2번째 행: 날짜 및 주간 캘린더 스트립 */
+        /* 2. 상단 고정되는 2번째 행: 날짜 및 주간 캘린더 스트립 */
         .date-strip-bar {
             background-color: #ffffff;
             border-bottom: 1px solid #e2e8f0;
@@ -136,32 +171,32 @@
             padding: 1px 6px;
         }
 
-        /* 본문 콘텐츠 컨테이너 */
+        /* [핵심 수정] 본문 유동 영역 컨테이너 - 상단 헤더와의 간격을 원하시는 대로 좁힘 */
         .main-container {
             max-width: 1100px;
-            margin: 20px auto 0 auto;
+            margin: 12px auto 0 auto; /* 기존 20px에서 12px로 단축하여 본문 밀착 */
             padding: 0 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            flex: 1; /* 푸터를 바닥으로 밀어내기 위한 설정 */
+            flex: 1;
         }
 
-        /* 3. [스타일 수정] 중간 안내창 (연한 하늘색 배경 및 테두리 지정) */
+        /* 3. 중앙 인트로 배너 카드 (연파랑 스타일 고정) */
         .intro-card {
-            background-color: #edf7ff; /* 요구하신 연한 하늘색 배경 컬러링 */
-            border: 1px solid #cee7fe; /* 배경에 걸맞는 부드러운 테두리 */
+            background-color: #e0f2fe; 
+            border: 1px solid #bae6fd; 
             border-radius: 16px;
             padding: 32px;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .tag-share {
-            background-color: #ffffff; /* 가독성을 위한 화이트 칩 */
-            color: #0266a0;
+            background-color: #ffffff; 
+            color: #0369a1;
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
@@ -170,7 +205,6 @@
             align-items: center;
             gap: 6px;
             margin-bottom: 14px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
         .main-title {
             font-size: 26px;
@@ -184,14 +218,16 @@
             margin-bottom: 20px;
             max-width: 80%;
         }
-        /* 우측 상단 고정 학교 공식 마크 */
         .school-emb-decor {
             position: absolute;
             top: 32px;
             right: 32px;
-            width: 75px;
-            height: 75px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
             object-fit: contain;
+            opacity: 0.8;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
         }
         
         .notice-container {
@@ -201,7 +237,7 @@
             width: 100%;
         }
         .notice-box {
-            background-color: #ffffff;
+            background-color: #ffffff; 
             border-radius: 8px;
             padding: 12px 16px;
             display: flex;
@@ -209,14 +245,15 @@
             gap: 12px;
             font-size: 13.5px;
             color: #475569;
-            border-left: 4px solid #7dd3fc;
+            border-left: 4px solid #bae6fd;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
         .notice-box i {
             font-size: 15px;
-            color: #38bdf8;
+            color: #64748b;
         }
 
-        /* 4. 하단 8대 핵심 메뉴 모듈형 그리드 */
+        /* 4. 하단 8대 핵심 메뉴 모듈형 그리드 시스템 (고정) */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -289,13 +326,13 @@
             color: #94a3b8;
         }
 
-        /* 5. [신규 추가] 최하단 지정 청색 네이비 푸터 바 (제시한 이미지 텍스트 100% 매칭) */
+        /* 5. 최하단 지정 청색 네이비 푸터 바 (고정 보관) */
         .site-footer {
-            background-color: #1e3a8a; /* 이미지 속 짙은 청색 구현 */
+            background-color: #1e3a8a; 
             color: #ffffff;
             padding: 24px 20px;
             text-align: center;
-            margin-top: auto; /* 상단 내용 크기와 상관없이 항상 바닥 고정 */
+            margin-top: auto; 
         }
         .footer-title {
             font-size: 15px;
@@ -305,12 +342,12 @@
         }
         .footer-subtitle {
             font-size: 12px;
-            color: #93c5fd; /* 연한 하늘색 폰트 컬러 매칭 */
+            color: #93c5fd; 
             font-weight: 400;
             opacity: 0.9;
         }
 
-        /* 반응형 모바일 최적화 브레이크 포인트 */
+        /* 반응형 디바이스 지원 분기점 */
         @media (max-width: 1024px) {
             .menu-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -326,16 +363,19 @@
     <div class="sticky-header-wrapper">
         <nav class="navbar">
             <div class="nav-left">
-                <img src="logo.png" alt="송악고 로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=★'">
+                <img src="logo.png" alt="송악고 로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
                 <div class="nav-title-group">
                     <span class="nav-main-title">송악고등학교 온라인 보건실</span>
                     <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
                 </div>
             </div>
-            <div class="nav-right">
-                <button class="btn-admin" onclick="alert('관리자 통합 보건 세션 화면으로 이동합니다.')">
+            <div class="nav-right-actions">
+                <button class="btn-slides-export" onclick="alert('Google Slides 아카이브 생성을 시작합니다.')">Slides로 내보내기</button>
+                <button class="btn-admin-auth" onclick="alert('통합 보건 행정 관리자 인증 창으로 진입합니다.')">
                     <i class="fa-solid fa-key"></i> 관리자 로그인
                 </button>
+                <button class="nav-icon-btn" title="자료 다운로드"><i class="fa-solid fa-download"></i></button>
+                <button class="nav-icon-btn" title="세션 종료 및 창 닫기"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </nav>
 
@@ -360,7 +400,7 @@
             <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용</div>
             <h1 class="main-title">송악고등학교 온라인 보건실</h1>
             <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
-            <img src="logo.png" alt="송악고 마크" class="school-emb-decor" onerror="this.style.display='none'">
+            <img src="logo.png" alt="송악고 로고" class="school-emb-decor" onerror="this.src='https://placehold.co/70x70/ebfa32/549926?text=LOGO'">
             
             <div class="notice-container">
                 <div class="notice-box">
