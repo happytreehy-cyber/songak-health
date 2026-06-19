@@ -28,174 +28,142 @@
             color: inherit;
         }
 
-        /* 1. 최상단 최외곽 글로벌 내비게이션 바 (GNB) */
+        /* [핵심 수정] 스크롤 시 상단에 항상 고정되는 컨테이너 래퍼 */
+        .sticky-header-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f4f6f9; /* 배경 투명화 방지 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 1. 최상단 타이틀 바 (image_2c6f23 스크린샷과 100% 매칭) */
         .navbar {
             background-color: #ffffff;
-            height: 65px;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 24px;
-            border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            border-bottom: 1px solid #e6ecf4;
         }
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
-        .nav-logo-circle {
+        /* 실제 로고 심볼 컬러 모사 (노란색 바탕에 초록 문양 테두리) */
+        .nav-logo-symbol {
             width: 28px;
             height: 28px;
-            background-color: #e2e8f0;
+            background-color: #ebfa32;
+            border: 2px solid #549926;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: bold;
-            color: #1e3a8a;
-            border: 1px solid #cbd5e1;
-            background-image: radial-gradient(#0f75bd 3px, #e2e8f0 4px);
+            color: #1b5e20;
         }
         .nav-title-group {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             gap: 8px;
         }
         .nav-main-title {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
-            color: #1e293b;
+            color: #1e3a8a;
         }
-        /* GNB 내부 폰트가 얇은 형태의 서브타이틀 */
         .nav-sub-title {
             font-size: 13px;
             color: #64748b;
             font-weight: 400;
-            margin-left: 4px;
         }
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        /* 하늘색 라운드 액션 버튼 */
-        .btn-slides {
-            background-color: #bae6fd;
-            color: #0369a1;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-slides:hover {
-            background-color: #7dd3fc;
-        }
-        .icon-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #64748b;
-            cursor: pointer;
-            padding: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* 메인 콘텐츠 컨테이너 (정렬 가이드라인) */
-        .main-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 24px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* 2. 대시보드 2단: 날짜 위젯 + 관리자 로그인 수평 레이아웃 */
-        .date-control-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 16px 24px;
-        }
-        .date-widget-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .date-badge {
-            font-family: 'Poppins', sans-serif;
-            font-size: 44px;
-            font-weight: 700;
-            color: #3b82f6;
-            line-height: 1;
-        }
-        .date-info-block {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .date-full {
-            font-size: 15px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .calendar-strip {
-            display: flex;
-            gap: 14px;
-            font-size: 13px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-        .day-item.sunday { color: #ef4444; font-weight: 700; }
-        .day-item.today {
-            background-color: #1e3a8a;
-            color: #ffffff;
-            font-weight: 700;
-            border-radius: 50%;
-            padding: 2px 7px;
-            margin: -2px -7px;
-        }
-        /* 옐로우 계열의 열쇠 아이콘 관리자 버튼 */
+        
+        /* 옐로우 열쇠 아이콘 탑재 버튼 */
         .btn-admin {
-            background-color: #fffbeb;
-            color: #b45309;
-            border: 1px solid #fde68a;
-            padding: 8px 16px;
-            border-radius: 8px;
+            background-color: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 500;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             cursor: pointer;
-            transition: background 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .btn-admin:hover {
-            background-color: #fef3c7;
+        .btn-admin i {
+            color: #f59e0b; /* 열쇠 아이콘 노란색 고정 */
         }
 
-        /* 3. 중앙 안내 인트로 배너 카드 */
-        .intro-card {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+        /* 2. 상단 고정되는 2번째 행: 날짜 및 주간 캘린더 스트립 */
+        .date-strip-bar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .date-badge-mini {
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #2563eb;
+            line-height: 1;
+        }
+        .date-full-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-right: 10px;
+        }
+        .calendar-strip {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+            background: #f8fafc;
+            padding: 4px 12px;
             border-radius: 20px;
-            padding: 36px;
+            border: 1px solid #e2e8f0;
+        }
+        .day-item.sunday { color: #ef4444; font-weight: 700; }
+        .day-item.today {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 700;
+            border-radius: 50%;
+            padding: 1px 6px;
+        }
+
+        /* 본문 유동 영역 컨테이너 */
+        .main-container {
+            max-width: 1100px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 3. 중앙 인트로 배너 카드 */
+        .intro-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 32px;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .tag-share {
             background-color: #e0f2fe;
@@ -207,78 +175,84 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         .main-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             color: #1e3a8a;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .sub-title {
             font-size: 14px;
             color: #475569;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            max-width: 80%;
         }
+        /* 우측 실제 엠블럼 로고가 들어가는 원형 데코레이션 배정 */
+        .school-emb-decor {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            width: 70px;
+            height: 70px;
+            background-color: #ebfa32;
+            border: 3px solid #549926;
+            border-radius: 50%;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1b5e20;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+        }
+        
         .notice-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
         .notice-box {
-            background-color: #f0f9ff;
-            border-radius: 10px;
-            padding: 14px 18px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
             font-size: 13.5px;
-            color: #334155;
-            font-weight: 500;
-            border-left: 4px solid #3b82f6;
+            color: #475569;
+            border-left: 4px solid #cbd5e1;
         }
         .notice-box i {
-            font-size: 16px;
-            color: #3b82f6;
-        }
-        /* 우측 상단 송악고 마크 배치를 고려한 여백 확보 마크 배치 구현 */
-        .intro-card::after {
-            content: '';
-            position: absolute;
-            top: 36px;
-            right: 36px;
-            width: 65px;
-            height: 65px;
-            background-color: #eab308;
-            border-radius: 50%;
-            opacity: 0.15;
-            background-image: radial-gradient(#ca8a04 4px, transparent 5px);
-            background-size: 10px 10px;
+            font-size: 15px;
+            color: #64748b;
         }
 
-        /* 4. 8대 메뉴 플레이트 그리드 구조 */
+        /* 4. [복구 완료] 하단 8대 메뉴 모듈형 그리드 시스템 (유실 없이 재배치) */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-top: 4px;
+            margin-bottom: 40px;
         }
         .menu-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 14px;
+            padding: 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 155px;
+            height: 150px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
         }
         .menu-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             border-color: #cbd5e1;
         }
         .card-top {
@@ -288,15 +262,11 @@
         }
         .menu-num {
             font-family: 'Poppins', sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: #1e3a8a;
         }
-        .menu-icon {
-            font-size: 18px;
-        }
-        
-        /* 스크린샷 8대 전용 컬러 아이콘 셋업 */
+        .menu-icon { font-size: 16px; }
         .icon-01 { color: #3b82f6; }
         .icon-02 { color: #10b981; }
         .icon-03 { color: #f59e0b; }
@@ -314,11 +284,11 @@
         .text-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             max-width: 85%;
         }
         .menu-name {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
             color: #1e293b;
         }
@@ -330,68 +300,61 @@
             text-overflow: ellipsis;
         }
         .arrow-icon {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
-            padding-bottom: 2px;
         }
 
-        /* 반응형 뷰포트 분기점 가이드 */
+        /* 반응형 디바이스 지원 분기점 */
         @media (max-width: 1024px) {
             .menu-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 640px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .date-control-row { flex-direction: column; align-items: flex-start; gap: 16px; }
-            .btn-admin { width: 100%; justify-content: center; }
-            .intro-card::after { display: none; }
+            .date-strip-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .school-emb-decor { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-left">
-            <div class="nav-logo-circle">송악</div>
-            <div class="nav-title-group">
-                <span class="nav-main-title">송악고등학교 온라인 보건실</span>
-                <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
-            </div>
-        </div>
-        <div class="nav-right">
-            <button class="btn-slides" onclick="alert('Google Slides 프레젠테이션 문서 아카이브 생성을 시작합니다.')">Slides로 내보내기</button>
-            <button class="icon-btn" title="포털 패키지 다운로드"><i class="fa-solid fa-download"></i></button>
-            <button class="icon-btn" title="세션 종료 및 닫기"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-    </nav>
-
-    <main class="main-container">
-
-        <section class="date-control-row">
-            <div class="date-widget-left">
-                <div class="date-badge">19</div>
-                <div class="date-info-block">
-                    <div class="date-full">2026년 6월 19일 금요일</div>
-                    <div class="calendar-strip">
-                        <span class="day-item sunday">14</span>
-                        <span class="day-item">15</span>
-                        <span class="day-item">16</span>
-                        <span class="day-item">17</span>
-                        <span class="day-item">18</span>
-                        <span class="day-item today">19</span>
-                        <span class="day-item">20</span>
-                    </div>
+    <div class="sticky-header-wrapper">
+        <nav class="navbar">
+            <div class="nav-left">
+                <div class="nav-logo-symbol">송악</div>
+                <div class="nav-title-group">
+                    <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+                    <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
                 </div>
             </div>
-            
-            <button class="btn-admin" onclick="alert('통합 보건 행정 관리자 인증 창으로 진입합니다.')">
-                <i class="fa-solid fa-key"></i> 관리자 로그인
-            </button>
+            <div class="nav-right">
+                <button class="btn-admin" onclick="alert('관리자 세션 페이지로 이동합니다.')">
+                    <i class="fa-solid fa-key"></i> 관리자 로그인
+                </button>
+            </div>
+        </nav>
+
+        <section class="date-strip-bar">
+            <div class="date-badge-mini">19</div>
+            <span class="date-full-text">2026년 6월 19일 금요일</span>
+            <div class="calendar-strip">
+                <span class="day-item sunday">14</span>
+                <span class="day-item">15</span>
+                <span class="day-item">16</span>
+                <span class="day-item">17</span>
+                <span class="day-item">18</span>
+                <span class="day-item today">19</span>
+                <span class="day-item">20</span>
+            </div>
         </section>
+    </div>
+
+    <main class="main-container">
 
         <section class="intro-card">
             <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용</div>
             <h1 class="main-title">송악고등학교 온라인 보건실</h1>
             <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
+            <div class="school-emb-decor">송악고</div>
             
             <div class="notice-container">
                 <div class="notice-box">
