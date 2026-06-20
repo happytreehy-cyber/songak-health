@@ -43,18 +43,26 @@
         .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; padding:12px 4px; }
         .today-task-item:last-child { border-bottom:none; }
-        .today-task-row { display:flex; align-items:flex-start; gap:14px; }
-        .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 130px; min-width:0; }
-        .today-task-title.closed { color:#94a3b8; }
-        .today-task-title.ongoing { color:#1e293b; }
+        .today-task-item.closed { opacity:0.42; }
+        .today-task-row { display:flex; align-items:flex-start; gap:12px; }
+        .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
+        .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 120px; min-width:0; color:#1e293b; }
         .today-task-content { font-size:13px; color:#475569; line-height:1.6; flex:1; min-width:0; }
-        .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:144px; }
+        .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:152px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
-        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
+        .status-btn.urgent { background:#fee2e2; color:#b91c1c; }
+        .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; }
+        .status-dot.closed { background:#6b7280; }
+        .status-dot.ongoing { background:#2563eb; }
+        .status-dot.urgent { background:#ef4444; }
         .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
+        .today-task-pager { display:flex; align-items:center; justify-content:center; gap:14px; padding:10px 0 2px; font-size:12.5px; color:#475569; }
+        .today-task-pager button { background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; }
+        .today-task-pager button:disabled { opacity:0.4; cursor:default; }
 
         .visit-stat-strip { display:flex; gap:10px; margin-bottom:12px; align-items:stretch; }
         .visit-stat-box { flex:1; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 16px; }
@@ -318,7 +326,7 @@ function loadNotices() {
                         extra += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
                     }
                 }
-                return { title: n.title, status: n.status, content: escHtml(n.content).replace(/\n/g, '<br>'), extra: extra };
+                return { title: n.title, status: n.status, content: escHtml(n.content).replace(/\n/g, '<br>'), extra: extra, period: n.period || '' };
             });
             renderTodayTasks();
         })
@@ -392,6 +400,33 @@ function handleGateAuth() {
     loadVisitStatus();
 }
 
+function getNoticeUrgency(task) {
+    if (task.status === 'closed') return 'closed';
+    var text = task.period || '';
+    var m = text.match(/(\d{1,2})\s*월/);
+    if (!m) return 'ongoing';
+    var month = parseInt(m[1], 10);
+    var dayMatch = text.match(/(\d{1,2})\s*일/);
+    var day;
+    if (dayMatch) {
+        day = parseInt(dayMatch[1], 10);
+    } else if (/말/.test(text)) {
+        day = 28;
+    } else {
+        return 'ongoing';
+    }
+    var now = new Date();
+    var year = now.getFullYear();
+    var target = new Date(year, month - 1, day);
+    if (target < now && (month < now.getMonth() + 1 - 6)) target = new Date(year + 1, month - 1, day);
+    var diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 7) return 'urgent';
+    return 'ongoing';
+}
+
+var NOTICE_PAGE = 0;
+var NOTICE_PAGE_SIZE = 3;
+
 function renderTodayTasks() {
     var el = document.getElementById('today-task-list');
     el.innerHTML = '';
@@ -403,20 +438,40 @@ function renderTodayTasks() {
         return aClosed - bClosed;
     });
 
-    sorted.forEach(function (task) {
+    var totalPages = Math.ceil(sorted.length / NOTICE_PAGE_SIZE) || 1;
+    if (NOTICE_PAGE >= totalPages) NOTICE_PAGE = totalPages - 1;
+    var start = NOTICE_PAGE * NOTICE_PAGE_SIZE;
+    var pageItems = sorted.slice(start, start + NOTICE_PAGE_SIZE);
+
+    pageItems.forEach(function (task, i) {
         var item = document.createElement('div');
-        item.className = 'today-task-item';
-        var textClass = task.status === 'closed' ? 'closed' : 'ongoing';
-        var btnLabel = task.status === 'closed' ? '마감' : '진행중';
+        item.className = 'today-task-item' + (task.status === 'closed' ? ' closed' : '');
+        var urgency = getNoticeUrgency(task);
+        var btnLabel = urgency === 'closed' ? '마감' : (urgency === 'urgent' ? '임박' : '진행중');
         item.innerHTML =
             '<div class="today-task-row">' +
-                '<span class="today-task-title ' + textClass + '">' + escHtml(task.title) + '</span>' +
+                '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
+                '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
                 '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
-                '<span class="status-btn ' + textClass + '">' + btnLabel + '</span>' +
+                '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
             '</div>' +
             (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
         el.appendChild(item);
     });
+
+    if (totalPages > 1) {
+        var pager = document.createElement('div');
+        pager.className = 'today-task-pager';
+        pager.innerHTML =
+            '<button id="notice-prev" ' + (NOTICE_PAGE === 0 ? 'disabled' : '') + '>‹ 이전</button>' +
+            '<span>' + (NOTICE_PAGE + 1) + ' / ' + totalPages + '</span>' +
+            '<button id="notice-next" ' + (NOTICE_PAGE === totalPages - 1 ? 'disabled' : '') + '>다음 ›</button>';
+        el.appendChild(pager);
+        var prevBtn = document.getElementById('notice-prev');
+        var nextBtn = document.getElementById('notice-next');
+        if (prevBtn) prevBtn.addEventListener('click', function () { if (NOTICE_PAGE > 0) { NOTICE_PAGE--; renderTodayTasks(); } });
+        if (nextBtn) nextBtn.addEventListener('click', function () { if (NOTICE_PAGE < totalPages - 1) { NOTICE_PAGE++; renderTodayTasks(); } });
+    }
 }
 
 var symptomChartInstance = null;
