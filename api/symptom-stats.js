@@ -25,6 +25,18 @@ module.exports = async function handler(req, res) {
       symptom: header.indexOf('증상'),
     };
 
+    const now = new Date();
+    const schoolYearStart = now.getMonth() >= 2 ? now.getFullYear() : now.getFullYear() - 1;
+    const rangeStart = schoolYearStart + '-03-01';
+    const rangeEnd = (schoolYearStart + 1) + '-02-28';
+
+    function inSchoolYear(row) {
+      const d = String(row[idx.date] || '').slice(0, 10);
+      return d && d >= rangeStart && d <= rangeEnd;
+    }
+
+    const schoolYearRows = dataRows.filter(inSchoolYear);
+
     const CATEGORY_MAP = {
       '발열': '감염병 예방', '인후통': '이비인후계', '코막힘': '이비인후계', '콧물': '이비인후계',
       '두통': '근골격계', '생리통': '비뇨생식기', '피부상처(찰과상)': '피부피하계',
@@ -61,7 +73,7 @@ module.exports = async function handler(req, res) {
     const categoryCounts = {};
     const detailCounts = {};
 
-    dataRows.forEach(row => {
+    schoolYearRows.forEach(row => {
       const symptomText = row[idx.symptom] || '';
       if (!symptomText) return;
       const symptoms = splitSymptoms(symptomText).map(s => {
@@ -85,17 +97,7 @@ module.exports = async function handler(req, res) {
       .slice(0, 10);
 
     const total = dataRows.length;
-
-    const now = new Date();
-    const schoolYearStart = now.getMonth() >= 2 ? now.getFullYear() : now.getFullYear() - 1;
-    const rangeStart = schoolYearStart + '-03-01';
-    const rangeEnd = (schoolYearStart + 1) + '-02-28';
-
-    let schoolYearTotal = 0;
-    dataRows.forEach(row => {
-      const d = String(row[idx.date] || '').slice(0, 10);
-      if (d && d >= rangeStart && d <= rangeEnd) schoolYearTotal++;
-    });
+    const schoolYearTotal = schoolYearRows.length;
 
     res.status(200).json({
       success: true,

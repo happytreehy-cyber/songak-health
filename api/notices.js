@@ -13,12 +13,27 @@ module.exports = async function handler(req, res) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: '공지사항!A:D',
+      range: '공지사항!A1:Z200',
     });
 
     const rows = response.data.values || [];
-    const header = rows[0] || [];
-    const dataRows = rows.slice(1);
+
+    // 헤더가 어느 행/열에서 시작하든 '제목'이 있는 행을 찾아 헤더로 사용
+    let headerRowIdx = -1;
+    let header = [];
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i] && rows[i].indexOf('제목') !== -1) {
+        headerRowIdx = i;
+        header = rows[i];
+        break;
+      }
+    }
+
+    if (headerRowIdx === -1) {
+      return res.status(200).json({ success: true, notices: [] });
+    }
+
+    const dataRows = rows.slice(headerRowIdx + 1);
 
     const idx = {
       title: header.indexOf('제목'),

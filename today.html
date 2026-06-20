@@ -92,6 +92,25 @@
 
         .stat-sub-title { font-size:12px; font-weight:700; color:#64748b; margin:10px 0 5px; }
 
+        .legend-list { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; justify-content:center; overflow-y:auto; max-height:140px; }
+        .legend-item { display:flex; align-items:center; gap:6px; font-size:11.5px; color:#334155; }
+        .legend-item .lg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+        .legend-item .lg-name { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .legend-item .lg-count { font-weight:700; color:#1e293b; flex-shrink:0; }
+        .legend-item .lg-pct { color:#94a3b8; flex-shrink:0; width:42px; text-align:right; }
+
+        .dot-axis { display:flex; align-items:center; gap:8px; margin-top:4px; }
+        .dot-axis-l { flex:0 0 78px; }
+        .dot-axis-r { flex:0 0 30px; }
+        .dot-axis-track { flex:1; display:flex; justify-content:space-between; font-size:10px; color:#b6bfca; }
+
+        .lookup-pager { display:flex; align-items:center; justify-content:center; gap:14px; padding:10px 0 2px; font-size:12.5px; color:#475569; }
+        .lookup-pager button { background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; }
+        .lookup-pager button:disabled { opacity:0.4; cursor:default; }
+        .lookup-result { max-height:300px; overflow-y:auto; }
+
+        .smile-reason { font-size:10.5px; color:#94a3b8; padding:3px 14px 0; line-height:1.4; }
+
         .treemap-box { border-radius:6px; padding:6px 8px; color:#fff; display:flex; flex-direction:column; justify-content:flex-end; font-size:11px; line-height:1.3; flex:1 1 90px; min-height:55px; }
         .treemap-box .tm-name { font-weight:700; }
         .treemap-box .tm-count { opacity:0.85; font-size:10px; }
@@ -165,10 +184,11 @@
                             <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                             <div class="smile-fallback" id="smile-fallback-today">
                                 <div style="font-size:20px">🏥</div>
-                                <div style="font-size:11px;color:#64748b;line-height:1.5">새 탭에서 확인해 주세요.</div>
+                                <div style="font-size:11px;color:#64748b;line-height:1.5">스마일보건 자체 보안정책으로<br>화면 안에는 표시할 수 없어요.</div>
                                 <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
                             </div>
                         </div>
+                        <div class="smile-reason">ⓘ 스마일보건(외부 사이트)이 보안상 다른 화면 안에 끼워 보여주는 것을 자체적으로 막아둬서, 새 탭에서만 정상적으로 보여요.</div>
                     </div>
                 </div>
 
@@ -208,24 +228,25 @@
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>📊 증상 대분류 비중</span></div>
-                <div class="cell-body blur-target">
-                    <div style="height:140px; position:relative;"><canvas id="symptom-donut"></canvas></div>
+                <div class="cell-head"><span>📊 증상 대분류 비중</span><span class="cell-link" id="symptom-year-label" style="color:#94a3b8; cursor:default;"></span></div>
+                <div class="cell-body blur-target" style="display:flex; gap:10px;">
+                    <div style="height:140px; width:140px; flex-shrink:0; position:relative;"><canvas id="symptom-donut"></canvas></div>
+                    <div class="legend-list" id="symptom-legend"></div>
                 </div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>🧩 세부 증상 TOP 10</span></div>
+                <div class="cell-head"><span>🧩 세부 증상 TOP 10</span><span class="cell-link" id="treemap-year-label" style="color:#94a3b8; cursor:default;"></span></div>
                 <div class="cell-body blur-target" id="symptom-treemap" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span></div>
+                <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span><span class="cell-link" id="class-rank-year-label" style="color:#94a3b8; cursor:default;"></span></div>
                 <div class="cell-body blur-target" id="rank-class-list"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span></div>
+                <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span><span class="cell-link" id="student-rank-year-label" style="color:#94a3b8; cursor:default;"></span></div>
                 <div class="cell-body blur-target" id="rank-student-list"></div>
             </div>
                 </div>
@@ -373,6 +394,9 @@ function loadSymptomStats() {
             renderSymptomTreemap(data.topSymptoms);
             document.getElementById('stat-year-label').textContent = (data.schoolYearLabel || '학년도') + ' 누적 방문';
             document.getElementById('stat-year-total').innerHTML = data.schoolYearTotal + '<span>건</span>';
+            var yl = data.schoolYearLabel ? (data.schoolYearLabel + ' 누적') : '';
+            document.getElementById('symptom-year-label').textContent = yl;
+            document.getElementById('treemap-year-label').textContent = yl;
         })
         .catch(function () {});
 }
@@ -399,14 +423,31 @@ function renderSymptomTreemap(list) {
 function renderSymptomDonut(categories) {
     var ctx = document.getElementById('symptom-donut');
     if (!ctx || !window.Chart) return;
-    var labels = (categories || []).map(function (c) { return c.name; });
-    var counts = (categories || []).map(function (c) { return c.count; });
-    var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#6366f1', '#f43f5e'];
+    var sorted = (categories || []).slice().sort(function (a, b) { return b.count - a.count; });
+    var total = sorted.reduce(function (s, c) { return s + c.count; }, 0) || 1;
+    var labels = sorted.map(function (c) { return c.name; });
+    var counts = sorted.map(function (c) { return c.count; });
+    var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#6366f1', '#f43f5e', '#84cc16', '#0ea5e9'];
     if (symptomChartInstance) symptomChartInstance.destroy();
     symptomChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: { labels: labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 2 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } }, cutout: '62%' }
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '62%' }
+    });
+
+    var legendEl = document.getElementById('symptom-legend');
+    legendEl.innerHTML = '';
+    if (!sorted.length) { legendEl.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
+    sorted.forEach(function (c, i) {
+        var pct = ((c.count / total) * 100).toFixed(1);
+        var row = document.createElement('div');
+        row.className = 'legend-item';
+        row.innerHTML =
+            '<span class="lg-dot" style="background:' + colors[i % colors.length] + ';"></span>' +
+            '<span class="lg-name">' + escHtml(c.name) + '</span>' +
+            '<span class="lg-count">' + c.count + '건</span>' +
+            '<span class="lg-pct">' + pct + '%</span>';
+        legendEl.appendChild(row);
     });
 }
 
@@ -433,6 +474,9 @@ function loadVisitStatus() {
             renderDotPlot('rank-student-list', data.studentRanking, function (item) { return item.count >= 20 ? '#f43f5e' : '#3b82f6'; });
             renderGradeBarChart(data.gradeYearly);
             document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
+            var yl2 = data.schoolYearLabel ? (data.schoolYearLabel + ' 누적') : '';
+            document.getElementById('class-rank-year-label').textContent = yl2;
+            document.getElementById('student-rank-year-label').textContent = yl2;
         })
         .catch(function () {});
 }
@@ -452,6 +496,17 @@ function renderDotPlot(elId, list, colorFn) {
             '<span class="dot-value">' + item.count + '</span>';
         el.appendChild(row);
     });
+
+    var steps = 4;
+    var ticks = [];
+    for (var i = 0; i <= steps; i++) { ticks.push(Math.round(max * i / steps)); }
+    var axis = document.createElement('div');
+    axis.className = 'dot-axis';
+    axis.innerHTML =
+        '<span class="dot-axis-l"></span>' +
+        '<div class="dot-axis-track">' + ticks.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>' +
+        '<span class="dot-axis-r"></span>';
+    el.appendChild(axis);
 }
 
 function renderGradeBarChart(gradeYearly) {
@@ -490,6 +545,10 @@ function getDateRange(period) {
     return null;
 }
 
+var LOOKUP_RECORDS = [];
+var LOOKUP_PAGE = 0;
+var LOOKUP_PAGE_SIZE = 8;
+
 function handleLookup() {
     var grade = document.getElementById('lookup-grade').value;
     var classNum = document.getElementById('lookup-class').value;
@@ -516,15 +575,40 @@ function handleLookup() {
         .then(function (data) {
             if (!data.success) { resultEl.innerHTML = '<div class="lookup-empty">오류: ' + escHtml(data.message || '') + '</div>'; return; }
             if (!data.records.length) { resultEl.innerHTML = '<div class="lookup-empty">해당 기간/학급의 방문 기록이 없습니다.</div>'; return; }
-            resultEl.innerHTML = '';
-            data.records.forEach(function (r) {
-                var row = document.createElement('div');
-                row.className = 'lookup-row';
-                row.innerHTML = '<span>' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
-                resultEl.appendChild(row);
-            });
+            LOOKUP_RECORDS = data.records;
+            LOOKUP_PAGE = 0;
+            renderLookupPage();
         })
         .catch(function () { resultEl.innerHTML = '<div class="lookup-empty">조회 중 오류가 발생했습니다.</div>'; });
+}
+
+function renderLookupPage() {
+    var resultEl = document.getElementById('lookup-result');
+    var totalPages = Math.ceil(LOOKUP_RECORDS.length / LOOKUP_PAGE_SIZE) || 1;
+    var start = LOOKUP_PAGE * LOOKUP_PAGE_SIZE;
+    var pageItems = LOOKUP_RECORDS.slice(start, start + LOOKUP_PAGE_SIZE);
+
+    resultEl.innerHTML = '';
+    pageItems.forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'lookup-row';
+        row.innerHTML = '<span>' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
+        resultEl.appendChild(row);
+    });
+
+    if (totalPages > 1) {
+        var pager = document.createElement('div');
+        pager.className = 'lookup-pager';
+        pager.innerHTML =
+            '<button id="lookup-prev" ' + (LOOKUP_PAGE === 0 ? 'disabled' : '') + '>‹ 이전</button>' +
+            '<span>' + (LOOKUP_PAGE + 1) + ' / ' + totalPages + ' 페이지 (총 ' + LOOKUP_RECORDS.length + '건)</span>' +
+            '<button id="lookup-next" ' + (LOOKUP_PAGE === totalPages - 1 ? 'disabled' : '') + '>다음 ›</button>';
+        resultEl.appendChild(pager);
+        var prevBtn = document.getElementById('lookup-prev');
+        var nextBtn = document.getElementById('lookup-next');
+        if (prevBtn) prevBtn.addEventListener('click', function () { if (LOOKUP_PAGE > 0) { LOOKUP_PAGE--; renderLookupPage(); } });
+        if (nextBtn) nextBtn.addEventListener('click', function () { if (LOOKUP_PAGE < totalPages - 1) { LOOKUP_PAGE++; renderLookupPage(); } });
+    }
 }
 
 function checkSmileIframe() {
