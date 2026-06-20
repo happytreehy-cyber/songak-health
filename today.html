@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 보건실 - 송악고등학교 온라인 보건실</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f6f9; color: #333333; line-height: 1.5; }
+        a { text-decoration: none; color: inherit; }
+
+        .sticky-header-wrapper { position: sticky; top: 0; z-index: 1000; background-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar { height: 46px; display:flex; justify-content:space-between; align-items:center; padding:0 30px; border-bottom:1px solid #f1f5f9; }
+        .nav-left { display:flex; align-items:center; gap:10px; }
+        .nav-logo-img { width:22px; height:22px; object-fit:contain; }
+        .nav-title-group { display:flex; align-items:baseline; gap:8px; }
+        .nav-main-title { font-size:16px; font-weight:700; color:#1e3a8a; }
+        .nav-sub-title { font-size:12px; color:#64748b; font-weight:400; }
+        .nav-back { font-size:12.5px; color:#475569; font-weight:600; padding:5px 12px; border:1px solid #cbd5e1; border-radius:7px; cursor:pointer; }
+
+        .date-strip-bar { background:#fff; padding:4px 30px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #e2e8f0; }
+        .date-badge-mini { font-family:'Poppins', sans-serif; font-size:20px; font-weight:700; color:#2563eb; }
+        .date-full-text { font-size:13px; font-weight:700; color:#1e293b; }
+        .calendar-strip { display:flex; gap:10px; font-size:12px; color:#94a3b8; background:#f8fafc; padding:2px 8px; border-radius:15px; }
+        .day-item { color:#94a3b8; }
+        .day-item.sun { color:#ef4444; }
+        .day-item.today { background-color:#2563eb; color:#fff; border-radius:50%; padding:0 5px; }
+
+        .page-wrap { max-width: 1140px; margin: 20px auto; padding: 0 24px 60px; }
+        .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .page-title-row h1 { font-size:18px; font-weight:700; color:#1e293b; }
+
+        .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:18px 22px; margin-bottom:18px; }
+        .section-divider-title { font-size:13px; font-weight:700; color:#94a3b8; margin: 6px 0 10px; padding-bottom:8px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
+        .today-task-item { border-bottom:1px dashed #cbd5e1; }
+        .today-task-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 4px; cursor:pointer; }
+        .today-task-item:last-child { border-bottom:none; }
+        .today-task-text { font-size:14px; flex:1; }
+        .today-task-text.closed { color:#94a3b8; }
+        .today-task-text.ongoing { color:#1e293b; font-weight:500; }
+        .today-task-detail { display:none; padding:0 4px 14px 4px; font-size:13px; color:#475569; line-height:1.7; }
+        .today-task-detail.open { display:block; }
+        .today-task-detail img { max-width:160px; border-radius:8px; margin-top:8px; display:block; }
+        .today-task-detail a { color:#2563eb; font-weight:600; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; cursor:pointer; flex-shrink:0; }
+        .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
+        .status-btn.closed { background:#e5e7eb; color:#6b7280; }
+        .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
+
+        .visit-stat-strip { display:flex; gap:14px; margin-bottom:18px; }
+        .visit-stat-box { flex:1; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 20px; }
+        .visit-stat-label { font-size:12.5px; color:#64748b; font-weight:600; margin-bottom:6px; }
+        .visit-stat-value { font-size:26px; font-weight:700; color:#1e3a8a; }
+        .visit-stat-value span { font-size:14px; font-weight:600; color:#64748b; margin-left:3px; }
+
+        .auth-gate-box { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:34px 24px; text-align:center; max-width:380px; margin:30px auto; }
+        .auth-gate-box .ico { font-size:30px; margin-bottom:10px; }
+        .auth-gate-box h3 { font-size:15px; margin-bottom:6px; color:#1e293b; }
+        .auth-gate-box p { font-size:12.5px; color:#64748b; margin-bottom:16px; }
+        .auth-gate-box input { width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; margin-bottom:10px; text-align:center; }
+        .auth-gate-box button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:14px; font-weight:700; cursor:pointer; }
+        .auth-gate-box .err { color:#ef4444; font-size:12.5px; min-height:16px; margin-top:8px; }
+
+        .health-grid-2x2 { display:none; grid-template-columns:1fr 1fr; gap:16px; }
+        .health-grid-2x2.show { display:grid; }
+        @media (max-width: 760px) { .health-grid-2x2 { grid-template-columns:1fr; } }
+
+        .grid-cell { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:320px; }
+        .cell-head { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; font-weight:700; color:#1e293b; }
+        .cell-link { font-size:12px; color:#2563eb; font-weight:600; cursor:pointer; }
+        .cell-body { padding:14px 16px; flex:1; overflow-y:auto; }
+
+        .smile-frame-box { position:relative; flex:1; min-height:300px; background:#fff; }
+        .smile-frame-box iframe { width:100%; height:100%; border:none; }
+        .smile-fallback { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:#f8fafc; text-align:center; padding:0 20px; }
+        .smile-fallback.show { display:flex; }
+        .smile-fallback-btn { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; }
+
+        .mini-rank-list { display:flex; flex-direction:column; gap:6px; }
+        .mini-rank-item { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#334155; padding:6px 10px; background:#f8fafc; border:1px solid #eef1f6; border-radius:8px; }
+        .mini-rank-item .rk-name { font-weight:600; }
+        .mini-rank-item .rk-count { color:#2563eb; font-weight:700; }
+        .mini-rank-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
+
+        .stat-sub-title { font-size:12.5px; font-weight:700; color:#64748b; margin:14px 0 7px; }
+
+        .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; }
+        .lock-row { display:flex; gap:8px; }
+        .lock-row select, .lock-form input, .lock-form select { padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:inherit; }
+        .lock-row select { flex:1; }
+        .lock-form button { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:9px 0; font-size:13px; font-weight:700; cursor:pointer; }
+        .lock-form button:hover { background:#1d4ed8; }
+        .lock-error { font-size:12px; color:#ef4444; min-height:15px; }
+
+        .lookup-result { padding: 0 16px 16px; }
+        .lookup-row { display:flex; justify-content:space-between; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
+        .lookup-empty { font-size:13px; color:#94a3b8; padding:12px 0; text-align:center; }
+    </style>
+</head>
+<body>
+
+    <div class="sticky-header-wrapper">
+        <nav class="navbar">
+            <div class="nav-left">
+                <img src="logo.png" alt="로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+                <div class="nav-title-group">
+                    <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+                    <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+                </div>
+            </div>
+            <a class="nav-back" href="index.html">← 메인으로</a>
+        </nav>
+        <section class="date-strip-bar">
+            <div class="date-badge-mini" id="date-badge-mini">19</div>
+            <span class="date-full-text" id="date-full-text">2026년 6월 19일 금요일</span>
+            <div class="calendar-strip" id="calendar-strip"></div>
+        </section>
+    </div>
+
+    <div class="page-wrap">
+
+        <div class="page-title-row"><h1>📅 오늘의 보건실</h1></div>
+
+        <div class="section-divider-title">📰 이번주 보건소식</div>
+        <div class="today-task-section">
+            <div id="today-task-list"><div class="today-task-empty">불러오는 중...</div></div>
+        </div>
+
+        <div class="section-divider-title">🩺 보건 이용 현황</div>
+
+        <div class="visit-stat-strip" id="visit-stat-strip" style="display:none;">
+            <div class="visit-stat-box">
+                <div class="visit-stat-label">전체 누적 방문</div>
+                <div class="visit-stat-value" id="stat-total">-<span>건</span></div>
+            </div>
+            <div class="visit-stat-box">
+                <div class="visit-stat-label" id="stat-year-label">학년도 누적 방문</div>
+                <div class="visit-stat-value" id="stat-year-total">-<span>건</span></div>
+            </div>
+        </div>
+
+        <div class="auth-gate-box" id="auth-gate">
+            <div class="ico">🔒</div>
+            <h3>교직원 본인 확인</h3>
+            <p>비밀번호를 입력하면 보건실 현황 · 증상 통계 · 담임용 조회 · 이용 현황을<br>한 번에 모두 확인할 수 있어요.</p>
+            <input type="password" id="gate-pw" placeholder="비밀번호 입력 (학년+반+00, 또는 보건실 공용 비번)">
+            <button id="gate-btn">확인</button>
+            <div class="err" id="gate-err"></div>
+        </div>
+
+        <div class="grid-cell" id="grade-chart-card" style="display:none; margin-bottom:18px;">
+            <div class="cell-head"><span>📈 학년별 방문 비교</span><span class="cell-link" id="grade-chart-year-label"></span></div>
+            <div class="cell-body"><canvas id="grade-bar-chart" height="120"></canvas></div>
+        </div>
+
+        <div class="health-grid-2x2" id="main-grid">
+            <div class="grid-cell">
+                <div class="cell-head">
+                    <span>🏥 실시간 보건실 현황</span>
+                    <span class="cell-link" id="smile-open-link">새 탭 ↗</span>
+                </div>
+                <div class="smile-frame-box">
+                    <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                    <div class="smile-fallback" id="smile-fallback-today">
+                        <div style="font-size:28px">🏥</div>
+                        <div style="font-size:12px;color:#64748b;line-height:1.6">보안 정책으로 여기서 바로 볼 수 없어요.<br>새 탭에서 확인해 주세요.</div>
+                        <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-cell">
+                <div class="cell-head"><span>📊 증상 통계</span></div>
+                <div class="cell-body">
+                    <div class="stat-sub-title" style="margin-top:0;">증상 대분류 비중</div>
+                    <canvas id="symptom-donut" height="160"></canvas>
+                    <div class="stat-sub-title">세부 증상 TOP 10</div>
+                    <div class="mini-rank-list" id="symptom-top10-list"></div>
+                </div>
+            </div>
+
+            <div class="grid-cell">
+                <div class="cell-head"><span>👩‍🏫 담임용 날짜별 조회</span></div>
+                <div class="lock-form">
+                    <div class="lock-row">
+                        <select id="lookup-grade">
+                            <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+                        </select>
+                        <select id="lookup-class">
+                            <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option>
+                            <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
+                            <option value="7">7반</option><option value="8">8반</option><option value="9">9반</option>
+                        </select>
+                    </div>
+                    <select id="lookup-period">
+                        <option value="today">오늘</option>
+                        <option value="week">이번 주</option>
+                        <option value="month">이번 달</option>
+                        <option value="custom">기간 설정</option>
+                    </select>
+                    <div class="lock-row" id="lookup-custom-range" style="display:none;">
+                        <input type="date" id="lookup-start">
+                        <input type="date" id="lookup-end">
+                    </div>
+                    <button id="lookup-btn">조회하기</button>
+                    <div class="lock-error" id="lookup-error"></div>
+                </div>
+                <div class="lookup-result" id="lookup-result"></div>
+            </div>
+
+            <div class="grid-cell">
+                <div class="cell-head"><span>🩺 보건실 이용 현황</span></div>
+                <div class="cell-body" id="rank-cell-body">
+                    <div class="stat-sub-title" style="margin-top:0;">학급별 이용 현황 TOP 10</div>
+                    <div class="mini-rank-list" id="rank-class-list"></div>
+                    <div class="stat-sub-title">관심이 필요한 학생 (이용 빈도 높음)</div>
+                    <div class="mini-rank-list" id="rank-student-list"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+var SMILE_URL = 'https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ';
+
+var TODAY_TASKS = [
+    {
+        text: '6월 4주차: 학생 정신건강 자가검진 결과 회수 마감',
+        status: 'ongoing',
+        detail: '이번 주(금요일)까지 학급별 자가검진 설문 제출을 완료해 주세요.<br>아래 QR을 스캔하면 설문지로 바로 이동합니다.<br><a href="https://forms.gle/예시설문" target="_blank">📝 설문 링크 바로가기</a><br><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://forms.gle/예시설문" alt="설문 QR코드">'
+    },
+    {
+        text: '6월 22일(월): 2·3학년 소변검사 학급별 시간표 안내',
+        status: 'ongoing',
+        detail: '학급별 검사 시간표는 가정통신문 및 메신저로 공지된 내용을 참고해 주세요.<br>문의사항은 보건실(내선 000)로 연락 주세요.'
+    },
+    {
+        text: '6월 26일(금): 결핵검진(중앙현관 앞 검진버스) 진행',
+        status: 'ongoing',
+        detail: '검진버스는 오전 9시~오후 1시, 중앙현관 앞에 배치됩니다.<br>학급별 이동 시간은 별도 안내될 예정입니다.'
+    }
+];
+
+window.addEventListener('DOMContentLoaded', function () {
+    renderDate();
+    renderTodayTasks();
+    bindEvents();
+});
+
+function bindEvents() {
+    document.getElementById('gate-btn').addEventListener('click', handleGateAuth);
+    document.getElementById('gate-pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
+
+    document.getElementById('smile-open-link').addEventListener('click', function () { window.open(SMILE_URL, '_blank'); });
+    document.getElementById('smile-fallback-btn-today').addEventListener('click', function () { window.open(SMILE_URL, '_blank'); });
+
+    document.getElementById('lookup-btn').addEventListener('click', handleLookup);
+    document.getElementById('lookup-period').addEventListener('change', function () {
+        document.getElementById('lookup-custom-range').style.display = this.value === 'custom' ? 'flex' : 'none';
+    });
+}
+
+function isValidGatePw(pw) {
+    return /^[1-3][1-9]00$/.test(pw) || pw === '119';
+}
+
+function handleGateAuth() {
+    var pw = document.getElementById('gate-pw').value.trim();
+    var err = document.getElementById('gate-err');
+    if (!isValidGatePw(pw)) {
+        err.textContent = '비밀번호가 올바르지 않습니다.';
+        return;
+    }
+    err.textContent = '';
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('main-grid').classList.add('show');
+    document.getElementById('visit-stat-strip').style.display = 'flex';
+    document.getElementById('grade-chart-card').style.display = 'block';
+
+    var iframe = document.getElementById('smile-iframe-today');
+    iframe.src = SMILE_URL;
+    setTimeout(checkSmileIframe, 4000);
+
+    loadSymptomStats();
+    loadVisitStatus();
+}
+
+function renderTodayTasks() {
+    var el = document.getElementById('today-task-list');
+    el.innerHTML = '';
+    if (!TODAY_TASKS.length) { el.innerHTML = '<div class="today-task-empty">등록된 업무가 없습니다.</div>'; return; }
+    TODAY_TASKS.forEach(function (task, i) {
+        var item = document.createElement('div');
+        item.className = 'today-task-item';
+        var textClass = task.status === 'closed' ? 'closed' : 'ongoing';
+        var btnLabel = task.status === 'closed' ? '마감' : '진행중';
+        var openClass = task._open ? 'open' : '';
+        item.innerHTML =
+            '<div class="today-task-row" data-idx="' + i + '">' +
+                '<span class="today-task-text ' + textClass + '">' + escHtml(task.text) + '</span>' +
+                '<button class="status-btn ' + textClass + '" data-statusidx="' + i + '">' + btnLabel + '</button>' +
+            '</div>' +
+            '<div class="today-task-detail ' + openClass + '">' + (task.detail || '상세 내용이 없습니다.') + '</div>';
+        el.appendChild(item);
+    });
+
+    el.querySelectorAll('.today-task-row').forEach(function (row) {
+        row.addEventListener('click', function (e) {
+            if (e.target.classList.contains('status-btn')) return;
+            var idx = parseInt(this.getAttribute('data-idx'), 10);
+            TODAY_TASKS[idx]._open = !TODAY_TASKS[idx]._open;
+            renderTodayTasks();
+        });
+    });
+    el.querySelectorAll('.status-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = parseInt(this.getAttribute('data-statusidx'), 10);
+            TODAY_TASKS[idx].status = TODAY_TASKS[idx].status === 'closed' ? 'ongoing' : 'closed';
+            renderTodayTasks();
+        });
+    });
+}
+
+var symptomChartInstance = null;
+
+function loadSymptomStats() {
+    fetch('/api/symptom-stats')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            renderSymptomDonut(data.categories);
+            renderMiniRankList('symptom-top10-list', data.topSymptoms, '건');
+            document.getElementById('stat-total').innerHTML = data.total + '<span>건</span>';
+            document.getElementById('stat-year-label').textContent = (data.schoolYearLabel || '학년도') + ' 누적 방문';
+            document.getElementById('stat-year-total').innerHTML = data.schoolYearTotal + '<span>건</span>';
+        })
+        .catch(function () {});
+}
+
+function renderSymptomDonut(categories) {
+    var ctx = document.getElementById('symptom-donut');
+    if (!ctx || !window.Chart) return;
+    var labels = (categories || []).map(function (c) { return c.name; });
+    var counts = (categories || []).map(function (c) { return c.count; });
+    var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#6366f1', '#f43f5e'];
+    if (symptomChartInstance) symptomChartInstance.destroy();
+    symptomChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 2 }] },
+        options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } }, cutout: '62%' }
+    });
+}
+
+function renderMiniRankList(elId, list, unit) {
+    var el = document.getElementById(elId);
+    el.innerHTML = '';
+    if (!list || !list.length) { el.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
+    list.forEach(function (item, i) {
+        var row = document.createElement('div');
+        row.className = 'mini-rank-item';
+        row.innerHTML = '<span class="rk-name">' + (i + 1) + '. ' + escHtml(item.name) + '</span><span class="rk-count">' + item.count + (unit || '') + '</span>';
+        el.appendChild(row);
+    });
+}
+
+var gradeChartInstance = null;
+
+function loadVisitStatus() {
+    fetch('/api/visit-ranking')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            renderMiniRankList('rank-class-list', data.classRanking, '회');
+            renderMiniRankList('rank-student-list', data.studentRanking, '회');
+            renderGradeBarChart(data.gradeYearly);
+            document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
+        })
+        .catch(function () {});
+}
+
+function renderGradeBarChart(gradeYearly) {
+    var ctx = document.getElementById('grade-bar-chart');
+    if (!ctx || !window.Chart || !gradeYearly) return;
+    var labels = gradeYearly.map(function (g) { return g.name; });
+    var counts = gradeYearly.map(function (g) { return g.count; });
+    if (gradeChartInstance) gradeChartInstance.destroy();
+    gradeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: '방문 건수', data: counts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+}
+
+function pad2(n) { return n < 10 ? '0' + n : String(n); }
+function toYMD(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+function getDateRange(period) {
+    var now = new Date();
+    if (period === 'today') return { start: toYMD(now), end: toYMD(now) };
+    if (period === 'week') {
+        var start = new Date(now); start.setDate(now.getDate() - now.getDay());
+        var end = new Date(start); end.setDate(start.getDate() + 6);
+        return { start: toYMD(start), end: toYMD(end) };
+    }
+    if (period === 'month') {
+        var s2 = new Date(now.getFullYear(), now.getMonth(), 1);
+        var e2 = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        return { start: toYMD(s2), end: toYMD(e2) };
+    }
+    return null;
+}
+
+function handleLookup() {
+    var grade = document.getElementById('lookup-grade').value;
+    var classNum = document.getElementById('lookup-class').value;
+    var period = document.getElementById('lookup-period').value;
+    var errEl = document.getElementById('lookup-error');
+    var resultEl = document.getElementById('lookup-result');
+    errEl.textContent = '';
+    resultEl.innerHTML = '';
+
+    var range;
+    if (period === 'custom') {
+        var s = document.getElementById('lookup-start').value;
+        var e = document.getElementById('lookup-end').value;
+        if (!s || !e) { errEl.textContent = '시작일과 종료일을 선택하세요.'; return; }
+        range = { start: s, end: e };
+    } else {
+        range = getDateRange(period);
+    }
+
+    resultEl.innerHTML = '<div class="lookup-empty">조회 중...</div>';
+
+    fetch('/api/checkin-by-class?startDate=' + range.start + '&endDate=' + range.end + '&grade=' + grade + '&classNum=' + classNum)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) { resultEl.innerHTML = '<div class="lookup-empty">오류: ' + escHtml(data.message || '') + '</div>'; return; }
+            if (!data.records.length) { resultEl.innerHTML = '<div class="lookup-empty">해당 기간/학급의 방문 기록이 없습니다.</div>'; return; }
+            resultEl.innerHTML = '';
+            data.records.forEach(function (r) {
+                var row = document.createElement('div');
+                row.className = 'lookup-row';
+                row.innerHTML = '<span>' + escHtml(r.date) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
+                resultEl.appendChild(row);
+            });
+        })
+        .catch(function () { resultEl.innerHTML = '<div class="lookup-empty">조회 중 오류가 발생했습니다.</div>'; });
+}
+
+function checkSmileIframe() {
+    try {
+        var f = document.getElementById('smile-iframe-today');
+        if (!f || !f.contentDocument || !f.contentDocument.body) showSmileFallback();
+    } catch (e) { showSmileFallback(); }
+}
+function showSmileFallback() { document.getElementById('smile-fallback-today').classList.add('show'); }
+
+function escHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+var WK = ['일', '월', '화', '수', '목', '금', '토'];
+function pad(n) { return n < 10 ? '0' + n : n; }
+function renderDate() {
+    var now = new Date(), y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), w = now.getDay();
+    document.getElementById('date-badge-mini').textContent = pad(d);
+    document.getElementById('date-full-text').textContent = y + '년 ' + (m + 1) + '월 ' + d + '일 ' + WK[w] + '요일';
+    var cal = document.getElementById('calendar-strip');
+    cal.innerHTML = '';
+    var sun = new Date(now); sun.setDate(d - w);
+    for (var i = 0; i < 7; i++) {
+        var dd = new Date(sun); dd.setDate(sun.getDate() + i);
+        var span = document.createElement('span');
+        var cls = 'day-item';
+        if (dd.getDay() === 0) cls += ' sun';
+        if (dd.getDate() === d && dd.getMonth() === m) cls += ' today';
+        span.className = cls;
+        span.textContent = dd.getDate();
+        cal.appendChild(span);
+    }
+}
+</script>
+</body>
+</html>

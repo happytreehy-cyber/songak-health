@@ -21,6 +21,7 @@ module.exports = async function handler(req, res) {
     const dataRows = rows.slice(1);
 
     const idx = {
+      date: header.indexOf('날짜'),
       name: header.indexOf('이름'),
       classInfo: header.indexOf('학년반'),
       number: header.indexOf('번호'),
@@ -47,7 +48,30 @@ module.exports = async function handler(req, res) {
       .sort(function (a, b) { return b.count - a.count; })
       .slice(0, 10);
 
-    res.status(200).json({ success: true, classRanking: classRanking, studentRanking: studentRanking });
+    const now = new Date();
+    const schoolYearStart = now.getMonth() >= 2 ? now.getFullYear() : now.getFullYear() - 1;
+    const rangeStart = schoolYearStart + '-03-01';
+    const rangeEnd = (schoolYearStart + 1) + '-02-28';
+
+    const gradeCounts = { 1: 0, 2: 0, 3: 0 };
+    dataRows.forEach(function (row) {
+      const d = String(row[idx.date] || '').slice(0, 10);
+      if (!d || d < rangeStart || d > rangeEnd) return;
+      const nums = String(row[idx.classInfo] || '').match(/\d+/g);
+      if (!nums || !nums.length) return;
+      const g = parseInt(nums[0], 10);
+      if (gradeCounts[g] !== undefined) gradeCounts[g]++;
+    });
+
+    const gradeYearly = [1, 2, 3].map(function (g) { return { name: g + '학년', count: gradeCounts[g] }; });
+
+    res.status(200).json({
+      success: true,
+      classRanking: classRanking,
+      studentRanking: studentRanking,
+      gradeYearly: gradeYearly,
+      schoolYearLabel: schoolYearStart + '학년도'
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.toString() });
   }

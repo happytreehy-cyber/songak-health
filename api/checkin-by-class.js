@@ -2,9 +2,9 @@ const { google } = require('googleapis');
 
 module.exports = async function handler(req, res) {
   try {
-    const { date, grade, classNum } = req.query;
-    if (!date || !grade || !classNum) {
-      return res.status(400).json({ success: false, message: '날짜/학년/반을 입력하세요.' });
+    const { startDate, endDate, grade, classNum } = req.query;
+    if (!startDate || !endDate || !grade || !classNum) {
+      return res.status(400).json({ success: false, message: '기간/학년/반을 입력하세요.' });
     }
 
     const auth = new google.auth.JWT(
@@ -42,9 +42,10 @@ module.exports = async function handler(req, res) {
       return { grade: parseInt(nums[0], 10), cls: parseInt(nums[1], 10) };
     }
 
-    function sameDate(cellValue, target) {
+    function inRange(cellValue, start, end) {
       if (!cellValue) return false;
-      return String(cellValue).slice(0, 10) === target;
+      const d = String(cellValue).slice(0, 10);
+      return d >= start && d <= end;
     }
 
     const wantGrade = parseInt(grade, 10);
@@ -55,20 +56,22 @@ module.exports = async function handler(req, res) {
         const info = parseGradeClass(row[idx.classInfo]);
         if (!info) return false;
         return (
-          sameDate(row[idx.date], date) &&
+          inRange(row[idx.date], startDate, endDate) &&
           info.grade === wantGrade &&
           info.cls === wantClass
         );
       })
       .map(function (row) {
         return {
+          date: String(row[idx.date] || '').slice(0, 10),
           name: row[idx.name] || '',
           number: row[idx.number] || '',
           gender: row[idx.gender] || '',
           symptom: row[idx.symptom] || '',
           checkin: row[idx.checkin] || '',
         };
-      });
+      })
+      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
 
     res.status(200).json({ success: true, total: matched.length, records: matched });
   } catch (error) {
