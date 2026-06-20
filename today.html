@@ -23,7 +23,7 @@
         .nav-title-group { display:flex; align-items:baseline; gap:8px; }
         .nav-main-title { font-size:16px; font-weight:700; color:#1e3a8a; }
         .nav-sub-title { font-size:12px; color:#64748b; font-weight:400; }
-        .nav-back { font-size:12.5px; color:#475569; font-weight:600; padding:5px 12px; border:1px solid #cbd5e1; border-radius:7px; cursor:pointer; }
+        .nav-back { font-size:12.5px; color:#854d0e; font-weight:700; padding:5px 12px; background:#fde047; border:1px solid #facc15; border-radius:7px; cursor:pointer; }
 
         .date-strip-bar { background:#fff; padding:4px 30px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #e2e8f0; }
         .date-badge-mini { font-family:'Poppins', sans-serif; font-size:20px; font-weight:700; color:#2563eb; }
@@ -38,7 +38,8 @@
         .page-title-row h1 { font-size:16px; font-weight:700; color:#1e293b; }
 
         .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
-        .section-divider-title { font-size:13px; font-weight:700; color:#94a3b8; margin: 4px 0 8px; padding-bottom:6px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
+        .section-divider-title { font-size:13.5px; font-weight:800; color:#1e293b; margin: 4px 0 8px; padding-bottom:6px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
+        .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; }
         .today-task-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 4px; cursor:pointer; }
         .today-task-item:last-child { border-bottom:none; }
@@ -117,8 +118,8 @@
 
         .dot-row { display:flex; align-items:center; gap:8px; padding:5px 2px; }
         .dot-row .dot-label { font-size:11.5px; color:#475569; flex:0 0 78px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .dot-row .dot-track { flex:1; height:2px; background:#e2e8f0; position:relative; border-radius:2px; }
-        .dot-row .dot-mark { position:absolute; top:50%; width:9px; height:9px; border-radius:50%; transform:translate(-50%,-50%); }
+        .dot-row .dot-track { flex:1; height:8px; background:#eef1f6; position:relative; border-radius:5px; overflow:hidden; }
+        .dot-row .dot-bar { position:absolute; top:0; left:0; height:100%; border-radius:5px; transition:width .2s; }
         .dot-row .dot-value { font-size:11.5px; color:#1e293b; font-weight:700; flex:0 0 30px; text-align:right; }
 
         .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; }
@@ -129,8 +130,13 @@
         .lock-form button:hover { background:#1d4ed8; }
         .lock-error { font-size:12px; color:#ef4444; min-height:15px; }
 
+        .lookup-summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12.5px; color:#334155; }
+        .lookup-summary b { color:#1e3a8a; }
+        .lookup-summary button { width:auto; background:#fff; color:#2563eb; border:1px solid #cbd5e1; border-radius:6px; padding:5px 10px; font-size:11.5px; font-weight:700; cursor:pointer; }
         .lookup-result { padding: 0 16px 16px; }
-        .lookup-row { display:flex; justify-content:space-between; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
+        .lookup-row { display:flex; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
+        .lookup-row .lk-when { flex:0 0 168px; color:#334155; }
+        .lookup-row .lk-symptom { flex:1; text-align:left; padding-left:14px; color:#1e293b; }
         .lookup-empty { font-size:13px; color:#94a3b8; padding:12px 0; text-align:center; }
     </style>
 </head>
@@ -145,7 +151,7 @@
                     <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
                 </div>
             </div>
-            <a class="nav-back" href="index.html">← 메인으로</a>
+            <a class="nav-back" href="index.html">↩️ 이전으로</a>
         </nav>
         <section class="date-strip-bar">
             <div class="date-badge-mini" id="date-badge-mini">19</div>
@@ -166,6 +172,8 @@
             <div id="today-task-list"><div class="today-task-empty">불러오는 중...</div></div>
         </div>
 
+        <div class="section-gap-divider"></div>
+
         <div class="section-divider-title">🩺 보건 이용 현황</div>
 
         <div class="reveal-wrap">
@@ -178,17 +186,17 @@
                     <div class="grid-cell" style="flex:1; margin-bottom:0; min-height:auto;">
                         <div class="cell-head" style="padding:8px 14px;">
                             <span style="font-size:12.5px;">🏥 오늘의 실시간 보건실 현황</span>
-                            <span class="cell-link" id="smile-open-link">새 탭 ↗</span>
+                            <span class="cell-link" id="smile-open-link" title="새 탭에서 오늘의 보건실 현황을 실시간으로 확인">실시간 확인 ↗</span>
                         </div>
                         <div class="smile-frame-box blur-target" style="height:110px; min-height:110px;">
                             <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                             <div class="smile-fallback" id="smile-fallback-today">
                                 <div style="font-size:20px">🏥</div>
-                                <div style="font-size:11px;color:#64748b;line-height:1.5">스마일보건 자체 보안정책으로<br>화면 안에는 표시할 수 없어요.</div>
+                                <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
                                 <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
                             </div>
                         </div>
-                        <div class="smile-reason">ⓘ 스마일보건(외부 사이트)이 보안상 다른 화면 안에 끼워 보여주는 것을 자체적으로 막아둬서, 새 탭에서만 정상적으로 보여요.</div>
+                        <div class="smile-reason">ⓘ 외부 사이트의 보안정책으로 다른 화면 안에 끼워서 보여줄 수 없도록 막아두었기 때문에, 새 탭에서만 정상적으로 확인하실 수 있습니다.</div>
                     </div>
                 </div>
 
@@ -199,8 +207,12 @@
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>👩‍🏫 담임용 날짜별 조회</span></div>
-                <div class="lock-form blur-target">
+                <div class="cell-head"><span>👩‍🏫 담임용 학급 보건실 이용 날짜별 조회</span></div>
+                <div class="lookup-summary" id="lookup-summary" style="display:none;">
+                    <span><b id="lookup-summary-text"></b></span>
+                    <button id="lookup-edit-btn">🔄 다시 조회</button>
+                </div>
+                <div class="lock-form blur-target" id="lookup-form-area">
                     <div class="lock-row">
                         <select id="lookup-grade">
                             <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
@@ -317,6 +329,11 @@ function bindEvents() {
     document.getElementById('lookup-btn').addEventListener('click', handleLookup);
     document.getElementById('lookup-period').addEventListener('change', function () {
         document.getElementById('lookup-custom-range').style.display = this.value === 'custom' ? 'flex' : 'none';
+    });
+    document.getElementById('lookup-edit-btn').addEventListener('click', function () {
+        document.getElementById('lookup-summary').style.display = 'none';
+        document.getElementById('lookup-form-area').style.display = 'flex';
+        document.getElementById('lookup-result').innerHTML = '';
     });
 }
 
@@ -492,7 +509,7 @@ function renderDotPlot(elId, list, colorFn) {
         row.className = 'dot-row';
         row.innerHTML =
             '<span class="dot-label" title="' + escHtml(item.name) + '">' + escHtml(item.name) + '</span>' +
-            '<div class="dot-track"><span class="dot-mark" style="left:' + pct + '%; background:' + colorFn(item) + ';"></span></div>' +
+            '<div class="dot-track"><span class="dot-bar" style="width:' + pct + '%; background:' + colorFn(item) + ';"></span></div>' +
             '<span class="dot-value">' + item.count + '</span>';
         el.appendChild(row);
     });
@@ -549,6 +566,8 @@ var LOOKUP_RECORDS = [];
 var LOOKUP_PAGE = 0;
 var LOOKUP_PAGE_SIZE = 8;
 
+var PERIOD_LABEL = { today: '오늘', week: '이번 주', month: '이번 달', custom: '기간 설정' };
+
 function handleLookup() {
     var grade = document.getElementById('lookup-grade').value;
     var classNum = document.getElementById('lookup-class').value;
@@ -574,6 +593,12 @@ function handleLookup() {
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.success) { resultEl.innerHTML = '<div class="lookup-empty">오류: ' + escHtml(data.message || '') + '</div>'; return; }
+
+            var summaryText = grade + '학년 ' + classNum + '반 · ' + (PERIOD_LABEL[period] || '');
+            document.getElementById('lookup-summary-text').textContent = summaryText;
+            document.getElementById('lookup-summary').style.display = 'flex';
+            document.getElementById('lookup-form-area').style.display = 'none';
+
             if (!data.records.length) { resultEl.innerHTML = '<div class="lookup-empty">해당 기간/학급의 방문 기록이 없습니다.</div>'; return; }
             LOOKUP_RECORDS = data.records;
             LOOKUP_PAGE = 0;
@@ -592,7 +617,9 @@ function renderLookupPage() {
     pageItems.forEach(function (r) {
         var row = document.createElement('div');
         row.className = 'lookup-row';
-        row.innerHTML = '<span>' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
+        row.innerHTML =
+            '<span class="lk-when">' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span>' +
+            '<span class="lk-symptom">' + escHtml(r.symptom) + '</span>';
         resultEl.appendChild(row);
     });
 

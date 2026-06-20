@@ -17,14 +17,22 @@ module.exports = async function handler(req, res) {
     });
 
     const rows = response.data.values || [];
-    const header = rows[0] || [];
+    const header = (rows[0] || []).map(function (h) { return String(h || '').trim(); });
     const dataRows = rows.slice(1);
 
+    function findCol(candidates) {
+      for (var c = 0; c < candidates.length; c++) {
+        var i = header.indexOf(candidates[c]);
+        if (i !== -1) return i;
+      }
+      return -1;
+    }
+
     const idx = {
-      date: header.indexOf('날짜'),
-      name: header.indexOf('이름'),
-      classInfo: header.indexOf('학년반'),
-      number: header.indexOf('번호'),
+      date: findCol(['날짜', '일자', '방문날짜']),
+      name: findCol(['이름', '성명', '학생이름', '학생명']),
+      classInfo: findCol(['학년반', '학급', '반', '학년/반']),
+      number: findCol(['번호', '학번', '출석번호']),
     };
 
     const now = new Date();
@@ -46,7 +54,9 @@ module.exports = async function handler(req, res) {
       const cls = row[idx.classInfo] || '미확인';
       classCounts[cls] = (classCounts[cls] || 0) + 1;
 
-      const key = cls + ' ' + (row[idx.number] || '') + '번 ' + (row[idx.name] || '');
+      const num = row[idx.number] || '';
+      const nm = row[idx.name] || '';
+      const key = cls + (num ? ' ' + num + '번' : '') + (nm ? ' ' + nm : '');
       studentCounts[key] = (studentCounts[key] || 0) + 1;
     });
 
