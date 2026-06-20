@@ -41,13 +41,33 @@ module.exports = async function handler(req, res) {
       return '기타';
     }
 
+    function splitSymptoms(text) {
+      const result = [];
+      let depth = 0, cur = '';
+      for (const ch of text) {
+        if (ch === '(') depth++;
+        if (ch === ')') depth = Math.max(0, depth - 1);
+        if (ch === ',' && depth === 0) {
+          result.push(cur.trim());
+          cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      if (cur.trim()) result.push(cur.trim());
+      return result.filter(Boolean);
+    }
+
     const categoryCounts = {};
     const detailCounts = {};
 
     dataRows.forEach(row => {
       const symptomText = row[idx.symptom] || '';
       if (!symptomText) return;
-      const symptoms = symptomText.split(',').map(s => s.trim()).filter(Boolean);
+      const symptoms = splitSymptoms(symptomText).map(s => {
+        if (/^근육통\(/.test(s)) return '근육통';
+        return s;
+      });
       symptoms.forEach(s => {
         detailCounts[s] = (detailCounts[s] || 0) + 1;
       });
@@ -66,9 +86,22 @@ module.exports = async function handler(req, res) {
 
     const total = dataRows.length;
 
+    const now = new Date();
+    const schoolYearStart = now.getMonth() >= 2 ? now.getFullYear() : now.getFullYear() - 1;
+    const rangeStart = schoolYearStart + '-03-01';
+    const rangeEnd = (schoolYearStart + 1) + '-02-28';
+
+    let schoolYearTotal = 0;
+    dataRows.forEach(row => {
+      const d = String(row[idx.date] || '').slice(0, 10);
+      if (d && d >= rangeStart && d <= rangeEnd) schoolYearTotal++;
+    });
+
     res.status(200).json({
       success: true,
       total,
+      schoolYearLabel: schoolYearStart + '학년도',
+      schoolYearTotal,
       categories: categoryArr,
       topSymptoms: detailArr
     });
