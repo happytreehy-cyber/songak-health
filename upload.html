@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<title>파일 업로드 - 송악고등학교 온라인 보건실</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family:'Noto Sans KR', sans-serif; background:#f4f6f9; color:#333; }
+.wrap { max-width:480px; margin:60px auto; padding:0 20px; }
+.card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:28px 24px; }
+h1 { font-size:17px; margin-bottom:6px; color:#1e3a8a; }
+p.desc { font-size:12.5px; color:#64748b; margin-bottom:18px; line-height:1.6; }
+.drop-zone {
+    border:2px dashed #cbd5e1; border-radius:10px; padding:30px 14px; text-align:center;
+    cursor:pointer; font-size:13px; color:#64748b; margin-bottom:14px;
+}
+.drop-zone.drag { border-color:#2563eb; background:#eff6ff; }
+input[type=file] { display:none; }
+button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:11px 0; font-size:14px; font-weight:700; cursor:pointer; }
+button:disabled { background:#94a3b8; cursor:not-allowed; }
+.result-box { margin-top:16px; padding:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; display:none; }
+.result-box.show { display:block; }
+.result-url { font-size:12px; word-break:break-all; background:#fff; padding:8px; border-radius:6px; border:1px solid #e2e8f0; margin:8px 0; }
+.copy-btn { background:#16a34a; }
+.copy-btn:hover { background:#15803d; }
+.err { color:#ef4444; font-size:12.5px; margin-top:8px; }
+.back { display:block; text-align:center; font-size:12.5px; color:#475569; margin-top:16px; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>📎 공지사항 파일 업로드</h1>
+        <p class="desc">이미지, PDF 등 파일을 올리면 링크가 생성돼요.<br>그 링크를 구글시트 "공지사항" 탭의 "링크" 칸에 붙여넣으시면 됩니다. (최대 4MB)</p>
+
+        <div class="drop-zone" id="drop-zone">파일을 여기로 끌어다 놓거나<br>클릭해서 선택하세요</div>
+        <input type="file" id="file-input">
+        <button id="upload-btn" disabled>업로드</button>
+        <div class="err" id="err-msg"></div>
+
+        <div class="result-box" id="result-box">
+            <div style="font-size:13px; font-weight:700; color:#166534;">✅ 업로드 완료!</div>
+            <div class="result-url" id="result-url"></div>
+            <button class="copy-btn" id="copy-btn">링크 복사하기</button>
+        </div>
+    </div>
+    <a class="back" href="today.html">← 오늘의 보건실로 돌아가기</a>
+</div>
+
+<script>
+var selectedFile = null;
+var dropZone = document.getElementById('drop-zone');
+var fileInput = document.getElementById('file-input');
+var uploadBtn = document.getElementById('upload-btn');
+var errMsg = document.getElementById('err-msg');
+var resultBox = document.getElementById('result-box');
+var resultUrl = document.getElementById('result-url');
+
+dropZone.addEventListener('click', function () { fileInput.click(); });
+fileInput.addEventListener('change', function () {
+    if (fileInput.files.length) setFile(fileInput.files[0]);
+});
+dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag'); });
+dropZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    dropZone.classList.remove('drag');
+    if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+
+function setFile(file) {
+    if (file.size > 4 * 1024 * 1024) {
+        errMsg.textContent = '파일이 너무 커요 (4MB 이하만 가능해요).';
+        selectedFile = null;
+        uploadBtn.disabled = true;
+        return;
+    }
+    errMsg.textContent = '';
+    selectedFile = file;
+    dropZone.innerHTML = '📄 ' + file.name + '<br><span style="font-size:11px;">(' + Math.round(file.size / 1024) + 'KB)</span>';
+    uploadBtn.disabled = false;
+}
+
+uploadBtn.addEventListener('click', function () {
+    if (!selectedFile) return;
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = '업로드 중...';
+    errMsg.textContent = '';
+
+    fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+            'Content-Type': selectedFile.type || 'application/octet-stream',
+            'x-filename': encodeURIComponent(selectedFile.name)
+        },
+        body: selectedFile
+    })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '업로드';
+            if (!data.success) {
+                errMsg.textContent = '오류: ' + (data.message || '업로드 실패');
+                return;
+            }
+            resultUrl.textContent = data.url;
+            resultBox.classList.add('show');
+        })
+        .catch(function () {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '업로드';
+            errMsg.textContent = '업로드 중 오류가 발생했습니다.';
+        });
+});
+
+document.getElementById('copy-btn').addEventListener('click', function () {
+    navigator.clipboard.writeText(resultUrl.textContent).then(function () {
+        var btn = document.getElementById('copy-btn');
+        var old = btn.textContent;
+        btn.textContent = '복사됨!';
+        setTimeout(function () { btn.textContent = old; }, 1500);
+    });
+});
+</script>
+</body>
+</html>

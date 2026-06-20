@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 보건실 - 송악고등학교 온라인 보건실</title>
+    <meta name="color-scheme" content="light only">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -32,12 +33,12 @@
         .day-item.sun { color:#ef4444; }
         .day-item.today { background-color:#2563eb; color:#fff; border-radius:50%; padding:0 5px; }
 
-        .page-wrap { max-width: 1140px; margin: 20px auto; padding: 0 24px 60px; }
-        .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-        .page-title-row h1 { font-size:18px; font-weight:700; color:#1e293b; }
+        .page-wrap { max-width: 1140px; margin: 14px auto; padding: 0 24px 30px; }
+        .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .page-title-row h1 { font-size:16px; font-weight:700; color:#1e293b; }
 
-        .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:18px 22px; margin-bottom:18px; }
-        .section-divider-title { font-size:13px; font-weight:700; color:#94a3b8; margin: 6px 0 10px; padding-bottom:8px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
+        .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
+        .section-divider-title { font-size:13px; font-weight:700; color:#94a3b8; margin: 4px 0 8px; padding-bottom:6px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; }
         .today-task-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 4px; cursor:pointer; }
         .today-task-item:last-child { border-bottom:none; }
@@ -53,11 +54,11 @@
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
         .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
 
-        .visit-stat-strip { display:flex; gap:14px; margin-bottom:18px; align-items:stretch; }
-        .visit-stat-box { flex:1; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 20px; }
-        .visit-stat-label { font-size:12.5px; color:#64748b; font-weight:600; margin-bottom:6px; }
-        .visit-stat-value { font-size:26px; font-weight:700; color:#1e3a8a; }
-        .visit-stat-value span { font-size:14px; font-weight:600; color:#64748b; margin-left:3px; }
+        .visit-stat-strip { display:flex; gap:10px; margin-bottom:12px; align-items:stretch; }
+        .visit-stat-box { flex:1; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 16px; }
+        .visit-stat-label { font-size:12px; color:#64748b; font-weight:600; margin-bottom:4px; }
+        .visit-stat-value { font-size:22px; font-weight:700; color:#1e3a8a; }
+        .visit-stat-value span { font-size:13px; font-weight:600; color:#64748b; margin-left:3px; }
 
         .reveal-wrap { position: relative; }
         .blur-target { filter: blur(6px); pointer-events: none; user-select: none; }
@@ -69,13 +70,13 @@
         .auth-gate-box button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:14px; font-weight:700; cursor:pointer; }
         .auth-gate-box .err { color:#ef4444; font-size:12.5px; min-height:16px; margin-top:8px; }
 
-        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         @media (max-width: 760px) { .health-grid-2x2 { grid-template-columns:1fr; } }
 
-        .grid-cell { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:320px; }
-        .cell-head { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #e2e8f0; font-size:14px; font-weight:700; color:#1e293b; }
-        .cell-link { font-size:12px; color:#2563eb; font-weight:600; cursor:pointer; }
-        .cell-body { padding:14px 16px; flex:1; overflow-y:auto; }
+        .grid-cell { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:200px; }
+        .cell-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #e2e8f0; font-size:13px; font-weight:700; color:#1e293b; }
+        .cell-link { font-size:11.5px; color:#2563eb; font-weight:600; cursor:pointer; }
+        .cell-body { padding:12px 14px; flex:1; overflow-y:auto; }
 
         .smile-frame-box { position:relative; flex:1; min-height:300px; background:#fff; }
         .smile-frame-box iframe { width:100%; height:100%; border:none; }
@@ -84,12 +85,22 @@
         .smile-fallback-btn { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; }
 
         .mini-rank-list { display:flex; flex-direction:column; gap:6px; }
-        .mini-rank-item { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#334155; padding:6px 10px; background:#f8fafc; border:1px solid #eef1f6; border-radius:8px; }
-        .mini-rank-item .rk-name { font-weight:600; }
-        .mini-rank-item .rk-count { color:#2563eb; font-weight:700; }
+        .mini-rank-item { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; color:#334155; padding:6px 10px; background:#f8fafc; border:1px solid #eef1f6; border-radius:8px; }
+        .mini-rank-item .rk-name { font-weight:600; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .mini-rank-item .rk-count { color:#2563eb; font-weight:700; flex-shrink:0; }
         .mini-rank-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
 
-        .stat-sub-title { font-size:12.5px; font-weight:700; color:#64748b; margin:14px 0 7px; }
+        .stat-sub-title { font-size:12px; font-weight:700; color:#64748b; margin:10px 0 5px; }
+
+        .treemap-box { border-radius:6px; padding:6px 8px; color:#fff; display:flex; flex-direction:column; justify-content:flex-end; font-size:11px; line-height:1.3; flex:1 1 90px; min-height:55px; }
+        .treemap-box .tm-name { font-weight:700; }
+        .treemap-box .tm-count { opacity:0.85; font-size:10px; }
+
+        .dot-row { display:flex; align-items:center; gap:8px; padding:5px 2px; }
+        .dot-row .dot-label { font-size:11.5px; color:#475569; flex:0 0 78px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .dot-row .dot-track { flex:1; height:2px; background:#e2e8f0; position:relative; border-radius:2px; }
+        .dot-row .dot-mark { position:absolute; top:50%; width:9px; height:9px; border-radius:50%; transform:translate(-50%,-50%); }
+        .dot-row .dot-value { font-size:11.5px; color:#1e293b; font-weight:700; flex:0 0 30px; text-align:right; }
 
         .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; }
         .lock-row { display:flex; gap:8px; }
@@ -128,7 +139,10 @@
 
         <div class="page-title-row"><h1>📅 오늘의 보건실</h1></div>
 
-        <div class="section-divider-title">📰 이번주 보건소식</div>
+        <div class="section-divider-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>📰 이번주 보건소식</span>
+            <a href="upload.html" target="_blank" style="font-size:12px; color:#2563eb; font-weight:600;">📎 파일 업로드</a>
+        </div>
         <div class="today-task-section">
             <div id="today-task-list"><div class="today-task-empty">불러오는 중...</div></div>
         </div>
@@ -138,43 +152,33 @@
         <div class="reveal-wrap">
             <div id="blurred-content">
                 <div class="visit-stat-strip" id="visit-stat-strip">
-                    <div class="visit-stat-box" style="flex:0 0 220px;">
+                    <div class="visit-stat-box" style="flex:0 0 200px;">
                         <div class="visit-stat-label" id="stat-year-label">학년도 누적 방문</div>
                         <div class="visit-stat-value blur-target" id="stat-year-total">-<span>건</span></div>
                     </div>
-                    <div class="grid-cell" id="grade-chart-card" style="flex:1; margin-bottom:0;">
-                        <div class="cell-head" style="padding:8px 14px;"><span style="font-size:12.5px;">📈 학년별 이용현황</span><span class="cell-link" id="grade-chart-year-label"></span></div>
-                        <div class="cell-body blur-target" style="padding:8px 14px;"><canvas id="grade-bar-chart" height="60"></canvas></div>
+                    <div class="grid-cell" style="flex:1; margin-bottom:0; min-height:auto;">
+                        <div class="cell-head" style="padding:8px 14px;">
+                            <span style="font-size:12.5px;">🏥 오늘의 실시간 보건실 현황</span>
+                            <span class="cell-link" id="smile-open-link">새 탭 ↗</span>
+                        </div>
+                        <div class="smile-frame-box blur-target" style="height:110px; min-height:110px;">
+                            <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                            <div class="smile-fallback" id="smile-fallback-today">
+                                <div style="font-size:20px">🏥</div>
+                                <div style="font-size:11px;color:#64748b;line-height:1.5">새 탭에서 확인해 주세요.</div>
+                                <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="health-grid-2x2" id="main-grid">
-            <div class="grid-cell">
-                <div class="cell-head">
-                    <span>🏥 실시간 보건실 현황</span>
-                    <span class="cell-link" id="smile-open-link">새 탭 ↗</span>
-                </div>
-                <div class="smile-frame-box blur-target">
-                    <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
-                    <div class="smile-fallback" id="smile-fallback-today">
-                        <div style="font-size:28px">🏥</div>
-                        <div style="font-size:12px;color:#64748b;line-height:1.6">보안 정책으로 여기서 바로 볼 수 없어요.<br>새 탭에서 확인해 주세요.</div>
-                        <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
-                    </div>
-                </div>
+            <div class="grid-cell" style="min-height:auto;">
+                <div class="cell-head"><span>📈 학년별 이용현황</span><span class="cell-link" id="grade-chart-year-label"></span></div>
+                <div class="cell-body blur-target" style="height:80px;"><canvas id="grade-bar-chart"></canvas></div>
             </div>
 
-            <div class="grid-cell">
-                <div class="cell-head"><span>📊 증상 통계</span></div>
-                <div class="cell-body blur-target">
-                    <div class="stat-sub-title" style="margin-top:0;">증상 대분류 비중</div>
-                    <canvas id="symptom-donut" height="160"></canvas>
-                    <div class="stat-sub-title">세부 증상 TOP 10</div>
-                    <div class="mini-rank-list" id="symptom-top10-list"></div>
-                </div>
-            </div>
-
-            <div class="grid-cell">
+            <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>👩‍🏫 담임용 날짜별 조회</span></div>
                 <div class="lock-form blur-target">
                     <div class="lock-row">
@@ -203,14 +207,26 @@
                 <div class="lookup-result blur-target" id="lookup-result"></div>
             </div>
 
-            <div class="grid-cell">
-                <div class="cell-head"><span>🩺 보건실 이용 현황</span></div>
-                <div class="cell-body blur-target" id="rank-cell-body">
-                    <div class="stat-sub-title" style="margin-top:0;">학급별 이용 현황 TOP 10</div>
-                    <div class="mini-rank-list" id="rank-class-list"></div>
-                    <div class="stat-sub-title">관심이 필요한 학생 (이용 빈도 높음)</div>
-                    <div class="mini-rank-list" id="rank-student-list"></div>
+            <div class="grid-cell" style="min-height:auto;">
+                <div class="cell-head"><span>📊 증상 대분류 비중</span></div>
+                <div class="cell-body blur-target">
+                    <div style="height:140px; position:relative;"><canvas id="symptom-donut"></canvas></div>
                 </div>
+            </div>
+
+            <div class="grid-cell" style="min-height:auto;">
+                <div class="cell-head"><span>🧩 세부 증상 TOP 10</span></div>
+                <div class="cell-body blur-target" id="symptom-treemap" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
+            </div>
+
+            <div class="grid-cell" style="min-height:auto;">
+                <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span></div>
+                <div class="cell-body blur-target" id="rank-class-list"></div>
+            </div>
+
+            <div class="grid-cell" style="min-height:auto;">
+                <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span></div>
+                <div class="cell-body blur-target" id="rank-student-list"></div>
             </div>
                 </div>
             </div>
@@ -219,7 +235,7 @@
                 <div class="ico">🔒</div>
                 <h3>교직원 본인 확인</h3>
                 <p>비밀번호와 이름을 입력하면 보건실 현황 · 증상 통계 · 담임용 조회 · 이용 현황을<br>한 번에 모두 확인할 수 있어요.</p>
-                <input type="password" id="gate-pw" placeholder="비밀번호 (119)">
+                <input type="password" id="gate-pw" placeholder="비밀번호">
                 <input type="text" id="gate-name" placeholder="본인 이름">
                 <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#64748b; margin-bottom:10px; justify-content:center;">
                     <input type="checkbox" id="gate-remember" style="width:auto; margin:0;"> 이 기기에서 내 이름 기억하기
@@ -234,27 +250,33 @@
 <script>
 var SMILE_URL = 'https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ';
 
-var TODAY_TASKS = [
-    {
-        text: '6월 4주차: 학생 정신건강 자가검진 결과 회수 마감',
-        status: 'ongoing',
-        detail: '이번 주(금요일)까지 학급별 자가검진 설문 제출을 완료해 주세요.<br>아래 QR을 스캔하면 설문지로 바로 이동합니다.<br><a href="https://forms.gle/예시설문" target="_blank">📝 설문 링크 바로가기</a><br><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://forms.gle/예시설문" alt="설문 QR코드">'
-    },
-    {
-        text: '6월 22일(월): 2·3학년 소변검사 학급별 시간표 안내',
-        status: 'ongoing',
-        detail: '학급별 검사 시간표는 가정통신문 및 메신저로 공지된 내용을 참고해 주세요.<br>문의사항은 보건실(내선 000)로 연락 주세요.'
-    },
-    {
-        text: '6월 26일(금): 결핵검진(중앙현관 앞 검진버스) 진행',
-        status: 'ongoing',
-        detail: '검진버스는 오전 9시~오후 1시, 중앙현관 앞에 배치됩니다.<br>학급별 이동 시간은 별도 안내될 예정입니다.'
-    }
-];
+var TODAY_TASKS = [];
+
+function loadNotices() {
+    fetch('/api/notices')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            TODAY_TASKS = data.notices.map(function (n) {
+                var detail = escHtml(n.content).replace(/\n/g, '<br>');
+                if (n.link) {
+                    detail += '<br><a href="' + n.link + '" target="_blank">🔗 바로가기</a>';
+                    if (/^https?:\/\//.test(n.link)) {
+                        detail += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
+                    }
+                }
+                return { text: n.title, status: n.status, detail: detail };
+            });
+            renderTodayTasks();
+        })
+        .catch(function () {
+            document.getElementById('today-task-list').innerHTML = '<div class="today-task-empty">공지사항을 불러오지 못했습니다.</div>';
+        });
+}
 
 window.addEventListener('DOMContentLoaded', function () {
     renderDate();
-    renderTodayTasks();
+    loadNotices();
     bindEvents();
     var saved = localStorage.getItem('songak_staff_name');
     if (saved) {
@@ -315,7 +337,7 @@ function handleGateAuth() {
 function renderTodayTasks() {
     var el = document.getElementById('today-task-list');
     el.innerHTML = '';
-    if (!TODAY_TASKS.length) { el.innerHTML = '<div class="today-task-empty">등록된 업무가 없습니다.</div>'; return; }
+    if (!TODAY_TASKS.length) { el.innerHTML = '<div class="today-task-empty">등록된 공지가 없습니다.</div>'; return; }
     TODAY_TASKS.forEach(function (task, i) {
         var item = document.createElement('div');
         item.className = 'today-task-item';
@@ -325,25 +347,16 @@ function renderTodayTasks() {
         item.innerHTML =
             '<div class="today-task-row" data-idx="' + i + '">' +
                 '<span class="today-task-text ' + textClass + '">' + escHtml(task.text) + '</span>' +
-                '<button class="status-btn ' + textClass + '" data-statusidx="' + i + '">' + btnLabel + '</button>' +
+                '<span class="status-btn ' + textClass + '">' + btnLabel + '</span>' +
             '</div>' +
             '<div class="today-task-detail ' + openClass + '">' + (task.detail || '상세 내용이 없습니다.') + '</div>';
         el.appendChild(item);
     });
 
     el.querySelectorAll('.today-task-row').forEach(function (row) {
-        row.addEventListener('click', function (e) {
-            if (e.target.classList.contains('status-btn')) return;
+        row.addEventListener('click', function () {
             var idx = parseInt(this.getAttribute('data-idx'), 10);
             TODAY_TASKS[idx]._open = !TODAY_TASKS[idx]._open;
-            renderTodayTasks();
-        });
-    });
-    el.querySelectorAll('.status-btn').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var idx = parseInt(this.getAttribute('data-statusidx'), 10);
-            TODAY_TASKS[idx].status = TODAY_TASKS[idx].status === 'closed' ? 'ongoing' : 'closed';
             renderTodayTasks();
         });
     });
@@ -357,11 +370,30 @@ function loadSymptomStats() {
         .then(function (data) {
             if (!data.success) return;
             renderSymptomDonut(data.categories);
-            renderMiniRankList('symptom-top10-list', data.topSymptoms, '건');
+            renderSymptomTreemap(data.topSymptoms);
             document.getElementById('stat-year-label').textContent = (data.schoolYearLabel || '학년도') + ' 누적 방문';
             document.getElementById('stat-year-total').innerHTML = data.schoolYearTotal + '<span>건</span>';
         })
         .catch(function () {});
+}
+
+var TREEMAP_COLORS = ['#0f172a', '#1e3a8a', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa', '#1e40af', '#3b6fd6', '#4f8af0', '#7eb0f7'];
+
+function renderSymptomTreemap(list) {
+    var el = document.getElementById('symptom-treemap');
+    el.innerHTML = '';
+    if (!list || !list.length) { el.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
+    var max = list[0].count || 1;
+    list.forEach(function (item, i) {
+        var box = document.createElement('div');
+        box.className = 'treemap-box';
+        box.style.background = TREEMAP_COLORS[i % TREEMAP_COLORS.length];
+        var grow = Math.max(1, Math.round((item.count / max) * 4));
+        box.style.flexGrow = grow;
+        box.style.minHeight = (50 + (item.count / max) * 30) + 'px';
+        box.innerHTML = '<span class="tm-name">' + escHtml(item.name) + '</span><span class="tm-count">' + item.count + '건</span>';
+        el.appendChild(box);
+    });
 }
 
 function renderSymptomDonut(categories) {
@@ -374,7 +406,7 @@ function renderSymptomDonut(categories) {
     symptomChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: { labels: labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 2 }] },
-        options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } }, cutout: '62%' }
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } }, cutout: '62%' }
     });
 }
 
@@ -397,12 +429,29 @@ function loadVisitStatus() {
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.success) return;
-            renderMiniRankList('rank-class-list', data.classRanking, '회');
-            renderMiniRankList('rank-student-list', data.studentRanking, '회');
+            renderDotPlot('rank-class-list', data.classRanking, function () { return '#3b82f6'; });
+            renderDotPlot('rank-student-list', data.studentRanking, function (item) { return item.count >= 20 ? '#f43f5e' : '#3b82f6'; });
             renderGradeBarChart(data.gradeYearly);
             document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
         })
         .catch(function () {});
+}
+
+function renderDotPlot(elId, list, colorFn) {
+    var el = document.getElementById(elId);
+    el.innerHTML = '';
+    if (!list || !list.length) { el.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
+    var max = list[0].count || 1;
+    list.forEach(function (item) {
+        var pct = Math.max(4, (item.count / max) * 100);
+        var row = document.createElement('div');
+        row.className = 'dot-row';
+        row.innerHTML =
+            '<span class="dot-label" title="' + escHtml(item.name) + '">' + escHtml(item.name) + '</span>' +
+            '<div class="dot-track"><span class="dot-mark" style="left:' + pct + '%; background:' + colorFn(item) + ';"></span></div>' +
+            '<span class="dot-value">' + item.count + '</span>';
+        el.appendChild(row);
+    });
 }
 
 function renderGradeBarChart(gradeYearly) {
@@ -414,7 +463,11 @@ function renderGradeBarChart(gradeYearly) {
     gradeChartInstance = new Chart(ctx, {
         type: 'bar',
         data: { labels: labels, datasets: [{ label: '방문 건수', data: counts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
-        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 11 } } } }
+        }
     });
 }
 
@@ -467,7 +520,7 @@ function handleLookup() {
             data.records.forEach(function (r) {
                 var row = document.createElement('div');
                 row.className = 'lookup-row';
-                row.innerHTML = '<span>' + escHtml(r.date) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
+                row.innerHTML = '<span>' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span><span>' + escHtml(r.symptom) + '</span>';
                 resultEl.appendChild(row);
             });
         })
