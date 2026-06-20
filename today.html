@@ -23,7 +23,8 @@
         .nav-title-group { display:flex; align-items:baseline; gap:8px; }
         .nav-main-title { font-size:16px; font-weight:700; color:#1e3a8a; }
         .nav-sub-title { font-size:12px; color:#64748b; font-weight:400; }
-        .nav-back { font-size:12.5px; color:#854d0e; font-weight:700; padding:5px 12px; background:#fde047; border:1px solid #facc15; border-radius:7px; cursor:pointer; }
+        .nav-back { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; color:#0369a1; font-weight:700; padding:5px 12px; background:#e0f2fe; border:1px solid #bae6fd; border-radius:7px; cursor:pointer; margin-bottom:8px; }
+        .nav-back-arrow { color:#ef4444; font-weight:900; }
 
         .date-strip-bar { background:#fff; padding:4px 30px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #e2e8f0; }
         .date-badge-mini { font-family:'Poppins', sans-serif; font-size:20px; font-weight:700; color:#2563eb; }
@@ -38,7 +39,7 @@
         .page-title-row h1 { font-size:16px; font-weight:700; color:#1e293b; }
 
         .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
-        .section-divider-title { font-size:13.5px; font-weight:800; color:#1e293b; margin: 4px 0 8px; padding-bottom:6px; border-bottom:2px solid #e2e8f0; letter-spacing:0.3px; }
+        .section-divider-title { font-size:13.5px; font-weight:800; color:#1e3a8a; margin: 4px 0 8px; padding:7px 12px; background:#eff6ff; border-left:4px solid #2563eb; border-radius:6px; letter-spacing:0.3px; }
         .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; }
         .today-task-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 4px; cursor:pointer; }
@@ -101,7 +102,7 @@
         .legend-item .lg-pct { color:#94a3b8; flex-shrink:0; width:42px; text-align:right; }
 
         .dot-axis { display:flex; align-items:center; gap:8px; margin-top:4px; }
-        .dot-axis-l { flex:0 0 78px; }
+        .dot-axis-l { flex:0 0 108px; }
         .dot-axis-r { flex:0 0 30px; }
         .dot-axis-track { flex:1; display:flex; justify-content:space-between; font-size:10px; color:#b6bfca; }
 
@@ -117,9 +118,9 @@
         .treemap-box .tm-count { opacity:0.85; font-size:10px; }
 
         .dot-row { display:flex; align-items:center; gap:8px; padding:5px 2px; }
-        .dot-row .dot-label { font-size:11.5px; color:#475569; flex:0 0 78px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .dot-row .dot-track { flex:1; height:8px; background:#eef1f6; position:relative; border-radius:5px; overflow:hidden; }
-        .dot-row .dot-bar { position:absolute; top:0; left:0; height:100%; border-radius:5px; transition:width .2s; }
+        .dot-row .dot-label { font-size:11.5px; color:#475569; flex:0 0 108px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .dot-row .dot-track { flex:1; height:4px; background:#eef1f6; position:relative; border-radius:3px; overflow:hidden; }
+        .dot-row .dot-bar { position:absolute; top:0; left:0; height:100%; border-radius:3px; transition:width .2s; background:#3b82f6; }
         .dot-row .dot-value { font-size:11.5px; color:#1e293b; font-weight:700; flex:0 0 30px; text-align:right; }
 
         .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; }
@@ -135,8 +136,8 @@
         .lookup-summary button { width:auto; background:#fff; color:#2563eb; border:1px solid #cbd5e1; border-radius:6px; padding:5px 10px; font-size:11.5px; font-weight:700; cursor:pointer; }
         .lookup-result { padding: 0 16px 16px; }
         .lookup-row { display:flex; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
-        .lookup-row .lk-when { flex:0 0 168px; color:#334155; }
-        .lookup-row .lk-symptom { flex:1; text-align:left; padding-left:14px; color:#1e293b; }
+        .lookup-row .lk-when { flex:0 0 172px; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lookup-row .lk-symptom { flex:1; min-width:0; text-align:left; padding-left:8px; color:#1e293b; }
         .lookup-empty { font-size:13px; color:#94a3b8; padding:12px 0; text-align:center; }
     </style>
 </head>
@@ -151,7 +152,6 @@
                     <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
                 </div>
             </div>
-            <a class="nav-back" href="index.html">↩️ 이전으로</a>
         </nav>
         <section class="date-strip-bar">
             <div class="date-badge-mini" id="date-badge-mini">19</div>
@@ -162,10 +162,11 @@
 
     <div class="page-wrap">
 
+        <a class="nav-back" href="index.html"><span class="nav-back-arrow">←</span> 이전으로</a>
         <div class="page-title-row"><h1>📅 오늘의 보건실</h1></div>
 
         <div class="section-divider-title" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>📰 이번주 보건소식</span>
+            <span>📢 이번주 보건소식</span>
             <a href="upload.html" target="_blank" style="font-size:12px; color:#2563eb; font-weight:600;">📎 파일 업로드</a>
         </div>
         <div class="today-task-section">
@@ -174,7 +175,7 @@
 
         <div class="section-gap-divider"></div>
 
-        <div class="section-divider-title">🩺 보건 이용 현황</div>
+        <div class="section-divider-title">🏥 보건 이용 현황</div>
 
         <div class="reveal-wrap">
             <div id="blurred-content">
@@ -226,8 +227,7 @@
                     <select id="lookup-period">
                         <option value="today">오늘</option>
                         <option value="week">이번 주</option>
-                        <option value="month">이번 달</option>
-                        <option value="custom">기간 설정</option>
+                        <option value="month">이번 달</option><option value="custom">기간 설정</option>
                     </select>
                     <div class="lock-row" id="lookup-custom-range" style="display:none;">
                         <input type="date" id="lookup-start">
@@ -456,8 +456,7 @@ function renderSymptomDonut(categories) {
     legendEl.innerHTML = '';
     if (!sorted.length) { legendEl.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
     sorted.forEach(function (c, i) {
-        var pct = ((c.count / total) * 100).toFixed(1);
-        var row = document.createElement('div');
+        var pct = ((c.count / total) * 100).toFixed(1);var row = document.createElement('div');
         row.className = 'legend-item';
         row.innerHTML =
             '<span class="lg-dot" style="background:' + colors[i % colors.length] + ';"></span>' +
@@ -488,7 +487,7 @@ function loadVisitStatus() {
         .then(function (data) {
             if (!data.success) return;
             renderDotPlot('rank-class-list', data.classRanking, function () { return '#3b82f6'; });
-            renderDotPlot('rank-student-list', data.studentRanking, function (item) { return item.count >= 20 ? '#f43f5e' : '#3b82f6'; });
+            renderDotPlot('rank-student-list', data.studentRanking, function () { return '#3b82f6'; });
             renderGradeBarChart(data.gradeYearly);
             document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
             var yl2 = data.schoolYearLabel ? (data.schoolYearLabel + ' 누적') : '';
@@ -618,7 +617,7 @@ function renderLookupPage() {
         var row = document.createElement('div');
         row.className = 'lookup-row';
         row.innerHTML =
-            '<span class="lk-when">' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span>' +
+            '<span class="lk-when" title="' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '">' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span>' +
             '<span class="lk-symptom">' + escHtml(r.symptom) + '</span>';
         resultEl.appendChild(row);
     });
