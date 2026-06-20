@@ -34,7 +34,11 @@ button:disabled { background:#94a3b8; cursor:not-allowed; }
 <div class="wrap">
     <div class="card">
         <h1>📎 공지사항 파일 업로드</h1>
-        <p class="desc">이미지, PDF 등 파일을 올리면 링크가 생성돼요.<br>그 링크를 구글시트 "공지사항" 탭의 "링크" 칸에 붙여넣으시면 됩니다. (최대 4MB)</p>
+        <p class="desc">1. 어떤 공지에 쓸 파일인지 선택(선택사항) → 2. 파일 업로드 → 3. 생성된 링크를 복사해서 구글시트 "공지사항" 탭의 해당 글 "링크" 칸에 붙여넣으면 끝!<br>(최대 4MB)</p>
+
+        <select id="notice-select" style="width:100%; padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; margin-bottom:12px; font-family:inherit;">
+            <option value="">— 어떤 공지에 쓸 파일인가요? (선택사항) —</option>
+        </select>
 
         <div class="drop-zone" id="drop-zone">파일을 여기로 끌어다 놓거나<br>클릭해서 선택하세요</div>
         <input type="file" id="file-input">
@@ -44,6 +48,7 @@ button:disabled { background:#94a3b8; cursor:not-allowed; }
         <div class="result-box" id="result-box">
             <div style="font-size:13px; font-weight:700; color:#166534;">✅ 업로드 완료!</div>
             <div class="result-url" id="result-url"></div>
+            <div id="result-hint" style="font-size:12px; color:#166534; margin-bottom:8px; font-weight:600;"></div>
             <button class="copy-btn" id="copy-btn">링크 복사하기</button>
         </div>
     </div>
@@ -58,6 +63,20 @@ var uploadBtn = document.getElementById('upload-btn');
 var errMsg = document.getElementById('err-msg');
 var resultBox = document.getElementById('result-box');
 var resultUrl = document.getElementById('result-url');
+var noticeSelect = document.getElementById('notice-select');
+
+fetch('/api/notices')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+        if (!data.success) return;
+        data.notices.forEach(function (n) {
+            var opt = document.createElement('option');
+            opt.value = n.title;
+            opt.textContent = n.title + (n.status === 'closed' ? ' (마감)' : '');
+            noticeSelect.appendChild(opt);
+        });
+    })
+    .catch(function () {});
 
 dropZone.addEventListener('click', function () { fileInput.click(); });
 fileInput.addEventListener('change', function () {
@@ -107,6 +126,13 @@ uploadBtn.addEventListener('click', function () {
                 return;
             }
             resultUrl.textContent = data.url;
+            var noticeName = noticeSelect.value;
+            var hint = document.getElementById('result-hint');
+            if (noticeName) {
+                hint.textContent = '이 링크를 구글시트 "공지사항" 탭에서 "' + noticeName + '" 글의 링크 칸에 붙여넣으세요!';
+            } else {
+                hint.textContent = '이 링크를 구글시트 "공지사항" 탭의 원하는 글 "링크" 칸에 붙여넣으세요!';
+            }
             resultBox.classList.add('show');
         })
         .catch(function () {

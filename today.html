@@ -43,13 +43,14 @@
         .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; padding:12px 4px; }
         .today-task-item:last-child { border-bottom:none; }
-        .today-task-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
-        .today-task-text { font-size:14px; flex:1; font-weight:700; }
-        .today-task-text.closed { color:#94a3b8; }
-        .today-task-text.ongoing { color:#1e293b; }
-        .today-task-detail { display:block; padding:6px 0 0 0; font-size:13px; color:#475569; line-height:1.7; white-space:pre-line; }
-        .today-task-detail img { max-width:140px; border-radius:8px; margin-top:8px; display:block; }
-        .today-task-detail a { color:#2563eb; font-weight:600; }
+        .today-task-row { display:flex; align-items:flex-start; gap:14px; }
+        .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 130px; min-width:0; }
+        .today-task-title.closed { color:#94a3b8; }
+        .today-task-title.ongoing { color:#1e293b; }
+        .today-task-content { font-size:13px; color:#475569; line-height:1.6; flex:1; min-width:0; }
+        .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:144px; }
+        .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
+        .today-task-extra a { color:#2563eb; font-weight:600; }
         .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
@@ -307,17 +308,17 @@ function loadNotices() {
         .then(function (data) {
             if (!data.success) return;
             TODAY_TASKS = data.notices.map(function (n) {
-                var detail = escHtml(n.content).replace(/\n/g, '<br>');
+                var extra = '';
                 if (n.period) {
-                    detail += '<br><span style="color:#2563eb; font-weight:600;">📅 기간: ' + escHtml(n.period) + '</span>';
+                    extra += '<span style="color:#2563eb; font-weight:600;">📅 기간: ' + escHtml(n.period) + '</span>';
                 }
                 if (n.link) {
-                    detail += '<br><a href="' + n.link + '" target="_blank">🔗 바로가기</a>';
+                    extra += (extra ? '<br>' : '') + '<a href="' + n.link + '" target="_blank">🔗 바로가기 / 다운로드</a>';
                     if (/^https?:\/\//.test(n.link)) {
-                        detail += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
+                        extra += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
                     }
                 }
-                return { text: n.title, status: n.status, detail: detail };
+                return { title: n.title, status: n.status, content: escHtml(n.content).replace(/\n/g, '<br>'), extra: extra };
             });
             renderTodayTasks();
         })
@@ -409,10 +410,11 @@ function renderTodayTasks() {
         var btnLabel = task.status === 'closed' ? '마감' : '진행중';
         item.innerHTML =
             '<div class="today-task-row">' +
-                '<span class="today-task-text ' + textClass + '">' + escHtml(task.text) + '</span>' +
+                '<span class="today-task-title ' + textClass + '">' + escHtml(task.title) + '</span>' +
+                '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
                 '<span class="status-btn ' + textClass + '">' + btnLabel + '</span>' +
             '</div>' +
-            '<div class="today-task-detail">' + (task.detail || '상세 내용이 없습니다.') + '</div>';
+            (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
         el.appendChild(item);
     });
 }
