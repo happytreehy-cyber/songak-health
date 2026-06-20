@@ -215,4 +215,270 @@
         .modal-box-body { padding: 22px 26px 26px; }
 
         .today-task-section { margin-bottom: 22px; }
-        .today-task-heading { font-size: 13px; font-weight: 700; color: #64748b;
+        .today-task-heading { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; display:flex; align-items:center; justify-content:space-between; }
+        .today-task-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid #f1f5f9; font-size:13.5px; color:#334155; align-items:flex-start; }
+        .today-task-item:last-child{ border-bottom:none; }
+        .today-task-dot { width:7px; height:7px; border-radius:50%; margin-top:5px; flex-shrink:0; background:#3b82f6; }
+        .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
+
+        .smile-section-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; }
+        .smile-section-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #e2e8f0; }
+        .smile-section-title { font-size:13px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px; }
+        .smile-open-link { font-size:12px; color:#2563eb; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px; }
+        .smile-frame-box { height:280px; position:relative; background:#fff; }
+        .smile-frame-box iframe { width:100%; height:100%; border:none; }
+        .smile-fallback { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:#f8fafc; text-align:center; padding:0 20px; }
+        .smile-fallback.show { display:flex; }
+        .smile-fallback-btn { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; }
+        .skeleton-line { background:linear-gradient(90deg,#eef1f6 25%,#e2e7ee 50%,#eef1f6 75%); background-size:200% 100%; animation:sk 1.3s infinite; border-radius:6px; height:13px; margin-bottom:7px; }
+        @keyframes sk { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    </style>
+</head>
+<body>
+
+    <div class="sticky-header-wrapper">
+        <nav class="navbar">
+            <div class="nav-left">
+                <img src="logo.png" alt="로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+                <div class="nav-title-group">
+                    <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+                    <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+                </div>
+            </div>
+            <div class="nav-right-actions">
+                <button class="btn-admin-auth">
+                    <i class="fa-solid fa-key"></i> 관리자 로그인
+                </button>
+                <i class="fa-solid fa-xmark" style="color:#cbd5e1; font-size: 18px; margin-left: 5px; cursor: pointer;"></i>
+            </div>
+        </nav>
+
+        <section class="date-strip-bar">
+            <div class="date-badge-mini" id="date-badge-mini">19</div>
+            <span class="date-full-text" id="date-full-text">2026년 6월 19일 금요일</span>
+            <div class="calendar-strip" id="calendar-strip">
+                <span class="day-item">14</span><span class="day-item">15</span><span class="day-item">16</span><span class="day-item">17</span><span class="day-item">18</span><span class="day-item today">19</span><span class="day-item">20</span>
+            </div>
+        </section>
+    </div>
+
+    <main class="main-container">
+
+        <section class="intro-card">
+            <div class="tag-share"><i class="fa-solid fa-cloud"></i> 교직원 공유용</div>
+            <h1 class="main-title">송악고등학교 온라인 보건실</h1>
+            <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
+            <img src="logo.png" alt="송악고" class="school-emb-decor" onerror="this.style.display='none'">
+            
+            <div class="notice-container">
+                <div class="notice-box"><i class="fa-solid fa-user-shield"></i><span>학생 개인정보 및 민감정보는 앱 화면에 직접 표시하지 않습니다.</span></div>
+                <div class="notice-box"><i class="fa-solid fa-file-shield"></i><span>제출 자료는 보건실 확인용으로만 처리되며 외부 공유되지 않습니다.</span></div>
+            </div>
+        </section>
+
+        <section class="menu-grid">
+            <a href="#" class="menu-card" id="card-today">
+                <div class="card-top"><span class="menu-num">01</span><i class="fa-solid fa-calendar-day menu-icon-cute icon-01"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">오늘의 보건실</span><span class="menu-desc">주간 보건 업무 및 소식지 아카이브</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">02</span><i class="fa-solid fa-virus-covid menu-icon-cute icon-02"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">학생 감염병 관리</span><span class="menu-desc">격리 지침 가이드 및 방역 물품 신청</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">03</span><i class="fa-solid fa-heart-pulse menu-icon-cute icon-03"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">학생 요보호 관리</span><span class="menu-desc">건강 취약 학생 집중 케어 지침 조회</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">04</span><i class="fa-solid fa-clipboard-check menu-icon-cute icon-04"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">담임 협조 요청</span><span class="menu-desc">학급 전달 행정 공지 및 소통 창구</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">05</span><i class="fa-solid fa-graduation-cap menu-icon-cute icon-05"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">보건교육 연수실</span><span class="menu-desc">교직원 의무 연수자료 아카이브</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">06</span><i class="fa-solid fa-stethoscope menu-icon-cute icon-06"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">학생·교직원 검진</span><span class="menu-desc">종합 검진 일정 및 결과 제출</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">07</span><i class="fa-solid fa-cloud-arrow-up menu-icon-cute icon-07"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">제출 업로드 센터</span><span class="menu-desc">각종 서식 파일 온라인 즉시 전송</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+            <a href="#" class="menu-card">
+                <div class="card-top"><span class="menu-num">08</span><i class="fa-solid fa-circle-question menu-icon-cute icon-08"></i></div>
+                <div class="card-bottom">
+                    <div class="text-group"><span class="menu-name">FAQ</span><span class="menu-desc">보건실 이용 규칙 및 자주 묻는 질문</span></div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </div>
+            </a>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-title">송악고등학교 온라인 보건실</div>
+        <div class="footer-subtitle">교직원 보건업무 안내 · 제출 · 자료 확인 전용 시스템 포털</div>
+    </footer>
+
+    <!-- ===== 01번 모달 (오늘의 보건실) ===== -->
+    <div class="modal-overlay" id="today-modal">
+        <div class="modal-box">
+            <div class="modal-box-head">
+                <div class="modal-box-title"><i class="fa-solid fa-calendar-day icon-01"></i> 오늘의 보건실</div>
+                <button class="modal-box-close" id="today-modal-close">✕</button>
+            </div>
+            <div class="modal-box-body">
+                <div class="today-task-section">
+                    <div class="today-task-heading">📌 이번 주 보건 업무</div>
+                    <div id="today-task-list">
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line" style="width:70%"></div>
+                    </div>
+                </div>
+                <div class="smile-section-box">
+                    <div class="smile-section-head">
+                        <div class="smile-section-title">🏥 실시간 보건실 현황</div>
+                        <span class="smile-open-link" id="smile-open-link">새 탭에서 열기 ↗</span>
+                    </div>
+                    <div class="smile-frame-box">
+                        <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                        <div class="smile-fallback" id="smile-fallback-today">
+                            <div style="font-size:28px">🏥</div>
+                            <div style="font-size:12px;color:#64748b;line-height:1.6">보안 정책으로 여기서 바로 볼 수 없어요.<br>새 탭에서 확인해 주세요.</div>
+                            <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+var SMILE_URL = 'https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ';
+
+var TODAY_TASKS_TEMP = [
+    '6월 4주차: 학생 정신건강 자가검진 결과 회수 마감',
+    '6월 22일(월): 2·3학년 소변검사 학급별 시간표 안내',
+    '6월 26일(금): 결핵검진(중앙현관 앞 검진버스) 진행'
+];
+
+window.addEventListener('DOMContentLoaded', function() {
+    renderDate();
+    bindTodayModal();
+});
+
+function bindTodayModal() {
+    var card = document.getElementById('card-today');
+    var modal = document.getElementById('today-modal');
+    var closeBtn = document.getElementById('today-modal-close');
+    var openLink = document.getElementById('smile-open-link');
+    var fallbackBtn = document.getElementById('smile-fallback-btn-today');
+
+    card.addEventListener('click', function(e) {
+        e.preventDefault();
+        openTodayModal();
+    });
+
+    closeBtn.addEventListener('click', closeTodayModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeTodayModal();
+    });
+    openLink.addEventListener('click', function() {
+        window.open(SMILE_URL, '_blank');
+    });
+    fallbackBtn.addEventListener('click', function() {
+        window.open(SMILE_URL, '_blank');
+    });
+}
+
+function openTodayModal() {
+    document.getElementById('today-modal').classList.add('show');
+    renderTodayTasks();
+    var iframe = document.getElementById('smile-iframe-today');
+    iframe.src = SMILE_URL;
+    setTimeout(checkSmileIframe, 4000);
+}
+
+function closeTodayModal() {
+    document.getElementById('today-modal').classList.remove('show');
+}
+
+function renderTodayTasks() {
+    var el = document.getElementById('today-task-list');
+    el.innerHTML = '';
+    if (!TODAY_TASKS_TEMP.length) {
+        el.innerHTML = '<div class="today-task-empty">등록된 업무가 없습니다.</div>';
+        return;
+    }
+    TODAY_TASKS_TEMP.forEach(function(t) {
+        var row = document.createElement('div');
+        row.className = 'today-task-item';
+        row.innerHTML = '<span class="today-task-dot"></span><span>' + escHtml(t) + '</span>';
+        el.appendChild(row);
+    });
+}
+
+function checkSmileIframe() {
+    try {
+        var f = document.getElementById('smile-iframe-today');
+        if (!f || !f.contentDocument || !f.contentDocument.body) showSmileFallback();
+    } catch (e) {
+        showSmileFallback();
+    }
+}
+function showSmileFallback() {
+    document.getElementById('smile-fallback-today').classList.add('show');
+}
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+var WK = ['일', '월', '화', '수', '목', '금', '토'];
+function pad(n) { return n < 10 ? '0' + n : n; }
+function renderDate() {
+    var now = new Date(), y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), w = now.getDay();
+    document.getElementById('date-badge-mini').textContent = pad(d);
+    document.getElementById('date-full-text').textContent = y + '년 ' + (m + 1) + '월 ' + d + '일 ' + WK[w] + '요일';
+    var cal = document.getElementById('calendar-strip');
+    cal.innerHTML = '';
+    var sun = new Date(now);
+    sun.setDate(d - w);
+    for (var i = 0; i < 7; i++) {
+        var dd = new Date(sun);
+        dd.setDate(sun.getDate() + i);
+        var span = document.createElement('span');
+        var cls = 'day-item';
+        if (dd.getDay() === 0) cls += ' sun';
+        if (dd.getDate() === d && dd.getMonth() === m) cls += ' today';
+        span.className = cls;
+        span.textContent = dd.getDate();
+        cal.appendChild(span);
+    }
+}
+</script>
+
+</body>
+</html>
