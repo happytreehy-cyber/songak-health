@@ -41,17 +41,16 @@
         .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
         .section-divider-title { font-size:13.5px; font-weight:800; color:#1e3a8a; margin: 4px 0 8px; padding:7px 12px; background:#eff6ff; border-left:4px solid #2563eb; border-radius:6px; letter-spacing:0.3px; }
         .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
-        .today-task-item { border-bottom:1px dashed #cbd5e1; }
-        .today-task-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 4px; cursor:pointer; }
+        .today-task-item { border-bottom:1px dashed #cbd5e1; padding:12px 4px; }
         .today-task-item:last-child { border-bottom:none; }
-        .today-task-text { font-size:14px; flex:1; }
+        .today-task-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+        .today-task-text { font-size:14px; flex:1; font-weight:700; }
         .today-task-text.closed { color:#94a3b8; }
-        .today-task-text.ongoing { color:#1e293b; font-weight:500; }
-        .today-task-detail { display:none; padding:0 4px 14px 4px; font-size:13px; color:#475569; line-height:1.7; }
-        .today-task-detail.open { display:block; }
-        .today-task-detail img { max-width:160px; border-radius:8px; margin-top:8px; display:block; }
+        .today-task-text.ongoing { color:#1e293b; }
+        .today-task-detail { display:block; padding:6px 0 0 0; font-size:13px; color:#475569; line-height:1.7; white-space:pre-line; }
+        .today-task-detail img { max-width:140px; border-radius:8px; margin-top:8px; display:block; }
         .today-task-detail a { color:#2563eb; font-weight:600; }
-        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; cursor:pointer; flex-shrink:0; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
         .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
@@ -136,7 +135,7 @@
         .lookup-summary button { width:auto; background:#fff; color:#2563eb; border:1px solid #cbd5e1; border-radius:6px; padding:5px 10px; font-size:11.5px; font-weight:700; cursor:pointer; }
         .lookup-result { padding: 0 16px 16px; }
         .lookup-row { display:flex; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
-        .lookup-row .lk-when { flex:0 0 172px; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lookup-row .lk-when { flex:0 0 205px; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .lookup-row .lk-symptom { flex:1; min-width:0; text-align:left; padding-left:8px; color:#1e293b; }
         .lookup-empty { font-size:13px; color:#94a3b8; padding:12px 0; text-align:center; }
     </style>
@@ -180,9 +179,25 @@
         <div class="reveal-wrap">
             <div id="blurred-content">
                 <div class="visit-stat-strip" id="visit-stat-strip">
-                    <div class="visit-stat-box" style="flex:0 0 200px;">
+                    <div class="visit-stat-box" style="flex:0 0 200px; display:flex; flex-direction:column; justify-content:space-between;">
                         <div class="visit-stat-label" id="stat-year-label">학년도 누적 방문</div>
                         <div class="visit-stat-value blur-target" id="stat-year-total">-<span>건</span></div>
+                        <svg viewBox="0 0 200 78" style="width:100%; height:60px; margin-top:2px;" aria-hidden="true">
+                            <rect x="118" y="40" width="44" height="32" rx="6" fill="#85B7EB"/>
+                            <circle cx="140" cy="26" r="13" fill="#FAC775"/>
+                            <path d="M128 21 Q140 6 152 21 L152 24 Q140 13 128 24 Z" fill="#42342B"/>
+                            <rect x="132" y="44" width="16" height="6" rx="3" fill="#fff"/>
+                            <rect x="118" y="52" width="32" height="5" rx="2.5" fill="#fff"/>
+
+                            <rect x="48" y="48" width="38" height="28" rx="6" fill="#7F77DD"/>
+                            <circle cx="67" cy="34" r="12" fill="#F0997B"/>
+                            <path d="M56 29 Q67 16 78 29 L78 31 Q67 22 56 31 Z" fill="#26215C"/>
+                            <rect x="84" y="58" width="24" height="7" rx="3.5" fill="#F0997B"/>
+                            <rect x="91" y="59" width="10" height="5" rx="2" fill="#fff"/>
+
+                            <path d="M178 14 q3 -5 6 0 q3 -5 6 0 q0 5 -6 9 q-6 -4 -6 -9z" fill="#D4537E" opacity="0.8"/>
+                            <path d="M16 14 q2.5 -4 5 0 q2.5 -4 5 0 q0 4 -5 7.5 q-5 -3.5 -5 -7.5z" fill="#D4537E" opacity="0.55"/>
+                        </svg>
                     </div>
                     <div class="grid-cell" style="flex:1; margin-bottom:0; min-height:auto;">
                         <div class="cell-head" style="padding:8px 14px;">
@@ -227,7 +242,8 @@
                     <select id="lookup-period">
                         <option value="today">오늘</option>
                         <option value="week">이번 주</option>
-                        <option value="month">이번 달</option><option value="custom">기간 설정</option>
+                        <option value="month">이번 달</option>
+                        <option value="custom">기간 설정</option>
                     </select>
                     <div class="lock-row" id="lookup-custom-range" style="display:none;">
                         <input type="date" id="lookup-start">
@@ -292,6 +308,9 @@ function loadNotices() {
             if (!data.success) return;
             TODAY_TASKS = data.notices.map(function (n) {
                 var detail = escHtml(n.content).replace(/\n/g, '<br>');
+                if (n.period) {
+                    detail += '<br><span style="color:#2563eb; font-weight:600;">📅 기간: ' + escHtml(n.period) + '</span>';
+                }
                 if (n.link) {
                     detail += '<br><a href="' + n.link + '" target="_blank">🔗 바로가기</a>';
                     if (/^https?:\/\//.test(n.link)) {
@@ -376,27 +395,25 @@ function renderTodayTasks() {
     var el = document.getElementById('today-task-list');
     el.innerHTML = '';
     if (!TODAY_TASKS.length) { el.innerHTML = '<div class="today-task-empty">등록된 공지가 없습니다.</div>'; return; }
-    TODAY_TASKS.forEach(function (task, i) {
+
+    var sorted = TODAY_TASKS.slice().sort(function (a, b) {
+        var aClosed = a.status === 'closed' ? 1 : 0;
+        var bClosed = b.status === 'closed' ? 1 : 0;
+        return aClosed - bClosed;
+    });
+
+    sorted.forEach(function (task) {
         var item = document.createElement('div');
         item.className = 'today-task-item';
         var textClass = task.status === 'closed' ? 'closed' : 'ongoing';
         var btnLabel = task.status === 'closed' ? '마감' : '진행중';
-        var openClass = task._open ? 'open' : '';
         item.innerHTML =
-            '<div class="today-task-row" data-idx="' + i + '">' +
+            '<div class="today-task-row">' +
                 '<span class="today-task-text ' + textClass + '">' + escHtml(task.text) + '</span>' +
                 '<span class="status-btn ' + textClass + '">' + btnLabel + '</span>' +
             '</div>' +
-            '<div class="today-task-detail ' + openClass + '">' + (task.detail || '상세 내용이 없습니다.') + '</div>';
+            '<div class="today-task-detail">' + (task.detail || '상세 내용이 없습니다.') + '</div>';
         el.appendChild(item);
-    });
-
-    el.querySelectorAll('.today-task-row').forEach(function (row) {
-        row.addEventListener('click', function () {
-            var idx = parseInt(this.getAttribute('data-idx'), 10);
-            TODAY_TASKS[idx]._open = !TODAY_TASKS[idx]._open;
-            renderTodayTasks();
-        });
     });
 }
 
@@ -456,7 +473,8 @@ function renderSymptomDonut(categories) {
     legendEl.innerHTML = '';
     if (!sorted.length) { legendEl.innerHTML = '<div class="mini-rank-empty">데이터가 없습니다.</div>'; return; }
     sorted.forEach(function (c, i) {
-        var pct = ((c.count / total) * 100).toFixed(1);var row = document.createElement('div');
+        var pct = ((c.count / total) * 100).toFixed(1);
+        var row = document.createElement('div');
         row.className = 'legend-item';
         row.innerHTML =
             '<span class="lg-dot" style="background:' + colors[i % colors.length] + ';"></span>' +
@@ -525,6 +543,26 @@ function renderDotPlot(elId, list, colorFn) {
     el.appendChild(axis);
 }
 
+var barValuePlugin = {
+    id: 'barValueLabel',
+    afterDatasetsDraw: function (chart) {
+        var ctx = chart.ctx;
+        chart.data.datasets.forEach(function (dataset, di) {
+            var meta = chart.getDatasetMeta(di);
+            meta.data.forEach(function (bar, i) {
+                var value = dataset.data[i];
+                ctx.save();
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = '700 11px "Noto Sans KR", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(value, bar.x, bar.y - 4);
+                ctx.restore();
+            });
+        });
+    }
+};
+
 function renderGradeBarChart(gradeYearly) {
     var ctx = document.getElementById('grade-bar-chart');
     if (!ctx || !window.Chart || !gradeYearly) return;
@@ -534,8 +572,10 @@ function renderGradeBarChart(gradeYearly) {
     gradeChartInstance = new Chart(ctx, {
         type: 'bar',
         data: { labels: labels, datasets: [{ label: '방문 건수', data: counts, backgroundColor: '#3b82f6', borderRadius: 6 }] },
+        plugins: [barValuePlugin],
         options: {
             maintainAspectRatio: false,
+            layout: { padding: { top: 16 } },
             plugins: { legend: { display: false } },
             scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 11 } } } }
         }
@@ -616,8 +656,10 @@ function renderLookupPage() {
     pageItems.forEach(function (r) {
         var row = document.createElement('div');
         row.className = 'lookup-row';
+        var shortDate = (r.date && r.date.length >= 10) ? r.date.slice(5) : r.date;
+        var whenText = shortDate + ' ' + r.checkin + ' · ' + r.number + '번 ' + r.name;
         row.innerHTML =
-            '<span class="lk-when" title="' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '">' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '</span>' +
+            '<span class="lk-when" title="' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '">' + escHtml(whenText) + '</span>' +
             '<span class="lk-symptom">' + escHtml(r.symptom) + '</span>';
         resultEl.appendChild(row);
     });
