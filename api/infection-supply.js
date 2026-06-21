@@ -34,10 +34,12 @@ async function ensureTab(sheets, sheetId) {
 }
 
 // 1학년 1반 -> "11", 2학년 2반 -> "22", 10반 -> "110"
-// 행정실/교무실1/교무실2/교무실3/기타 -> 이름 그대로가 신청번호 (예: "교무실1")
+// 부서: 교무실1->1, 교무실2->2, 교무실3->3, 행정실->4, 기타->5
+const OFFICE_CODE = { "교무실1": "1", "교무실2": "2", "교무실3": "3", "행정실": "4", "기타": "5" };
 function classCode(grade, classNum) {
   if (!grade) return "00";
-  if (grade.indexOf("학년") === -1) return grade; // 부서명 그대로 사용
+  if (OFFICE_CODE[grade]) return OFFICE_CODE[grade];
+  if (grade.indexOf("학년") === -1) return grade;
   const g = grade.replace(/[^0-9]/g, "");
   const c = (classNum || "").replace(/[^0-9]/g, "");
   return g + c;
