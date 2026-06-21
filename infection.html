@@ -23,7 +23,7 @@
   .day-item.sun{color:#ef4444;}
   .day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
   .back-row{padding:8px 20px;border-bottom:1px solid #e2e8f0;}
-  .back-btn{border:1px solid var(--border);background:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;}
+  .back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:#0369a1;font-weight:700;padding:5px 12px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;text-decoration:none;white-space:nowrap;}
   main{max-width:780px;margin:0 auto;padding:20px 16px 60px;}
   .section-title{font-size:19px;font-weight:700;margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
   .section-divider-title{font-size:13.5px;font-weight:800;margin:30px 20px 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;}
@@ -212,9 +212,9 @@
 
 <main>
 
-  <a href="index.html" class="back-btn" style="display:inline-flex;align-items:center;gap:5px;margin:14px 20px 6px;">← 이전으로</a>
-  <div class="page-title-row" style="margin:0 20px 10px;">
-    <h1 style="font-size:16px;font-weight:700;color:#1e293b;">📋 감염병예방 보고 및 안내 · 카드뉴스 · 물품신청</h1>
+  <a href="index.html" class="back-btn" style="margin:14px 20px 10px;">← 이전으로</a>
+  <div class="page-title-row" style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;">
+    <h1 style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">📋 감염병 보고 및 예방 안내</h1>
   </div>
 
   <div class="card intro-card">
@@ -318,11 +318,17 @@
   <!-- 신청 조회 -->
   <div class="section-title">🔎 내 신청 조회</div>
   <div class="card">
-    <div style="font-size:13px;color:var(--muted);margin-top:0;line-height:1.7;">
-      <strong style="color:var(--text);">신청번호</strong><br>
-      예: 학급 → 1학년 1반 → <strong>11</strong><br>
-      &nbsp;&nbsp;&nbsp;&nbsp;부서 → 교무실1→1 · 교무실2→2 · 교무실3→3 · 행정실→4 · 기타→5<br>
-      이렇게 입력하면 처리 상태를 확인할 수 있습니다.
+    <div style="font-size:13px;color:var(--muted);margin-top:0;line-height:1.8;">
+      <strong style="color:var(--text);">신청번호</strong>
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        <span style="flex:0 0 38px;">학급</span>
+        <span>→ 1학년 1반 → <strong style="color:var(--text);">11</strong></span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <span style="flex:0 0 38px;">부서</span>
+        <span>→ 교무실1→1 · 교무실2→2 · 교무실3→3 · 행정실→4 · 기타→5</span>
+      </div>
+      <div style="margin-top:4px;">이렇게 입력하면 처리 상태를 확인할 수 있습니다.</div>
     </div>
     <div class="lookup-row">
       <input type="text" id="lookupId" placeholder="신청번호 (예: 11, 22, 00)">
@@ -586,6 +592,7 @@ function renderCharts(){
     </div>`;
   }).join("");
 
+  const allCases = s.allCasesMasked || [];
   window.allCasesData = allCases; // 더블클릭 수정용 캐시
   const ongoingCases = allCases.filter(it => !it.ended);
   const endedCases = allCases.filter(it => it.ended).reverse(); // 최신 종료 먼저
