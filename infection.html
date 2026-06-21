@@ -6,125 +6,119 @@
 <title>감염병예방 | 송악고등학교 온라인 보건실</title>
 <style>
   :root{
-    --navy:#1f3c88;
-    --navy-dark:#16306f;
-    --bg:#f5f7fb;
-    --card:#ffffff;
-    --border:#e3e7f0;
-    --text:#1c2333;
-    --muted:#6b7280;
-    --accent:#2563eb;
+    --navy:#1f3c88; --bg:#f5f7fb; --card:#ffffff; --border:#e3e7f0;
+    --text:#1c2333; --muted:#6b7280; --accent:#2563eb;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    background:var(--bg);
-    color:var(--text);
-  }
-  header{
-    background:#fff;
-    border-bottom:1px solid var(--border);
-    padding:18px 20px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
+  body{margin:0;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--text);}
+  header{background:#fff;border-bottom:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;gap:12px;}
   header img{width:44px;height:44px;border-radius:50%;}
   header .title{font-size:18px;font-weight:700;}
   header .sub{font-size:13px;color:var(--muted);}
   main{max-width:780px;margin:0 auto;padding:20px 16px 60px;}
-  .section-title{
-    font-size:19px;font-weight:700;margin:30px 0 14px;
-    display:flex;align-items:center;gap:8px;
-  }
-  .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:20px;
-    margin-bottom:16px;
-  }
+  .section-title{font-size:19px;font-weight:700;margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
   .intro-card{background:#eef3ff;border:none;}
   .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
 
-  /* 카드뉴스 */
-  #newsList{display:flex;flex-direction:column;gap:12px;}
-  .news-item{
-    display:flex;align-items:center;justify-content:space-between;
-    background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:14px 16px;text-decoration:none;color:var(--text);
-    transition:box-shadow .15s;
-  }
-  .news-item:hover{box-shadow:0 2px 10px rgba(0,0,0,0.06);}
-  .news-left{display:flex;flex-direction:column;gap:4px;}
-  .news-tag{
-    display:inline-block;font-size:11px;font-weight:700;color:var(--navy);
-    background:#e7edfb;padding:2px 8px;border-radius:20px;width:fit-content;
-  }
-  .news-title{font-size:15px;font-weight:600;}
-  .news-date{font-size:12px;color:var(--muted);}
-  .news-go{font-size:13px;color:var(--accent);font-weight:600;white-space:nowrap;}
-  .empty-msg{color:var(--muted);font-size:14px;padding:10px 2px;}
+  /* 감염병 현황 대시보드 */
+  .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+  .dash-stat{border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+  .dash-stat .num{font-size:24px;font-weight:800;color:var(--navy);}
+  .dash-stat .label{font-size:12px;color:var(--muted);margin-top:2px;}
+  .dash-detail{grid-column:1/-1;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;}
+  .dash-detail .row{display:flex;justify-content:space-between;padding:3px 0;}
+  .dash-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+  .dash-btn{flex:1;border:1px solid var(--border);background:#fff;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);min-width:140px;}
+  .dash-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .exclusion-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;}
+  .exclusion-item .row{display:flex;justify-content:space-between;}
+  .privacy-note{font-size:12px;color:#92400e;background:#fef3c7;border-radius:8px;padding:8px 10px;margin-bottom:10px;}
 
-  /* 물품신청 폼 */
-  .field{margin-bottom:18px;}
+  /* 감염병 입력 모달 */
+  .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:20px 16px;overflow-y:auto;}
+  .report-modal.open{display:flex;}
+  .report-modal-inner{background:#fff;border-radius:14px;width:100%;max-width:420px;padding:20px;margin-top:20px;}
+  .report-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .report-modal-head button{border:none;background:none;font-size:20px;cursor:pointer;}
+  .report-field{margin-bottom:12px;}
+  .report-field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px;}
+  .report-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  select{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;}
+  input[type=date]{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;}
+
+  /* 카드뉴스 - 이미지형 그리드 */
+  #newsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .news-card{
+    border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff;
+    cursor:pointer;text-align:left;
+  }
+  .news-thumb{
+    width:100%;aspect-ratio:1/1;background:#eef1f7;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;font-size:32px;
+  }
+  .news-thumb img{width:100%;height:100%;object-fit:cover;}
+  .news-info{padding:10px 12px;}
+  .news-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--navy);background:#e7edfb;padding:2px 8px;border-radius:20px;margin-bottom:6px;}
+  .news-title{font-size:14px;font-weight:600;line-height:1.3;}
+  .news-date{font-size:11px;color:var(--muted);margin-top:4px;}
+  .empty-msg{color:var(--muted);font-size:14px;padding:10px 2px;grid-column:1/-1;}
+
+  /* 물품신청 */
+  .field{margin-bottom:20px;}
   .field label{display:block;font-weight:700;font-size:14px;margin-bottom:8px;}
-  .step-num{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:20px;height:20px;border-radius:50%;background:var(--navy);
-    color:#fff;font-size:12px;margin-right:6px;
-  }
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;margin-right:6px;}
   .choice-grid{display:flex;flex-wrap:wrap;gap:8px;}
-  .choice-btn{
-    border:1px solid var(--border);background:#fff;border-radius:20px;
-    padding:9px 16px;font-size:14px;cursor:pointer;color:var(--text);
-  }
+  .choice-btn{border:1px solid var(--border);background:#fff;border-radius:20px;padding:9px 16px;font-size:14px;cursor:pointer;color:var(--text);}
   .choice-btn.selected{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .item-card{
-    border:1px solid var(--border);border-radius:12px;padding:14px;
-    display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:10px;
+  .class-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .class-scroll .choice-btn{flex:0 0 auto;}
+  .hidden{display:none !important;}
+
+  .item-row{
+    display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);
+    border-radius:12px;padding:12px 14px;margin-bottom:10px;
   }
-  .item-card.selected{border-color:var(--navy);background:#eef3ff;}
-  .item-emoji{font-size:28px;}
+  .item-left{display:flex;align-items:center;gap:10px;}
+  .item-emoji{font-size:26px;}
   .item-name{font-weight:700;font-size:15px;}
   .item-desc{font-size:12px;color:var(--muted);}
-  .qty-row{display:flex;align-items:center;gap:14px;}
-  .qty-btn{
-    width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
-    background:#fff;font-size:18px;cursor:pointer;
-  }
-  .qty-val{font-size:18px;font-weight:700;min-width:24px;text-align:center;}
-  input[type=text], textarea{
-    width:100%;border:1px solid var(--border);border-radius:10px;
-    padding:11px 12px;font-size:14px;font-family:inherit;
-  }
-  textarea{resize:vertical;min-height:70px;}
-  .submit-btn{
-    width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;
-    padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;
-  }
+  .qty-row{display:flex;align-items:center;gap:10px;}
+  .qty-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:#fff;font-size:16px;cursor:pointer;}
+  .qty-val{font-size:16px;font-weight:700;min-width:20px;text-align:center;}
+
+  input[type=text], textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit;}
+  textarea{resize:vertical;min-height:60px;}
+  .submit-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;}
   .submit-btn:disabled{opacity:.6;cursor:not-allowed;}
   .result-msg{margin-top:12px;font-size:14px;text-align:center;}
   .result-msg.ok{color:#16803c;}
   .result-msg.err{color:#dc2626;}
 
-  /* PDF 모달 */
-  .pdf-modal{
-    position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;
-    align-items:center;justify-content:center;z-index:50;padding:16px;
-  }
+  /* 신청 조회 / 관리자 */
+  .lookup-row{display:flex;gap:8px;}
+  .lookup-row input{flex:1;}
+  .lookup-btn{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:0 16px;font-size:14px;cursor:pointer;}
+  .status-box{margin-top:14px;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:14px;display:none;}
+  .status-box.show{display:block;}
+  .status-pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:6px;}
+  .status-pill.접수{background:#fef3c7;color:#92400e;}
+  .status-pill.확인중{background:#dbeafe;color:#1e40af;}
+  .status-pill.완료{background:#dcfce7;color:#166534;}
+  .admin-link{font-size:13px;color:var(--muted);text-align:right;margin-top:6px;cursor:pointer;text-decoration:underline;}
+  .admin-item{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;font-size:13px;}
+  .admin-item .row{display:flex;justify-content:space-between;margin-bottom:4px;}
+  .admin-item textarea{margin-top:8px;}
+  .admin-item button{margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;}
+
+  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
   .pdf-modal.open{display:flex;}
-  .pdf-modal-inner{
-    background:#fff;border-radius:12px;width:100%;max-width:720px;height:85vh;
-    display:flex;flex-direction:column;overflow:hidden;
-  }
-  .pdf-modal-head{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:12px 16px;border-bottom:1px solid var(--border);
-  }
+  .pdf-modal-inner{background:#fff;border-radius:12px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+  .pdf-modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);}
   .pdf-modal-head button{border:none;background:none;font-size:20px;cursor:pointer;}
-  .pdf-modal-inner iframe{flex:1;border:none;width:100%;}
+  .pdf-modal-body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f1f3f8;}
+  .pdf-modal-body img{max-width:100%;display:block;}
+  .pdf-modal-body iframe{width:100%;height:80vh;border:none;}
 </style>
 </head>
 <body>
@@ -139,60 +133,87 @@
 
 <main>
 
-  <!-- 1. 상단 안내 -->
   <div class="card intro-card">
     <p>😷 학교 내 감염병 확산을 막기 위해, 유행 중인 감염병 정보와 예방수칙을 안내합니다.</p>
     <p>의심 증상이 있는 경우 등교 전 보건실 또는 담임선생님과 상담해 주세요.</p>
   </div>
 
-  <!-- 2. 카드뉴스 / 가정통신문 -->
+  <!-- 감염병 현황 대시보드 -->
+  <div class="section-title">📊 감염병 발생 현황</div>
+  <div class="card">
+    <div id="dashGrid" class="dash-grid">
+      <div class="empty-msg">불러오는 중...</div>
+    </div>
+    <div class="dash-buttons">
+      <button type="button" class="dash-btn primary" id="openReportBtn">감염병 발생 보고(담임)</button>
+      <button type="button" class="dash-btn" id="openExclusionListBtn">현재 등교중지 학생 보기(교직원용)</button>
+    </div>
+    <div id="exclusionListBox" class="hidden" style="margin-top:14px;"></div>
+  </div>
+
+  <!-- 카드뉴스 -->
   <div class="section-title">📰 감염병 카드뉴스 · 가정통신문</div>
-  <div id="newsList" class="card">
+  <div id="newsGrid" class="card">
     <div class="empty-msg">불러오는 중...</div>
   </div>
 
-  <!-- 3. 물품신청 -->
+  <!-- 물품신청 -->
   <div class="section-title">😷 감염병예방 물품·소모품 신청</div>
   <div class="card">
     <form id="supplyForm">
 
       <div class="field">
-        <label><span class="step-num">1</span>학년·부서 선택</label>
-        <div class="choice-grid" id="deptGroup">
+        <label><span class="step-num">1</span>학년 선택</label>
+        <div class="choice-grid" id="gradeGroup">
           <button type="button" class="choice-btn" data-val="1학년">1학년</button>
           <button type="button" class="choice-btn" data-val="2학년">2학년</button>
           <button type="button" class="choice-btn" data-val="3학년">3학년</button>
-          <button type="button" class="choice-btn" data-val="행정실">행정실</button>
-          <button type="button" class="choice-btn" data-val="교무실">교무실</button>
-          <button type="button" class="choice-btn" data-val="기타">기타</button>
+          <button type="button" class="choice-btn" data-val="행정실/교무실">행정실/교무실</button>
         </div>
       </div>
 
+      <div class="field" id="classField">
+        <label><span class="step-num">2</span>반 선택</label>
+        <div class="class-scroll" id="classGroup"></div>
+      </div>
+
       <div class="field">
-        <label><span class="step-num">2</span>물품 선택 (복수 선택 가능)</label>
-        <div id="itemGroup">
-          <div class="item-card" data-val="마스크">
-            <div class="item-emoji">😷</div>
+        <label><span class="step-num">3</span>품목별 수량</label>
+
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">😷</span>
             <div><div class="item-name">마스크</div><div class="item-desc">KF94 / 일반</div></div>
           </div>
-          <div class="item-card" data-val="소독티슈">
-            <div class="item-emoji">🧻</div>
-            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장</div></div>
-          </div>
-          <div class="item-card" data-val="손소독제">
-            <div class="item-emoji">🧴</div>
-            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계</div></div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="masks" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-masks">0</span>
+            <button type="button" class="qty-btn" data-target="masks" data-dir="1">+</button>
           </div>
         </div>
-      </div>
 
-      <div class="field">
-        <label><span class="step-num">3</span>수량 (묶음)</label>
-        <div class="qty-row">
-          <button type="button" class="qty-btn" id="qtyMinus">−</button>
-          <div class="qty-val" id="qtyVal">1</div>
-          <button type="button" class="qty-btn" id="qtyPlus">+</button>
-          <span style="color:var(--muted);font-size:14px;">개(묶음)</span>
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">🧻</span>
+            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장</div></div>
+          </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="tissues" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-tissues">0</span>
+            <button type="button" class="qty-btn" data-target="tissues" data-dir="1">+</button>
+          </div>
+        </div>
+
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">🧴</span>
+            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계</div></div>
+          </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="sanitizer" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-sanitizer">0</span>
+            <button type="button" class="qty-btn" data-target="sanitizer" data-dir="1">+</button>
+          </div>
         </div>
       </div>
 
@@ -211,145 +232,356 @@
     </form>
   </div>
 
+  <!-- 신청 조회 -->
+  <div class="section-title">🔎 내 신청 조회</div>
+  <div class="card">
+    <p style="font-size:13px;color:var(--muted);margin-top:0;">신청 후 받은 신청번호와 이름을 입력하면 처리 상태를 확인할 수 있습니다.</p>
+    <div class="lookup-row">
+      <input type="text" id="lookupId" placeholder="신청번호 (예: S12345678)">
+      <input type="text" id="lookupName" placeholder="이름">
+      <button type="button" class="lookup-btn" id="lookupBtn">조회</button>
+    </div>
+    <div class="status-box" id="statusBox"></div>
+    <div class="admin-link" id="adminOpenBtn">관리자 확인 →</div>
+  </div>
+
+  <!-- 관리자 패널 (숨김, 비밀번호 입력 후 표시) -->
+  <div class="card hidden" id="adminPanel">
+    <div class="section-title" style="margin-top:0;">🔐 관리자 확인 (대기중인 신청)</div>
+    <div id="adminList"><div class="empty-msg">불러오는 중...</div></div>
+  </div>
+
 </main>
 
-<!-- PDF 미리보기 모달 -->
+<!-- 감염병 발생 보고 모달 (담임용) -->
+<div class="report-modal" id="reportModal">
+  <div class="report-modal-inner">
+    <div class="report-modal-head">
+      <strong>📋 감염병 발생 보고</strong>
+      <button onclick="closeReportModal()">✕</button>
+    </div>
+    <div class="privacy-note">⚠️ 본 화면은 교직원 내부 업무용입니다. 학생 이름과 감염병명이 포함되므로 외부 공유, 화면 캡처, 불필요한 열람을 삼가 주세요.</div>
+    <form id="reportForm">
+      <div class="report-row2">
+        <div class="report-field">
+          <label>학년 *</label>
+          <select id="rGrade" required>
+            <option value="">선택</option>
+            <option>1학년</option><option>2학년</option><option>3학년</option>
+          </select>
+        </div>
+        <div class="report-field">
+          <label>반 *</label>
+          <select id="rClass" required>
+            <option value="">선택</option>
+            <script>for(let i=1;i<=10;i++)document.write(`<option>${i}반</option>`);</script>
+          </select>
+        </div>
+      </div>
+      <div class="report-row2">
+        <div class="report-field">
+          <label>번호 *</label>
+          <input type="text" id="rNumber" placeholder="번호" required>
+        </div>
+        <div class="report-field">
+          <label>학생 이름 *</label>
+          <input type="text" id="rName" placeholder="학생 이름" required>
+        </div>
+      </div>
+      <div class="report-field">
+        <label>감염병 종류 *</label>
+        <select id="rDisease" required>
+          <option value="">선택해주세요</option>
+          <option>인플루엔자</option><option>코로나19</option><option>수두</option>
+          <option>유행성이하선염</option><option>수족구병</option><option>결핵</option>
+          <option>백일해</option><option>성홍열</option><option>유행성각결막염</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <div class="report-field" id="rDiseaseEtcField" style="display:none;">
+        <label>감염병명 직접 입력</label>
+        <input type="text" id="rDiseaseEtc" placeholder="감염병명을 입력해주세요">
+      </div>
+      <div class="report-field">
+        <label>진단일 *</label>
+        <input type="date" id="rDiagDate" required>
+      </div>
+      <div class="report-row2">
+        <div class="report-field">
+          <label>등교중지 시작일</label>
+          <input type="date" id="rExStart">
+        </div>
+        <div class="report-field">
+          <label>등교중지 종료일</label>
+          <input type="date" id="rExEnd">
+        </div>
+      </div>
+      <div class="report-field">
+        <label>비고</label>
+        <textarea id="rMemo" placeholder="추가로 전달할 내용이 있으면 입력해주세요."></textarea>
+      </div>
+      <button type="submit" class="submit-btn" id="reportSubmitBtn">감염병 발생 보고하기</button>
+      <div class="result-msg" id="reportResultMsg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- 카드뉴스/PDF 미리보기 모달 -->
 <div class="pdf-modal" id="pdfModal">
   <div class="pdf-modal-inner">
     <div class="pdf-modal-head">
       <strong id="pdfModalTitle"></strong>
       <button onclick="closePdf()">✕</button>
     </div>
-    <iframe id="pdfFrame" src=""></iframe>
+    <div class="pdf-modal-body" id="pdfModalBody"></div>
   </div>
 </div>
 
 <script>
-/* ---------- 카드뉴스 로딩 ---------- */
 const PDF_BASE = "assets/infection-pdfs/";
 
+/* ---------- 감염병 현황 대시보드 ---------- */
+async function loadDashboard(){
+  const grid = document.getElementById("dashGrid");
+  try{
+    const res = await fetch("/api/infection-report-summary");
+    const data = await res.json();
+    if(!data.success){ grid.innerHTML = '<div class="empty-msg">현황을 불러오지 못했습니다.</div>'; return; }
+    const s = data.summary;
+    const diseaseRows = Object.entries(s.byDisease).sort((a,b)=>b[1]-a[1])
+      .map(([k,v]) => `<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>등록된 사례 없음</span></div>';
+    const gradeRows = Object.entries(s.byGrade).sort()
+      .map(([k,v]) => `<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>-</span></div>';
+
+    grid.innerHTML = `
+      <div class="dash-stat"><div class="num">${s.currentlyExcluded}</div><div class="label">현재 등교중지 중</div></div>
+      <div class="dash-stat"><div class="num">${s.last7days}</div><div class="label">최근 7일 신규</div></div>
+      <div class="dash-detail"><strong>감염병별 누적 발생</strong>${diseaseRows}</div>
+      <div class="dash-detail"><strong>학년별 발생 현황</strong>${gradeRows}</div>
+    `;
+  }catch(e){
+    grid.innerHTML = '<div class="empty-msg">현황을 불러오지 못했습니다.</div>';
+  }
+}
+loadDashboard();
+
+/* ---------- 감염병 발생 보고 모달 ---------- */
+document.getElementById("openReportBtn").addEventListener("click", () => {
+  document.getElementById("reportModal").classList.add("open");
+});
+function closeReportModal(){
+  document.getElementById("reportModal").classList.remove("open");
+}
+document.getElementById("rDisease").addEventListener("change", (e) => {
+  document.getElementById("rDiseaseEtcField").style.display = e.target.value === "기타" ? "block" : "none";
+});
+
+document.getElementById("reportForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("reportSubmitBtn");
+  const msgEl = document.getElementById("reportResultMsg");
+  msgEl.textContent = ""; msgEl.className = "result-msg";
+
+  const payload = {
+    grade: document.getElementById("rGrade").value,
+    classNum: document.getElementById("rClass").value,
+    studentNumber: document.getElementById("rNumber").value.trim(),
+    studentName: document.getElementById("rName").value.trim(),
+    diseaseType: document.getElementById("rDisease").value,
+    diseaseEtc: document.getElementById("rDiseaseEtc").value.trim(),
+    diagnosisDate: document.getElementById("rDiagDate").value,
+    exclusionStartDate: document.getElementById("rExStart").value,
+    exclusionEndDate: document.getElementById("rExEnd").value,
+    memo: document.getElementById("rMemo").value.trim()
+  };
+
+  btn.disabled = true; btn.textContent = "제출 중...";
+  try{
+    const res = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent = "감염병 발생 보고가 제출되었습니다. 보건실에서 확인 후 필요한 경우 추가 안내드리겠습니다.";
+      msgEl.classList.add("ok");
+      document.getElementById("reportForm").reset();
+      document.getElementById("rDiseaseEtcField").style.display = "none";
+      loadDashboard();
+      setTimeout(closeReportModal, 1600);
+    }else{
+      msgEl.textContent = data.message || "제출 중 오류가 발생했습니다.";
+      msgEl.classList.add("err");
+    }
+  }catch(err){
+    msgEl.textContent = "서버 연결에 실패했습니다.";
+    msgEl.classList.add("err");
+  }finally{
+    btn.disabled = false; btn.textContent = "감염병 발생 보고하기";
+  }
+});
+
+/* ---------- 현재 등교중지 학생 보기 (교직원용) ---------- */
+document.getElementById("openExclusionListBtn").addEventListener("click", async () => {
+  const pw = prompt("교직원 확인용 비밀번호를 입력해주세요.");
+  if(!pw) return;
+  const box = document.getElementById("exclusionListBox");
+  box.classList.remove("hidden");
+  box.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
+  try{
+    const res = await fetch("/api/infection-report-list", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if(!data.success){
+      box.innerHTML = `<div class="empty-msg">${data.message}</div>`;
+      return;
+    }
+    if(data.list.length === 0){
+      box.innerHTML = '<div class="empty-msg">현재 등교중지 중인 학생이 없습니다.</div>';
+      return;
+    }
+    box.innerHTML = `<div class="privacy-note">⚠️ 학생 개인정보가 포함되어 있습니다. 화면 캡처·외부 공유를 삼가주세요.</div>` +
+      data.list.map(item => `
+        <div class="exclusion-item">
+          <div class="row"><strong>${item.grade} ${item.classNum} ${item.studentNumber}번 ${item.studentName}</strong><span>${item.disease}</span></div>
+          <div class="row"><span>등교중지: ${item.exclusionStart} ~ ${item.exclusionEnd}</span></div>
+          ${item.memo ? `<div style="color:var(--muted);margin-top:4px;">비고: ${item.memo}</div>` : ""}
+        </div>
+      `).join("");
+  }catch(e){
+    box.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>';
+  }
+});
+
+/* ---------- 카드뉴스 ---------- */
 fetch("data/infection-cards.json")
   .then(r => r.json())
   .then(list => {
-    const wrap = document.getElementById("newsList");
+    const wrap = document.getElementById("newsGrid");
     if(!list || list.length === 0){
       wrap.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>';
       return;
     }
     list.sort((a,b) => new Date(b.date) - new Date(a.date));
-    wrap.innerHTML = list.map(item => `
-      <a class="news-item" href="javascript:void(0)" onclick="openPdf('${PDF_BASE}${item.filename}','${item.title.replace(/'/g,"\\'")}')">
-        <div class="news-left">
-          ${item.tag ? `<span class="news-tag">${item.tag}</span>` : ""}
-          <span class="news-title">${item.title}</span>
-          <span class="news-date">${item.date}</span>
+    wrap.innerHTML = list.map(item => {
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
+      const thumb = isImage
+        ? `<img src="${PDF_BASE}${item.filename}" alt="${item.title}">`
+        : `📄`;
+      return `
+        <div class="news-card" onclick='openCard(${JSON.stringify(item).replace(/'/g,"&apos;")})'>
+          <div class="news-thumb">${thumb}</div>
+          <div class="news-info">
+            ${item.tag ? `<span class="news-tag">${item.tag}</span>` : ""}
+            <div class="news-title">${item.title}</div>
+            <div class="news-date">${item.date}</div>
+          </div>
         </div>
-        <span class="news-go">보기 →</span>
-      </a>
-    `).join("");
+      `;
+    }).join("");
   })
   .catch(() => {
-    document.getElementById("newsList").innerHTML =
-      '<div class="empty-msg">카드뉴스 목록을 불러오지 못했습니다.</div>';
+    document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>';
   });
 
-function openPdf(url, title){
-  document.getElementById("pdfModalTitle").textContent = title;
-  document.getElementById("pdfFrame").src = url;
+function openCard(item){
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
+  document.getElementById("pdfModalTitle").textContent = item.title;
+  document.getElementById("pdfModalBody").innerHTML = isImage
+    ? `<img src="${PDF_BASE}${item.filename}">`
+    : `<iframe src="${PDF_BASE}${item.filename}"></iframe>`;
   document.getElementById("pdfModal").classList.add("open");
 }
 function closePdf(){
   document.getElementById("pdfModal").classList.remove("open");
-  document.getElementById("pdfFrame").src = "";
+  document.getElementById("pdfModalBody").innerHTML = "";
 }
 
-/* ---------- 물품신청 폼 ---------- */
-let selectedDept = null;
-const selectedItems = new Set();
-let qty = 1;
+/* ---------- 학년/반 선택 ---------- */
+let selectedGrade = null;
+let selectedClass = null;
 
-document.querySelectorAll("#deptGroup .choice-btn").forEach(btn => {
+document.querySelectorAll("#gradeGroup .choice-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll("#deptGroup .choice-btn").forEach(b => b.classList.remove("selected"));
+    document.querySelectorAll("#gradeGroup .choice-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-    selectedDept = btn.dataset.val;
-  });
-});
+    selectedGrade = btn.dataset.val;
+    selectedClass = null;
 
-document.querySelectorAll("#itemGroup .item-card").forEach(card => {
-  card.addEventListener("click", () => {
-    const val = card.dataset.val;
-    if(selectedItems.has(val)){
-      selectedItems.delete(val);
-      card.classList.remove("selected");
+    const classField = document.getElementById("classField");
+    const classGroup = document.getElementById("classGroup");
+    if(selectedGrade === "행정실/교무실"){
+      classField.classList.add("hidden");
+      selectedClass = "-";
     }else{
-      selectedItems.add(val);
-      card.classList.add("selected");
+      classField.classList.remove("hidden");
+      let html = "";
+      for(let i=1;i<=10;i++){
+        html += `<button type="button" class="choice-btn" data-val="${i}반">${i}반</button>`;
+      }
+      classGroup.innerHTML = html;
+      classGroup.querySelectorAll(".choice-btn").forEach(cb => {
+        cb.addEventListener("click", () => {
+          classGroup.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("selected"));
+          cb.classList.add("selected");
+          selectedClass = cb.dataset.val;
+        });
+      });
     }
   });
 });
 
-document.getElementById("qtyMinus").addEventListener("click", () => {
-  if(qty > 1){ qty--; document.getElementById("qtyVal").textContent = qty; }
-});
-document.getElementById("qtyPlus").addEventListener("click", () => {
-  qty++; document.getElementById("qtyVal").textContent = qty;
+/* ---------- 품목별 수량 ---------- */
+const qty = { masks:0, tissues:0, sanitizer:0 };
+document.querySelectorAll(".qty-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.target;
+    const dir = Number(btn.dataset.dir);
+    qty[target] = Math.max(0, qty[target] + dir);
+    document.getElementById("qty-" + target).textContent = qty[target];
+  });
 });
 
+/* ---------- 제출 ---------- */
 document.getElementById("supplyForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const resultMsg = document.getElementById("resultMsg");
   const submitBtn = document.getElementById("submitBtn");
-  resultMsg.textContent = "";
-  resultMsg.className = "result-msg";
+  resultMsg.textContent = ""; resultMsg.className = "result-msg";
 
   const name = document.getElementById("applicantName").value.trim();
 
-  if(!selectedDept){
-    resultMsg.textContent = "학년·부서를 선택해주세요.";
-    resultMsg.classList.add("err");
-    return;
+  if(!selectedGrade){ resultMsg.textContent="학년을 선택해주세요."; resultMsg.classList.add("err"); return; }
+  if(!selectedClass){ resultMsg.textContent="반을 선택해주세요."; resultMsg.classList.add("err"); return; }
+  if(qty.masks===0 && qty.tissues===0 && qty.sanitizer===0){
+    resultMsg.textContent="품목을 1개 이상 신청해주세요."; resultMsg.classList.add("err"); return;
   }
-  if(selectedItems.size === 0){
-    resultMsg.textContent = "물품을 1개 이상 선택해주세요.";
-    resultMsg.classList.add("err");
-    return;
-  }
-  if(!name){
-    resultMsg.textContent = "신청자 성명을 입력해주세요.";
-    resultMsg.classList.add("err");
-    return;
-  }
+  if(!name){ resultMsg.textContent="신청자 성명을 입력해주세요."; resultMsg.classList.add("err"); return; }
 
   const payload = {
-    department: selectedDept,
-    items: Array.from(selectedItems),
-    quantity: qty,
-    applicantName: name,
-    memo: document.getElementById("memo").value.trim()
+    grade: selectedGrade, classNum: selectedClass,
+    masks: qty.masks, tissues: qty.tissues, sanitizer: qty.sanitizer,
+    applicantName: name, memo: document.getElementById("memo").value.trim()
   };
 
-  submitBtn.disabled = true;
-  submitBtn.textContent = "제출 중...";
+  submitBtn.disabled = true; submitBtn.textContent = "제출 중...";
 
   try{
     const res = await fetch("/api/infection-supply", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
     });
     const data = await res.json();
-
     if(data.success){
-      resultMsg.textContent = "신청이 제출되었습니다. 보건실에서 확인 후 안내드리겠습니다.";
+      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> (꼭 기억해두세요!)`;
       resultMsg.classList.add("ok");
       document.getElementById("supplyForm").reset();
-      selectedItems.clear();
-      selectedDept = null;
-      qty = 1;
-      document.getElementById("qtyVal").textContent = 1;
-      document.querySelectorAll(".choice-btn.selected, .item-card.selected")
-        .forEach(el => el.classList.remove("selected"));
+      qty.masks=0; qty.tissues=0; qty.sanitizer=0;
+      document.getElementById("qty-masks").textContent=0;
+      document.getElementById("qty-tissues").textContent=0;
+      document.getElementById("qty-sanitizer").textContent=0;
+      document.querySelectorAll(".choice-btn.selected").forEach(el=>el.classList.remove("selected"));
+      selectedGrade=null; selectedClass=null;
+      document.getElementById("classGroup").innerHTML="";
     }else{
       resultMsg.textContent = data.message || "제출 중 오류가 발생했습니다.";
       resultMsg.classList.add("err");
@@ -358,10 +590,107 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
     resultMsg.textContent = "서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
     resultMsg.classList.add("err");
   }finally{
-    submitBtn.disabled = false;
-    submitBtn.textContent = "신청하기";
+    submitBtn.disabled = false; submitBtn.textContent = "신청하기";
   }
 });
+
+/* ---------- 신청 조회 ---------- */
+document.getElementById("lookupBtn").addEventListener("click", async () => {
+  const id = document.getElementById("lookupId").value.trim();
+  const name = document.getElementById("lookupName").value.trim();
+  const box = document.getElementById("statusBox");
+  if(!id || !name){
+    box.classList.add("show");
+    box.innerHTML = '<span style="color:#dc2626;">신청번호와 이름을 모두 입력해주세요.</span>';
+    return;
+  }
+  box.classList.add("show");
+  box.innerHTML = "조회 중...";
+  try{
+    const res = await fetch(`/api/infection-supply-status?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`);
+    const data = await res.json();
+    if(!data.success){
+      box.innerHTML = `<span style="color:#dc2626;">${data.message}</span>`;
+      return;
+    }
+    const d = data.data;
+    box.innerHTML = `
+      <span class="status-pill ${d.status}">${d.status}</span>
+      <div style="margin-top:6px;">${d.grade} ${d.classNum} · ${d.applicantName}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">마스크 ${d.masks} / 소독티슈 ${d.tissues} / 손소독제 ${d.sanitizer}</div>
+      ${d.adminMessage ? `<div style="margin-top:10px;padding:10px;background:#eef3ff;border-radius:8px;">💬 ${d.adminMessage}</div>` : ""}
+    `;
+  }catch(e){
+    box.innerHTML = '<span style="color:#dc2626;">조회 중 오류가 발생했습니다.</span>';
+  }
+});
+
+/* ---------- 관리자 확인 ---------- */
+document.getElementById("adminOpenBtn").addEventListener("click", async () => {
+  const pw = prompt("관리자 비밀번호를 입력해주세요.");
+  if(!pw) return;
+  const panel = document.getElementById("adminPanel");
+  panel.classList.remove("hidden");
+  const listEl = document.getElementById("adminList");
+  listEl.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
+
+  try{
+    const res = await fetch("/api/infection-supply-list", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if(!data.success){
+      listEl.innerHTML = `<div class="empty-msg">${data.message}</div>`;
+      panel.dataset.pw = "";
+      return;
+    }
+    panel.dataset.pw = pw;
+    renderAdminList(data.list, pw);
+  }catch(e){
+    listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>';
+  }
+});
+
+function renderAdminList(list, pw){
+  const listEl = document.getElementById("adminList");
+  const pending = list.filter(x => x.status !== "완료");
+  if(pending.length === 0){
+    listEl.innerHTML = '<div class="empty-msg">대기 중인 신청이 없습니다.</div>';
+    return;
+  }
+  listEl.innerHTML = pending.map(item => `
+    <div class="admin-item" id="admin-${item.id}">
+      <div class="row"><strong>${item.id}</strong><span class="status-pill ${item.status}">${item.status}</span></div>
+      <div class="row"><span>${item.grade} ${item.classNum} · ${item.applicantName}</span><span>${item.submittedAt}</span></div>
+      <div>마스크 ${item.masks} / 소독티슈 ${item.tissues} / 손소독제 ${item.sanitizer}</div>
+      ${item.memo ? `<div style="color:var(--muted);">비고: ${item.memo}</div>` : ""}
+      <textarea id="msg-${item.id}" placeholder="안내 메시지">확인중입니다. 내일 아침 자습시간 또는 쉬는시간에 학생을 보건실로 보내주시면 전달하겠습니다.</textarea>
+      <button onclick="confirmItem('${item.id}','${pw}')">확인 처리(확인중)</button>
+      <button onclick="completeItem('${item.id}','${pw}')" style="background:#16803c;margin-left:6px;">완료 처리</button>
+    </div>
+  `).join("");
+}
+
+async function updateStatus(id, pw, status){
+  const msg = document.getElementById(`msg-${id}`).value.trim();
+  try{
+    const res = await fetch("/api/infection-supply-update", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ password: pw, id, status, message: msg })
+    });
+    const data = await res.json();
+    if(data.success){
+      alert("처리되었습니다.");
+      document.getElementById(`admin-${id}`).remove();
+    }else{
+      alert(data.message || "처리 중 오류가 발생했습니다.");
+    }
+  }catch(e){
+    alert("서버 연결에 실패했습니다.");
+  }
+}
+function confirmItem(id, pw){ updateStatus(id, pw, "확인중"); }
+function completeItem(id, pw){ updateStatus(id, pw, "완료"); }
 </script>
 
 </body>
