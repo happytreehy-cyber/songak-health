@@ -26,6 +26,10 @@
   .back-btn{border:1px solid var(--border);background:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;}
   main{max-width:780px;margin:0 auto;padding:20px 16px 60px;}
   .section-title{font-size:19px;font-weight:700;margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
+  .section-divider-title{font-size:13.5px;font-weight:800;margin:30px 20px 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;}
+  .section-divider-title.status{color:#1e3a8a;background:#eff6ff;border-left:4px solid #2563eb;}
+  .section-divider-title.news{color:#9d174d;background:#fdf2f8;border-left:4px solid #ec4899;}
+  .section-divider-title.supply{color:#92400e;background:#fffbeb;border-left:4px solid #f59e0b;}
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
   .intro-card{background:#eef3ff;border:none;}
   .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
@@ -176,11 +180,14 @@
 <div class="site-lock" id="siteLock">
   <div class="site-lock-box">
     <div class="icon">🔒</div>
-    <h2>교직원 전용 페이지</h2>
-    <p>송악고등학교 보건업무 포털입니다.<br>이름과 비밀번호를 입력해주세요.</p>
-    <input type="text" id="siteLockName" placeholder="이름" autocomplete="off">
-    <input type="password" id="siteLockInput" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="new-password">
-    <button type="button" id="siteLockBtn">입장하기</button>
+    <h2>교직원 본인 확인</h2>
+    <p>비밀번호와 이름을 입력하면 감염병 발생 현황 · 보고 · 물품신청을<br>한 번에 모두 확인할 수 있어요.</p>
+    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="off" data-lpignore="true">
+    <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
+      <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
+    </label>
+    <button type="button" id="siteLockBtn">확인</button>
     <div class="site-lock-err" id="siteLockErr"></div>
   </div>
 </div>
@@ -201,12 +208,14 @@
     <span class="date-full-text" id="date-full-text"></span>
     <div class="calendar-strip" id="calendar-strip"></div>
   </section>
-  <div class="back-row">
-    <a href="index.html" class="back-btn">← 이전으로</a>
-  </div>
 </div>
 
 <main>
+
+  <a href="index.html" class="back-btn" style="display:inline-flex;align-items:center;gap:5px;margin:14px 20px 6px;">← 이전으로</a>
+  <div class="page-title-row" style="margin:0 20px 10px;">
+    <h1 style="font-size:16px;font-weight:700;color:#1e293b;">📋 감염병예방 보고 및 안내 · 카드뉴스 · 물품신청</h1>
+  </div>
 
   <div class="card intro-card">
     <p>📋 학생 감염병 발생 보고, 누적/최근 발생 현황 확인, 유행 중인 감염병 정보와 예방수칙 안내를 한 곳에서 제공하는 공간입니다.</p>
@@ -214,7 +223,7 @@
 
 
   <!-- 감염병 현황 대시보드 -->
-  <div class="section-title">📊 감염병 발생 현황</div>
+  <div class="section-divider-title status">📊 감염병 발생 현황</div>
   <div class="card">
     <div id="dashHero" class="dash-hero"><div class="empty-msg">불러오는 중...</div></div>
     <div id="dashCharts"></div>
@@ -224,13 +233,13 @@
   </div>
 
   <!-- 카드뉴스 -->
-  <div class="section-title">📰 감염병 카드뉴스 · 가정통신문</div>
+  <div class="section-divider-title news">📰 감염병 카드뉴스 · 가정통신문</div>
   <div class="card">
     <div id="newsGrid"><div class="empty-msg">불러오는 중...</div></div>
   </div>
 
   <!-- 물품신청 -->
-  <div class="section-title">😷 감염병예방 물품·소모품 신청</div>
+  <div class="section-divider-title supply">😷 감염병예방 물품·소모품 신청</div>
   <div class="card">
     <form id="supplyForm">
       <div class="field">
@@ -439,19 +448,27 @@
     document.getElementById("siteLock").style.display = "none";
   }
 
-  // 이름만 기억 (비밀번호는 매번 직접 입력)
+  // 이름 기억 (체크박스 체크 시에만)
   const savedName = localStorage.getItem("songak_staff_name");
-  if (savedName) document.getElementById("siteLockName").value = savedName;
+  if (savedName) {
+    document.getElementById("siteLockName").value = savedName;
+    document.getElementById("siteLockRemember").checked = true;
+  }
 
   async function tryUnlock(){
     const name = document.getElementById("siteLockName").value.trim();
     const pw = document.getElementById("siteLockInput").value.trim();
+    const remember = document.getElementById("siteLockRemember").checked;
     const errEl = document.getElementById("siteLockErr");
     if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
     if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
     errEl.textContent = "";
 
-    localStorage.setItem("songak_staff_name", name);
+    if (remember) {
+      localStorage.setItem("songak_staff_name", name);
+    } else {
+      localStorage.removeItem("songak_staff_name");
+    }
     localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
     fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
 
