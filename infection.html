@@ -179,7 +179,7 @@
     <h2>교직원 전용 페이지</h2>
     <p>송악고등학교 보건업무 포털입니다.<br>이름과 비밀번호를 입력해주세요.</p>
     <input type="text" id="siteLockName" placeholder="이름" autocomplete="off">
-    <input type="password" id="siteLockInput" placeholder="비밀번호 (119+휴대폰번호)" autocomplete="new-password">
+    <input type="password" id="siteLockInput" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="new-password">
     <button type="button" id="siteLockBtn">입장하기</button>
     <div class="site-lock-err" id="siteLockErr"></div>
   </div>
@@ -440,33 +440,23 @@
   }
 
   // 이름만 기억 (비밀번호는 매번 직접 입력)
-  const savedName = localStorage.getItem("songakStaffName");
+  const savedName = localStorage.getItem("songak_staff_name");
   if (savedName) document.getElementById("siteLockName").value = savedName;
 
   async function tryUnlock(){
     const name = document.getElementById("siteLockName").value.trim();
-    const pw = document.getElementById("siteLockInput").value;
+    const pw = document.getElementById("siteLockInput").value.trim();
     const errEl = document.getElementById("siteLockErr");
+    if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
     if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
-    if(!pw){ errEl.textContent = "비밀번호를 입력해주세요."; return; }
-    errEl.textContent = "확인 중...";
-    try{
-      const res = await fetch("/api/infection-report", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ action:"checkpw", name: name, password: pw })
-      });
-      const data = await res.json();
-      if(data.success){
-        localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
-        localStorage.setItem("songakStaffName", name);
-        document.body.classList.remove("locked");
-        document.getElementById("siteLock").style.display = "none";
-      }else{
-        errEl.textContent = data.message || "이름 또는 비밀번호가 올바르지 않습니다.";
-      }
-    }catch(e){
-      errEl.textContent = "서버 연결에 실패했습니다.";
-    }
+    errEl.textContent = "";
+
+    localStorage.setItem("songak_staff_name", name);
+    localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
+    fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
+
+    document.body.classList.remove("locked");
+    document.getElementById("siteLock").style.display = "none";
   }
   document.getElementById("siteLockBtn").addEventListener("click", tryUnlock);
   document.getElementById("siteLockInput").addEventListener("keydown", (e) => {
