@@ -2,19 +2,13 @@
   {
     "title": "인플루엔자(독감) 예방 안내",
     "date": "2026-01-15",
-    "filename": "influenza-2026.pdf",
+    "filename": "influenza-2026.jpg",
     "tag": "유행주의"
   },
   {
     "title": "수두 예방 및 등교중지 안내",
     "date": "2026-03-10",
     "filename": "varicella-2026.pdf",
-    "tag": "가정통신문"
-  },
-  {
-    "title": "백일해 예방 가정통신문",
-    "date": "2026-05-02",
-    "filename": "pertussis-2026.pdf",
     "tag": "가정통신문"
   }
 ]
