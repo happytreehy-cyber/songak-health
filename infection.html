@@ -66,7 +66,7 @@
   .case-table{font-size:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
   .case-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #f1f3f8;gap:6px;}
   .case-row:last-child{border-bottom:none;}
-  .case-row.case-head{background:#f3f5fa;font-weight:700;color:var(--muted);font-size:11px;}
+  .case-row.case-head{background:#f3f5fa;font-weight:800;color:var(--text);font-size:12px;}
   .case-row .c-disease{flex:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .case-row .c-class{flex:0.9;text-align:center;}
   .case-row .c-name{flex:0.9;text-align:center;}
@@ -236,6 +236,19 @@
   <div class="section-divider-title news">📰 감염병 카드뉴스 · 가정통신문</div>
   <div class="card">
     <div id="newsGrid"><div class="empty-msg">불러오는 중...</div></div>
+    <div class="admin-link" id="newsAdminOpenBtn" style="margin-top:10px;">관리자 업로드 →</div>
+    <div class="hidden" id="newsAdminPanel" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📤 카드뉴스 업로드</div>
+      <input type="text" id="newsTitle" placeholder="제목 (예: 수두 예방 안내)" style="margin-bottom:8px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input type="date" id="newsDate" style="flex:1;">
+        <input type="text" id="newsTag" placeholder="태그(선택, 예: 유행주의)" style="flex:1;">
+      </div>
+      <input type="file" id="newsFile" accept="image/*,application/pdf" style="margin-bottom:8px;">
+      <button type="button" class="submit-btn" id="newsUploadBtn" style="margin-top:0;">업로드</button>
+      <div class="result-msg" id="newsUploadMsg"></div>
+      <div id="newsAdminList" style="margin-top:14px;"></div>
+    </div>
   </div>
 
   <!-- 물품신청 -->
@@ -319,7 +332,7 @@
   <div class="section-title">🔎 내 신청 조회</div>
   <div class="card">
     <div style="font-size:13px;color:var(--muted);margin-top:0;line-height:1.8;">
-      <strong style="color:var(--text);">신청번호</strong>
+      <strong style="color:var(--text);">예) 신청번호</strong>
       <div style="display:flex;gap:6px;margin-top:4px;">
         <span style="flex:0 0 38px;">학급</span>
         <span>→ 1학년 1반 → <strong style="color:var(--text);">11</strong></span>
@@ -552,7 +565,7 @@ function renderHero(){
     </div>
     <div class="hero-right">
       <div class="hero-pill">
-        <div class="pnum">${s.totalCases}</div><div class="plabel">총 누적발생</div>
+        <div class="pnum">${s.totalCases}</div><div class="plabel">26누적발생</div>
       </div>
       <div class="hero-pill">
         <div class="pnum">${s.last7days}</div><div class="plabel">최근 7일</div>
@@ -638,8 +651,7 @@ function renderCharts(){
     </div>
     ${ allCases.length ? `
     <div class="chart-block">
-      <div class="chart-title">📋 전체 발생 사례</div>
-      <div class="hint" style="margin-bottom:8px;">💡 칸 더블클릭시 수정가능. 초록색 배경은 현재 진행 중인 사례예요.</div>
+      <div class="chart-title">📋 전체 발생 사례 <span style="font-size:11px;font-weight:400;color:var(--muted);">(칸 더블클릭시 수정가능)</span></div>
       <div class="case-table" id="caseTableBody"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted);">
         <button type="button" class="qty-btn" id="casePrevBtn">‹</button>
@@ -835,39 +847,151 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
   }
 });
 
-/* ---------- 카드뉴스 ---------- */
-fetch("data/infection-cards.json")
-  .then(r => r.json())
-  .then(list => {
-    const wrap = document.getElementById("newsGrid");
-    if(!list || list.length === 0){
-      wrap.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>';
-      return;
-    }
-    list.sort((a,b) => new Date(b.date) - new Date(a.date));
-    wrap.innerHTML = list.map(item => {
-      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
-      const thumb = isImage ? `<img src="${PDF_BASE}${item.filename}" alt="${item.title}">` : `📄`;
-      return `
-        <div class="news-card" onclick='openCard(${JSON.stringify(item).replace(/'/g,"&apos;")})'>
-          <div class="news-thumb">${thumb}</div>
-          <div class="news-info">
-            ${item.tag ? `<span class="news-tag">${item.tag}</span>` : ""}
-            <div class="news-title">${item.title}</div>
-            <div class="news-date">${item.date}</div>
-          </div>
-        </div>`;
-    }).join("");
-  })
-  .catch(() => { document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>'; });
+/* ---------- 카드뉴스 (구글시트 + Blob URL 기반) ---------- */
+function loadNewsCards(){
+  fetch("/api/infection-report?action=newscards")
+    .then(r => r.json())
+    .then(data => {
+      const wrap = document.getElementById("newsGrid");
+      const list = data.cards || [];
+      window.newsCardList = list;
+      if(!list.length){
+        wrap.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>';
+        return;
+      }
+      wrap.innerHTML = list.map((item, idx) => {
+        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.url);
+        const thumb = isImage ? `<img src="${item.url}" alt="${item.title}">` : `📄`;
+        return `
+          <div class="news-card" data-idx="${idx}">
+            <div class="news-thumb">${thumb}</div>
+            <div class="news-info">
+              ${item.tag ? `<span class="news-tag">${item.tag}</span>` : ""}
+              <div class="news-title">${item.title}</div>
+              <div class="news-date">${item.date}</div>
+            </div>
+          </div>`;
+      }).join("");
+      wrap.querySelectorAll(".news-card").forEach(card => {
+        card.addEventListener("click", () => {
+          openCard(window.newsCardList[Number(card.dataset.idx)]);
+        });
+      });
+    })
+    .catch(() => { document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>'; });
+}
+loadNewsCards();
 
 function openCard(item){
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.url);
   document.getElementById("pdfModalTitle").textContent = item.title;
-  document.getElementById("pdfModalBody").innerHTML = isImage ? `<img src="${PDF_BASE}${item.filename}">` : `<iframe src="${PDF_BASE}${item.filename}"></iframe>`;
+  document.getElementById("pdfModalBody").innerHTML = isImage ? `<img src="${item.url}">` : `<iframe src="${item.url}"></iframe>`;
   document.getElementById("pdfModal").classList.add("open");
 }
 function closePdf(){ document.getElementById("pdfModal").classList.remove("open"); document.getElementById("pdfModalBody").innerHTML = ""; }
+
+/* ---------- 카드뉴스 관리자 업로드 ---------- */
+document.getElementById("newsAdminOpenBtn").addEventListener("click", async () => {
+  const pw = await askAdminPw();
+  if(!pw) return;
+  document.getElementById("newsAdminPanel").classList.remove("hidden");
+  document.getElementById("newsAdminPanel").dataset.pw = pw;
+  renderNewsAdminList(pw);
+});
+
+async function renderNewsAdminList(pw){
+  const listEl = document.getElementById("newsAdminList");
+  listEl.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
+  try{
+    const res = await fetch("/api/infection-report?action=newscards");
+    const data = await res.json();
+    const list = data.cards || [];
+    if(!list.length){ listEl.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>'; return; }
+    listEl.innerHTML = `<div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">등록된 카드뉴스 (삭제 가능)</div>` +
+      list.map(item => `
+        <div class="admin-item">
+          <div class="row"><strong>${item.title}</strong><span>${item.date}</span></div>
+          <button onclick="deleteNewsCard(${item.rowNum},'${pw}')" style="background:#dc2626;">삭제</button>
+        </div>
+      `).join("");
+  }catch(e){
+    listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>';
+  }
+}
+
+async function deleteNewsCard(rowNum, pw){
+  if(!confirm("이 카드뉴스를 삭제할까요?")) return;
+  try{
+    const res = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"deletenewscard", password: pw, rowNum })
+    });
+    const data = await res.json();
+    if(data.success){
+      loadNewsCards();
+      renderNewsAdminList(pw);
+    }else{
+      alert(data.message || "삭제 중 오류가 발생했습니다.");
+    }
+  }catch(e){
+    alert("서버 연결에 실패했습니다.");
+  }
+}
+
+document.getElementById("newsUploadBtn").addEventListener("click", async () => {
+  const pw = document.getElementById("newsAdminPanel").dataset.pw;
+  const title = document.getElementById("newsTitle").value.trim();
+  const date = document.getElementById("newsDate").value;
+  const tag = document.getElementById("newsTag").value.trim();
+  const fileInput = document.getElementById("newsFile");
+  const msgEl = document.getElementById("newsUploadMsg");
+  msgEl.textContent = ""; msgEl.className = "result-msg";
+
+  if(!title){ msgEl.textContent = "제목을 입력해주세요."; msgEl.classList.add("err"); return; }
+  if(!fileInput.files[0]){ msgEl.textContent = "파일을 선택해주세요."; msgEl.classList.add("err"); return; }
+
+  const file = fileInput.files[0];
+  const btn = document.getElementById("newsUploadBtn");
+  btn.disabled = true; btn.textContent = "업로드 중...";
+
+  try{
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      headers: { "Content-Type": file.type || "application/octet-stream", "x-filename": encodeURIComponent(file.name) },
+      body: file
+    });
+    const uploadData = await uploadRes.json();
+    if(!uploadData.success){
+      msgEl.textContent = "파일 업로드 실패: " + (uploadData.message || "");
+      msgEl.classList.add("err");
+      return;
+    }
+
+    const addRes = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"addnewscard", password: pw, title, date, tag, url: uploadData.url })
+    });
+    const addData = await addRes.json();
+    if(addData.success){
+      msgEl.textContent = "카드뉴스가 등록되었습니다!";
+      msgEl.classList.add("ok");
+      document.getElementById("newsTitle").value = "";
+      document.getElementById("newsDate").value = "";
+      document.getElementById("newsTag").value = "";
+      fileInput.value = "";
+      loadNewsCards();
+      renderNewsAdminList(pw);
+    }else{
+      msgEl.textContent = addData.message || "등록 중 오류가 발생했습니다.";
+      msgEl.classList.add("err");
+    }
+  }catch(e){
+    msgEl.textContent = "서버 연결에 실패했습니다.";
+    msgEl.classList.add("err");
+  }finally{
+    btn.disabled = false; btn.textContent = "업로드";
+  }
+});
 
 /* ---------- 학년/반 선택 (물품신청) ---------- */
 let selectedGrade = null, selectedClass = null;
