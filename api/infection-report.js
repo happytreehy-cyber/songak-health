@@ -175,18 +175,24 @@ async function handleStudents(req, res) {
     res.status(400).json({ success: false, message: "학년과 반을 선택해주세요." });
     return;
   }
+  // "1학년" -> "1", "1반" -> "1" 처럼 숫자만 비교
+  const gradeNum = String(grade).replace(/[^0-9]/g, "");
+  const classNumNum = String(classNum).replace(/[^0-9]/g, "");
+
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
   let rows = [];
   try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STUDENT_TAB_NAME}!A2:D` });
+    // C=학년, D=반, E=번호, F=이름
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STUDENT_TAB_NAME}!C2:F` });
     rows = result.data.values || [];
   } catch (e) {
     res.status(200).json({ success: true, students: [], message: "학생명단 탭을 찾을 수 없습니다." });
     return;
   }
   const students = rows
-    .filter(r => r[0] === grade && r[1] === classNum)
+    .filter(r => String(r[0] || "").replace(/[^0-9]/g, "") === gradeNum && String(r[1] || "").replace(/[^0-9]/g, "") === classNumNum)
+    .filter(r => r[3]) // 이름이 있는 줄만
     .map(r => ({ number: r[2], name: r[3] }))
     .sort((a, b) => Number(a.number) - Number(b.number));
   res.status(200).json({ success: true, students });
