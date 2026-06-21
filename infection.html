@@ -228,7 +228,7 @@
     <div id="dashHero" class="dash-hero"><div class="empty-msg">불러오는 중...</div></div>
     <div id="dashCharts"></div>
     <div class="dash-buttons">
-      <button type="button" class="dash-btn primary" id="openReportBtn" style="flex:1;">감염병 발생 보고(담임)</button>
+      <button type="button" class="dash-btn primary" id="openReportBtn" style="flex:1;">감염병 발생 보고입력(담임)</button>
     </div>
   </div>
 
@@ -592,7 +592,8 @@ function renderCharts(){
     </div>`;
   }).join("");
 
-  const allCases = s.allCasesMasked || [];
+  const allCases = (s.allCasesMasked || []).slice().sort((a,b) => new Date(a.diagnosisDate) - new Date(b.diagnosisDate));
+  allCases.forEach((it,i) => it.no = i+1);
   window.allCasesData = allCases; // 더블클릭 수정용 캐시
   const ongoingCases = allCases.filter(it => !it.ended);
   const endedCases = allCases.filter(it => it.ended).reverse(); // 최신 종료 먼저
@@ -607,7 +608,7 @@ function renderCharts(){
     <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
       <span class="c-disease">${it.no}. ${it.disease}</span>
       <span class="c-class">${g}-${c},${it.studentNumber}</span>
-      <span class="c-name">${it.maskedName}</span>
+      <span class="c-name">${it.fullName}</span>
       <span class="c-date">${it.diagnosisDate}</span>
       <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
     </div>`;
@@ -622,26 +623,28 @@ function renderCharts(){
     </div>`;
 
   wrap.innerHTML = `
-    <div class="chart-block">
-      <div class="chart-title">🦠 감염병별 누적 발생</div>
-      <div class="donut-wrap">
-        <div style="width:90px;height:90px;border-radius:50%;background:${diseaseDonutCss};flex-shrink:0;"></div>
-        <div class="donut-legend">${diseaseLegend}</div>
+    <div class="chart-block" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+      <div style="flex:1;min-width:220px;">
+        <div class="chart-title">🦠 감염병별 누적 발생</div>
+        <div class="donut-wrap">
+          <div style="width:90px;height:90px;border-radius:50%;background:${diseaseDonutCss};flex-shrink:0;"></div>
+          <div class="donut-legend">${diseaseLegend}</div>
+        </div>
       </div>
-    </div>
-    <div class="chart-block">
-      <div class="chart-title">🎓 학년별 발생 현황</div>
-      ${gradeBars}
+      <div style="flex:1;min-width:220px;">
+        <div class="chart-title">🎓 학년별 발생 현황</div>
+        ${gradeBars}
+      </div>
     </div>
     ${ allCases.length ? `
     <div class="chart-block">
-      <div class="chart-title">📋 전체 발생 사례 (이름 비공개 표시)</div>
-      <div class="hint" style="margin-bottom:8px;">💡 칸을 더블클릭하면 내용을 수정할 수 있어요. 초록색 배경은 현재 진행 중인 사례예요.</div>
+      <div class="chart-title">📋 전체 발생 사례</div>
+      <div class="hint" style="margin-bottom:8px;">💡 칸 더블클릭시 수정가능. 초록색 배경은 현재 진행 중인 사례예요.</div>
       <div class="case-table" id="caseTableBody"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted);">
         <button type="button" class="qty-btn" id="casePrevBtn">‹</button>
         <span id="casePageLabel"></span>
-        <button type="button" class="qty-btn" id="caseNextBtn">›</button>
+        <button type="button" class="qty-btn" id="caseNextBtn" style="color:#dc2626;font-weight:700;">→</button>
       </div>
     </div>` : "" }
   `;
@@ -652,7 +655,7 @@ function renderCharts(){
     if(!body) return;
     if(window.casePage === 0){
       body.innerHTML = caseHeader + (ongoingCases.length ? ongoingCases.map(caseRowHtml).join("") : '<div class="empty-chart">현재 진행 중인 사례가 없습니다.</div>');
-      label.textContent = `진행중 (${ongoingCases.length}) · 종료사례 보려면 › 클릭`;
+      label.textContent = `진행중 (${ongoingCases.length}) · 종료사례 보려면 오른쪽 화살표 클릭`;
     }else{
       const pageIdx = window.casePage - 1;
       const start = pageIdx * PAGE_SIZE;
@@ -939,7 +942,7 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
     if(data.success){
       const isOffice = selectedGrade.indexOf("학년") === -1;
       const idHint = isOffice ? "(부서 번호예요)" : "(학년+반 번호예요)";
-      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> ${idHint}<br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
+      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> ${idHint}<br><span style="font-size:11px;color:var(--muted);">🕒 ${data.submittedAt}</span><br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
       resultMsg.classList.add("ok");
       qty.kf94=0; qty.beak=0; qty.tissues=0; qty.sanitizer=0;
       document.getElementById("qty-kf94").textContent=0;
@@ -990,6 +993,7 @@ document.getElementById("lookupBtn").addEventListener("click", async () => {
     box.innerHTML = `
       <span class="status-pill ${d.status}">${d.status}</span>
       <div style="margin-top:6px;">${d.grade} ${d.classNum} · ${d.applicantName}</div>
+      <div style="font-size:11px;color:var(--muted);">🕒 ${d.submittedAt}</div>
       <div style="font-size:12px;color:var(--muted);margin-top:2px;">KF94 ${d.kf94} / 방역마스크 ${d.beak} / 소독티슈 ${d.tissues} / 손소독제 ${d.sanitizer}</div>
       ${d.adminMessage ? `<div style="margin-top:10px;padding:10px;background:#eef3ff;border-radius:8px;">💬 ${d.adminMessage}</div>` : ""}
       ${statusArea}
