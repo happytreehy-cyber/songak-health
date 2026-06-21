@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: '입실현황!A:G',
+      range: '입실현황!A:Z',
     });
 
     const rows = response.data.values || [];
@@ -41,6 +41,7 @@ module.exports = async function handler(req, res) {
       gender: findCol(['성별']),
       symptom: findCol(['증상']),
       checkin: findCol(['입실', '입실시간', '체크인']),
+      checkout: findCol(['퇴실', '퇴실시간', '체크아웃']),
     };
 
     function parseGradeClass(text) {
@@ -77,6 +78,7 @@ module.exports = async function handler(req, res) {
           gender: row[idx.gender] || '',
           symptom: row[idx.symptom] || '',
           checkin: row[idx.checkin] || '',
+          checkout: idx.checkout !== -1 ? (row[idx.checkout] || '') : '',
         };
       })
       .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
