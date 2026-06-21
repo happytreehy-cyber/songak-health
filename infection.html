@@ -8,13 +8,22 @@
   :root{--navy:#1f3c88;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;--accent:#2563eb;}
   *{box-sizing:border-box;}
   body{margin:0;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--text);}
-  header{background:#fff;border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between;position:sticky;top:0;z-index:40;}
-  header .left{display:flex;align-items:center;gap:12px;}
-  header img{width:40px;height:40px;border-radius:50%;}
-  header .title{font-size:17px;font-weight:700;}
-  header .sub{font-size:12px;color:var(--muted);}
-  header .right{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);white-space:nowrap;}
-  .back-btn{border:1px solid var(--border);background:#fff;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;}
+  .sticky-header-wrapper{position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .navbar{height:46px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;border-bottom:1px solid #f1f5f9;}
+  .nav-left{display:flex;align-items:center;gap:10px;}
+  .nav-logo-img{width:22px;height:22px;object-fit:contain;}
+  .nav-title-group{display:flex;align-items:baseline;gap:8px;}
+  .nav-main-title{font-size:16px;font-weight:700;color:#1e3a8a;}
+  .nav-sub-title{font-size:12px;color:#64748b;font-weight:400;}
+  .date-strip-bar{background:#fff;padding:4px 20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid #e2e8f0;}
+  .date-badge-mini{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:#2563eb;}
+  .date-full-text{font-size:13px;font-weight:700;color:#1e293b;}
+  .calendar-strip{display:flex;gap:10px;font-size:12px;color:#94a3b8;background:#f8fafc;padding:2px 8px;border-radius:15px;}
+  .day-item{color:#94a3b8;}
+  .day-item.sun{color:#ef4444;}
+  .day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
+  .back-row{padding:8px 20px;border-bottom:1px solid #e2e8f0;}
+  .back-btn{border:1px solid var(--border);background:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;}
   main{max-width:780px;margin:0 auto;padding:20px 16px 60px;}
   .section-title{font-size:19px;font-weight:700;margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
@@ -48,7 +57,7 @@
   .site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-bottom:10px;}
   .site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
   .site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
-  body.locked main, body.locked header{display:none;}
+  body.locked main, body.locked .sticky-header-wrapper{display:none;}
   .empty-chart{font-size:12.5px;color:var(--muted);padding:6px 0;}
   .case-table{font-size:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
   .case-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #f1f3f8;gap:6px;}
@@ -177,19 +186,25 @@
 </div>
 
 
-<header>
-  <div class="left">
-    <a href="index.html" class="back-btn">← 이전으로</a>
-    <img src="logo.png" alt="송악고 로고" onerror="this.style.display='none'">
-    <div>
-      <div class="title">송악고등학교 온라인 보건실</div>
-      <div class="sub">감염병예방 안내 · 카드뉴스 · 물품신청</div>
+<div class="sticky-header-wrapper">
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="logo.png" alt="로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+      <div class="nav-title-group">
+        <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+        <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+      </div>
     </div>
+  </nav>
+  <section class="date-strip-bar">
+    <div class="date-badge-mini" id="date-badge-mini"></div>
+    <span class="date-full-text" id="date-full-text"></span>
+    <div class="calendar-strip" id="calendar-strip"></div>
+  </section>
+  <div class="back-row">
+    <a href="index.html" class="back-btn">← 이전으로</a>
   </div>
-  <div class="right">
-    <span id="todayDate"></span>
-  </div>
-</header>
+</div>
 
 <main>
 
@@ -294,8 +309,12 @@
   <!-- 신청 조회 -->
   <div class="section-title">🔎 내 신청 조회</div>
   <div class="card">
-    <p style="font-size:13px;color:var(--muted);margin-top:0;">신청번호(예: 1학년 1반 → 11)만 입력하면 처리 상태를 확인할 수 있습니다.</p>
-    <p style="font-size:12px;color:var(--muted);margin-top:-6px;">부서 신청번호: 교무실1→1 · 교무실2→2 · 교무실3→3 · 행정실→4 · 기타→5</p>
+    <div style="font-size:13px;color:var(--muted);margin-top:0;line-height:1.7;">
+      <strong style="color:var(--text);">신청번호</strong><br>
+      예: 학급 → 1학년 1반 → <strong>11</strong><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;부서 → 교무실1→1 · 교무실2→2 · 교무실3→3 · 행정실→4 · 기타→5<br>
+      이렇게 입력하면 처리 상태를 확인할 수 있습니다.
+    </div>
     <div class="lookup-row">
       <input type="text" id="lookupId" placeholder="신청번호 (예: 11, 22, 00)">
       <button type="button" class="lookup-btn" id="lookupBtn">조회</button>
@@ -457,8 +476,25 @@
 
 const PDF_BASE = "assets/infection-pdfs/";
 
-document.getElementById("todayDate").textContent =
-  new Date().toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"short" });
+(function(){
+  const WK = ['일','월','화','수','목','금','토'];
+  function pad(n){ return n < 10 ? '0'+n : n; }
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), w = now.getDay();
+  document.getElementById('date-badge-mini').textContent = pad(d);
+  document.getElementById('date-full-text').textContent = y+'년 '+(m+1)+'월 '+d+'일 '+WK[w]+'요일';
+  const cal = document.getElementById('calendar-strip');
+  cal.innerHTML = '';
+  const sun = new Date(now); sun.setDate(d - w);
+  for(let i=0;i<7;i++){
+    const dd = new Date(sun); dd.setDate(sun.getDate()+i);
+    const span = document.createElement('span');
+    let cls = 'day-item';
+    if(dd.getDay()===0) cls += ' sun';
+    if(dd.getDate()===d && dd.getMonth()===m) cls += ' today';
+    span.className = cls; span.textContent = dd.getDate();
+    cal.appendChild(span);
+  }
+})();
 
 /* ---------- 관리자 비밀번호 세션 기억 ---------- */
 function getCachedAdminPw() { return sessionStorage.getItem("infectionAdminPw") || null; }
@@ -520,12 +556,17 @@ function renderCharts(){
   const wrap = document.getElementById("dashCharts");
 
   const diseaseEntries = Object.entries(s.byDisease).sort((a,b)=>b[1]-a[1]);
-  const maxDisease = diseaseEntries.length ? diseaseEntries[0][1] : 1;
-  const diseaseBars = diseaseEntries.length ? diseaseEntries.map(([k,v],i) => `
-    <div class="bar-row">
-      <div class="bar-label">${k}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,(v/maxDisease)*100)}%;background:${PALETTE[i%PALETTE.length]}"><span>${v}</span></div></div>
-    </div>`).join("") : '<div class="empty-chart">아직 등록된 사례가 없습니다.</div>';
+  const totalDisease = diseaseEntries.reduce((a,[,v])=>a+v,0) || 1;
+  let accD = 0;
+  const diseaseStops = diseaseEntries.map(([k,v],i) => {
+    const start = (accD/totalDisease)*360; accD += v;
+    const end = (accD/totalDisease)*360;
+    return `${PALETTE[i%PALETTE.length]} ${start}deg ${end}deg`;
+  }).join(", ");
+  const diseaseDonutCss = diseaseEntries.length ? `conic-gradient(${diseaseStops})` : "#eef1f7";
+  const diseaseLegend = diseaseEntries.length ? diseaseEntries.map(([k,v],i) => `
+    <div><span class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${k} <strong>${v}건</strong> <span style="color:var(--muted);">(${Math.round(v/totalDisease*100)}%)</span></div>
+  `).join("") : '<div class="empty-chart">아직 등록된 사례가 없습니다.</div>';
 
   const gradeOrder = ["1학년","2학년","3학년"];
   const maxGrade = Math.max(1, ...gradeOrder.map(g => s.byGrade[g] || 0));
@@ -563,7 +604,10 @@ function renderCharts(){
   wrap.innerHTML = `
     <div class="chart-block">
       <div class="chart-title">🦠 감염병별 누적 발생</div>
-      ${diseaseBars}
+      <div class="donut-wrap">
+        <div style="width:90px;height:90px;border-radius:50%;background:${diseaseDonutCss};flex-shrink:0;"></div>
+        <div class="donut-legend">${diseaseLegend}</div>
+      </div>
     </div>
     <div class="chart-block">
       <div class="chart-title">🎓 학년별 발생 현황</div>
@@ -802,7 +846,9 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
     });
     const data = await res.json();
     if(data.success){
-      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> (학년+반 번호예요)<br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
+      const isOffice = selectedGrade.indexOf("학년") === -1;
+      const idHint = isOffice ? "(부서 번호예요)" : "(학년+반 번호예요)";
+      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> ${idHint}<br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
       resultMsg.classList.add("ok");
       qty.kf94=0; qty.beak=0; qty.tissues=0; qty.sanitizer=0;
       document.getElementById("qty-kf94").textContent=0;
