@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>감염병예방 | 송악고등학교 온라인 보건실</title>
 <style>
-  :root{
-    --navy:#1f3c88; --bg:#f5f7fb; --card:#ffffff; --border:#e3e7f0;
-    --text:#1c2333; --muted:#6b7280; --accent:#2563eb;
-  }
+  :root{--navy:#1f3c88;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;--accent:#2563eb;}
   *{box-sizing:border-box;}
   body{margin:0;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--text);}
   header{background:#fff;border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between;position:sticky;top:0;z-index:40;}
@@ -24,21 +21,23 @@
   .intro-card{background:#eef3ff;border:none;}
   .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
 
-  /* 감염병 현황 대시보드 */
-  .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+  .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
   .dash-stat{border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
   .dash-stat .num{font-size:24px;font-weight:800;color:var(--navy);}
   .dash-stat .label{font-size:12px;color:var(--muted);margin-top:2px;}
   .dash-detail{grid-column:1/-1;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;}
   .dash-detail .row{display:flex;justify-content:space-between;padding:3px 0;}
+  .dash-toggle{font-size:12px;color:var(--accent);text-align:right;margin:-6px 0 12px;cursor:pointer;text-decoration:underline;}
   .dash-buttons{display:flex;gap:8px;flex-wrap:wrap;}
   .dash-btn{flex:1;border:1px solid var(--border);background:#fff;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);min-width:140px;}
   .dash-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
   .exclusion-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;}
   .exclusion-item .row{display:flex;justify-content:space-between;}
   .privacy-note{font-size:12px;color:#92400e;background:#fef3c7;border-radius:8px;padding:8px 10px;margin-bottom:10px;}
+  .masked-list{font-size:13px;}
+  .masked-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border);}
+  .empty-msg{color:var(--muted);font-size:14px;padding:10px 2px;grid-column:1/-1;}
 
-  /* 감염병 입력 모달 */
   .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:20px 16px;overflow-y:auto;}
   .report-modal.open{display:flex;}
   .report-modal-inner{background:#fff;border-radius:14px;width:100%;max-width:420px;padding:20px;margin-top:20px;}
@@ -46,28 +45,33 @@
   .report-modal-head button{border:none;background:none;font-size:20px;cursor:pointer;}
   .report-field{margin-bottom:12px;}
   .report-field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px;}
+  .report-field .hint{font-size:11px;color:var(--muted);margin-top:4px;font-weight:400;}
   .report-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   select{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;}
   input[type=date]{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;}
+  .student-pick-list{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;}
+  .student-pick{border:1px solid var(--border);background:#fff;border-radius:16px;padding:6px 12px;font-size:13px;cursor:pointer;}
+  .student-pick.selected{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .selected-student-box{display:none;border:1px solid var(--navy);background:#eef3ff;border-radius:10px;padding:10px;font-size:13px;margin-bottom:10px;align-items:center;justify-content:space-between;}
+  .selected-student-box.show{display:flex;}
+  .selected-student-box button{border:none;background:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;}
 
-  /* 카드뉴스 - 이미지형 그리드 */
-  #newsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  /* 카드뉴스 - 4칸x2줄 가로 페이징 */
+  #newsGrid{
+    display:grid;grid-template-rows:repeat(2,1fr);grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);
+    gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;
+  }
   .news-card{
     border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff;
-    cursor:pointer;text-align:left;
+    cursor:pointer;text-align:left;scroll-snap-align:start;width:150px;
   }
-  .news-thumb{
-    width:100%;aspect-ratio:1/1;background:#eef1f7;display:flex;align-items:center;justify-content:center;
-    overflow:hidden;font-size:32px;
-  }
+  .news-thumb{width:100%;aspect-ratio:1/1;background:#eef1f7;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:28px;}
   .news-thumb img{width:100%;height:100%;object-fit:cover;}
-  .news-info{padding:10px 12px;}
-  .news-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--navy);background:#e7edfb;padding:2px 8px;border-radius:20px;margin-bottom:6px;}
-  .news-title{font-size:14px;font-weight:600;line-height:1.3;}
-  .news-date{font-size:11px;color:var(--muted);margin-top:4px;}
-  .empty-msg{color:var(--muted);font-size:14px;padding:10px 2px;grid-column:1/-1;}
+  .news-info{padding:8px 10px;}
+  .news-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--navy);background:#e7edfb;padding:2px 7px;border-radius:20px;margin-bottom:5px;}
+  .news-title{font-size:12.5px;font-weight:600;line-height:1.3;}
+  .news-date{font-size:10.5px;color:var(--muted);margin-top:3px;}
 
-  /* 물품신청 */
   .field{margin-bottom:20px;}
   .field label{display:block;font-weight:700;font-size:14px;margin-bottom:8px;}
   .step-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;margin-right:6px;}
@@ -78,10 +82,7 @@
   .class-scroll .choice-btn{flex:0 0 auto;}
   .hidden{display:none !important;}
 
-  .item-row{
-    display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);
-    border-radius:12px;padding:12px 14px;margin-bottom:10px;
-  }
+  .item-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
   .item-left{display:flex;align-items:center;gap:10px;}
   .item-emoji{font-size:26px;}
   .item-name{font-weight:700;font-size:15px;}
@@ -98,7 +99,6 @@
   .result-msg.ok{color:#16803c;}
   .result-msg.err{color:#dc2626;}
 
-  /* 신청 조회 / 관리자 */
   .lookup-row{display:flex;gap:8px;}
   .lookup-row input{flex:1;}
   .lookup-btn{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:0 16px;font-size:14px;cursor:pointer;}
@@ -108,13 +108,14 @@
   .status-pill.접수{background:#fef3c7;color:#92400e;}
   .status-pill.확인중{background:#dbeafe;color:#1e40af;}
   .status-pill.완료{background:#dcfce7;color:#166534;}
+  .ack-note{margin-top:10px;padding:10px;background:#eef3ff;border-radius:8px;font-size:13px;color:#1f3c88;}
   .admin-link{font-size:13px;color:var(--muted);text-align:right;margin-top:6px;cursor:pointer;text-decoration:underline;}
   .admin-item{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;font-size:13px;}
   .admin-item .row{display:flex;justify-content:space-between;margin-bottom:4px;}
   .admin-item textarea{margin-top:8px;}
   .admin-item button{margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;}
 
-  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60;padding:16px;}
   .pdf-modal.open{display:flex;}
   .pdf-modal-inner{background:#fff;border-radius:12px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
   .pdf-modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);}
@@ -150,9 +151,10 @@
   <!-- 감염병 현황 대시보드 -->
   <div class="section-title">📊 감염병 발생 현황</div>
   <div class="card">
-    <div id="dashGrid" class="dash-grid">
-      <div class="empty-msg">불러오는 중...</div>
-    </div>
+    <div id="dashGrid" class="dash-grid"><div class="empty-msg">불러오는 중...</div></div>
+    <div class="dash-toggle" id="dash30Toggle">최근 30일 현황 보기 ▾</div>
+    <div id="dash30Box" class="hidden" style="margin-bottom:14px;"></div>
+    <div id="maskedListBox" style="margin-bottom:14px;"></div>
     <div class="dash-buttons">
       <button type="button" class="dash-btn primary" id="openReportBtn">감염병 발생 보고(담임)</button>
       <button type="button" class="dash-btn" id="openExclusionListBtn">현재 등교중지 학생 보기(교직원용)</button>
@@ -162,15 +164,14 @@
 
   <!-- 카드뉴스 -->
   <div class="section-title">📰 감염병 카드뉴스 · 가정통신문</div>
-  <div id="newsGrid" class="card">
-    <div class="empty-msg">불러오는 중...</div>
+  <div class="card">
+    <div id="newsGrid"><div class="empty-msg">불러오는 중...</div></div>
   </div>
 
   <!-- 물품신청 -->
   <div class="section-title">😷 감염병예방 물품·소모품 신청</div>
   <div class="card">
     <form id="supplyForm">
-
       <div class="field">
         <label><span class="step-num">1</span>학년 선택</label>
         <div class="choice-grid" id="gradeGroup">
@@ -190,22 +191,28 @@
         <label><span class="step-num">3</span>품목별 수량</label>
 
         <div class="item-row">
-          <div class="item-left">
-            <span class="item-emoji">😷</span>
-            <div><div class="item-name">마스크</div><div class="item-desc">KF94 / 일반</div></div>
-          </div>
+          <div class="item-left"><span class="item-emoji">😷</span>
+            <div><div class="item-name">KF94 덴탈마스크</div><div class="item-desc">흰색, 일반형</div></div></div>
           <div class="qty-row">
-            <button type="button" class="qty-btn" data-target="masks" data-dir="-1">−</button>
-            <span class="qty-val" id="qty-masks">0</span>
-            <button type="button" class="qty-btn" data-target="masks" data-dir="1">+</button>
+            <button type="button" class="qty-btn" data-target="kf94" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-kf94">0</span>
+            <button type="button" class="qty-btn" data-target="kf94" data-dir="1">+</button>
           </div>
         </div>
 
         <div class="item-row">
-          <div class="item-left">
-            <span class="item-emoji">🧻</span>
-            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장</div></div>
+          <div class="item-left"><span class="item-emoji">😷</span>
+            <div><div class="item-name">방역마스크(새부리형)</div><div class="item-desc">방역용</div></div></div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="beak" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-beak">0</span>
+            <button type="button" class="qty-btn" data-target="beak" data-dir="1">+</button>
           </div>
+        </div>
+
+        <div class="item-row">
+          <div class="item-left"><span class="item-emoji">🧻</span>
+            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="tissues" data-dir="-1">−</button>
             <span class="qty-val" id="qty-tissues">0</span>
@@ -214,10 +221,8 @@
         </div>
 
         <div class="item-row">
-          <div class="item-left">
-            <span class="item-emoji">🧴</span>
-            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계</div></div>
-          </div>
+          <div class="item-left"><span class="item-emoji">🧴</span>
+            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="sanitizer" data-dir="-1">−</button>
             <span class="qty-val" id="qty-sanitizer">0</span>
@@ -228,7 +233,7 @@
 
       <div class="field">
         <label><span class="step-num">4</span>신청자 성명</label>
-        <input type="text" id="applicantName" placeholder="이름을 입력해주세요" required>
+        <input type="text" id="applicantName" placeholder="이름을 입력해주세요 (다음에는 자동으로 기억돼요)" required>
       </div>
 
       <div class="field">
@@ -244,17 +249,15 @@
   <!-- 신청 조회 -->
   <div class="section-title">🔎 내 신청 조회</div>
   <div class="card">
-    <p style="font-size:13px;color:var(--muted);margin-top:0;">신청 후 받은 신청번호와 이름을 입력하면 처리 상태를 확인할 수 있습니다.</p>
+    <p style="font-size:13px;color:var(--muted);margin-top:0;">신청번호(예: 1학년 1반 → 11)만 입력하면 처리 상태를 확인할 수 있습니다.</p>
     <div class="lookup-row">
-      <input type="text" id="lookupId" placeholder="신청번호 (예: S12345678)">
-      <input type="text" id="lookupName" placeholder="이름">
+      <input type="text" id="lookupId" placeholder="신청번호 (예: 11, 22, 00)">
       <button type="button" class="lookup-btn" id="lookupBtn">조회</button>
     </div>
     <div class="status-box" id="statusBox"></div>
     <div class="admin-link" id="adminOpenBtn">관리자 확인 →</div>
   </div>
 
-  <!-- 관리자 패널 (숨김, 비밀번호 입력 후 표시) -->
   <div class="card hidden" id="adminPanel">
     <div class="section-title" style="margin-top:0;">🔐 관리자 확인 (대기중인 신청)</div>
     <div id="adminList"><div class="empty-msg">불러오는 중...</div></div>
@@ -262,13 +265,10 @@
 
 </main>
 
-<!-- 감염병 발생 보고 모달 (담임용) -->
+<!-- 감염병 발생 보고 모달 -->
 <div class="report-modal" id="reportModal">
   <div class="report-modal-inner">
-    <div class="report-modal-head">
-      <strong>📋 감염병 발생 보고</strong>
-      <button onclick="closeReportModal()">✕</button>
-    </div>
+    <div class="report-modal-head"><strong>📋 감염병 발생 보고</strong><button onclick="closeReportModal()">✕</button></div>
     <div class="privacy-note">⚠️ 본 화면은 교직원 내부 업무용입니다. 학생 이름과 감염병명이 포함되므로 외부 공유, 화면 캡처, 불필요한 열람을 삼가 주세요.</div>
     <form id="reportForm">
       <div class="report-row2">
@@ -287,16 +287,25 @@
           </select>
         </div>
       </div>
-      <div class="report-row2">
-        <div class="report-field">
-          <label>번호 *</label>
-          <input type="text" id="rNumber" placeholder="번호" required>
+
+      <div class="report-field">
+        <label>학생 선택 * <span style="font-weight:400;color:var(--muted);">(학년·반을 먼저 선택하세요)</span></label>
+        <div id="studentPickWrap" class="hidden">
+          <div class="student-pick-list" id="studentPickList"></div>
         </div>
-        <div class="report-field">
-          <label>학생 이름 *</label>
-          <input type="text" id="rName" placeholder="학생 이름" required>
+        <div class="selected-student-box" id="selectedStudentBox">
+          <span id="selectedStudentText"></span>
+          <button type="button" onclick="clearSelectedStudent()">다시 선택</button>
+        </div>
+        <div id="manualStudentFields" class="hidden">
+          <div class="report-row2" style="margin-top:8px;">
+            <input type="text" id="rNumber" placeholder="번호">
+            <input type="text" id="rName" placeholder="학생 이름">
+          </div>
+          <div class="hint">명단에 없으면 번호·이름을 직접 입력해주세요.</div>
         </div>
       </div>
+
       <div class="report-field">
         <label>감염병 종류 *</label>
         <select id="rDisease" required>
@@ -311,20 +320,19 @@
         <label>감염병명 직접 입력</label>
         <input type="text" id="rDiseaseEtc" placeholder="감염병명을 입력해주세요">
       </div>
+
       <div class="report-field">
-        <label>진단일 *</label>
+        <label>진단일 (= 등교중지 시작일) *</label>
         <input type="date" id="rDiagDate" required>
+        <div class="hint">진단일이 곧 등교중지 시작일로 자동 기록됩니다.</div>
       </div>
-      <div class="report-row2">
-        <div class="report-field">
-          <label>등교중지 시작일</label>
-          <input type="date" id="rExStart">
-        </div>
-        <div class="report-field">
-          <label>등교중지 종료일</label>
-          <input type="date" id="rExEnd">
-        </div>
+
+      <div class="report-field">
+        <label>등교중지 종료(예정)일</label>
+        <input type="date" id="rExEnd">
+        <div class="hint">아직 모르면 비워두셔도 됩니다. 정확한 등교 가능일이 확인되면 다시 알려주세요!</div>
       </div>
+
       <div class="report-field">
         <label>비고</label>
         <textarea id="rMemo" placeholder="추가로 전달할 내용이 있으면 입력해주세요."></textarea>
@@ -338,10 +346,7 @@
 <!-- 카드뉴스/PDF 미리보기 모달 -->
 <div class="pdf-modal" id="pdfModal">
   <div class="pdf-modal-inner">
-    <div class="pdf-modal-head">
-      <strong id="pdfModalTitle"></strong>
-      <button onclick="closePdf()">✕</button>
-    </div>
+    <div class="pdf-modal-head"><strong id="pdfModalTitle"></strong><button onclick="closePdf()">✕</button></div>
     <div class="pdf-modal-body" id="pdfModalBody"></div>
   </div>
 </div>
@@ -349,7 +354,22 @@
 <script>
 const PDF_BASE = "assets/infection-pdfs/";
 
+document.getElementById("todayDate").textContent =
+  new Date().toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"short" });
+
+/* ---------- 관리자 비밀번호 세션 기억 ---------- */
+function getCachedAdminPw() { return sessionStorage.getItem("infectionAdminPw") || null; }
+function setCachedAdminPw(pw) { sessionStorage.setItem("infectionAdminPw", pw); }
+async function askAdminPw() {
+  const cached = getCachedAdminPw();
+  if (cached) return cached;
+  const pw = prompt("관리자(교직원) 비밀번호를 입력해주세요. (한 번 입력하면 이 페이지에서는 다시 묻지 않아요)");
+  if (pw) setCachedAdminPw(pw);
+  return pw;
+}
+
 /* ---------- 감염병 현황 대시보드 ---------- */
+let lastSummary = null;
 async function loadDashboard(){
   const grid = document.getElementById("dashGrid");
   try{
@@ -357,38 +377,107 @@ async function loadDashboard(){
     const data = await res.json();
     if(!data.success){ grid.innerHTML = '<div class="empty-msg">현황을 불러오지 못했습니다.</div>'; return; }
     const s = data.summary;
-    const diseaseRows = Object.entries(s.byDisease).sort((a,b)=>b[1]-a[1])
-      .map(([k,v]) => `<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>등록된 사례 없음</span></div>';
-    const gradeRows = Object.entries(s.byGrade).sort()
-      .map(([k,v]) => `<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>-</span></div>';
-
+    lastSummary = s;
     grid.innerHTML = `
-      <div class="dash-stat"><div class="num">${s.totalCases}</div><div class="label">누적 발생(전체)</div></div>
-      <div class="dash-stat"><div class="num">${s.currentlyExcluded}</div><div class="label">현재 등교중지 중</div></div>
+      <div class="dash-stat"><div class="num">${s.totalCases}</div><div class="label">2026년도 총 누적</div></div>
       <div class="dash-stat"><div class="num">${s.last7days}</div><div class="label">최근 7일 신규</div></div>
-      <div class="dash-stat"><div class="num">${s.last30days}</div><div class="label">최근 30일 신규</div></div>
-      <div class="dash-detail"><strong>감염병별 누적 발생</strong>${diseaseRows}</div>
-      <div class="dash-detail"><strong>학년별 발생 현황</strong>${gradeRows}</div>
     `;
+    renderMaskedList(s.maskedCurrent || []);
   }catch(e){
     grid.innerHTML = '<div class="empty-msg">현황을 불러오지 못했습니다.</div>';
   }
 }
 loadDashboard();
 
-document.getElementById("todayDate").textContent =
-  new Date().toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"short" });
+function renderMaskedList(list){
+  const box = document.getElementById("maskedListBox");
+  if(!list || list.length === 0){ box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="dash-detail"><strong>현재 등교중지 중 (이름 비공개 표시)</strong><div class="masked-list">` +
+    list.map(it => `<div class="masked-row"><span>${it.grade} ${it.classNum} ${it.maskedName}</span><span>${it.disease}</span></div>`).join("") +
+    `</div></div>`;
+}
+
+document.getElementById("dash30Toggle").addEventListener("click", () => {
+  const box = document.getElementById("dash30Box");
+  const toggle = document.getElementById("dash30Toggle");
+  if(box.classList.contains("hidden")){
+    if(!lastSummary){ return; }
+    box.classList.remove("hidden");
+    box.innerHTML = `
+      <div class="dash-grid" style="margin-bottom:0;">
+        <div class="dash-stat"><div class="num">${lastSummary.last30days}</div><div class="label">최근 30일 신규</div></div>
+        <div class="dash-stat"><div class="num">${lastSummary.currentlyExcluded}</div><div class="label">현재 등교중지 중</div></div>
+        <div class="dash-detail"><strong>감염병별 누적</strong>${Object.entries(lastSummary.byDisease).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>없음</span></div>'}</div>
+        <div class="dash-detail"><strong>학년별 발생</strong>${Object.entries(lastSummary.byGrade).sort().map(([k,v])=>`<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>-</span></div>'}</div>
+      </div>`;
+    toggle.textContent = "최근 30일 현황 접기 ▴";
+  }else{
+    box.classList.add("hidden");
+    toggle.textContent = "최근 30일 현황 보기 ▾";
+  }
+});
 
 /* ---------- 감염병 발생 보고 모달 ---------- */
+let selectedStudent = null;
+
 document.getElementById("openReportBtn").addEventListener("click", () => {
   document.getElementById("reportModal").classList.add("open");
 });
-function closeReportModal(){
-  document.getElementById("reportModal").classList.remove("open");
-}
+function closeReportModal(){ document.getElementById("reportModal").classList.remove("open"); }
+
 document.getElementById("rDisease").addEventListener("change", (e) => {
   document.getElementById("rDiseaseEtcField").style.display = e.target.value === "기타" ? "block" : "none";
 });
+
+async function loadStudentPicker(){
+  const grade = document.getElementById("rGrade").value;
+  const classNum = document.getElementById("rClass").value;
+  const wrap = document.getElementById("studentPickWrap");
+  const manual = document.getElementById("manualStudentFields");
+  clearSelectedStudent();
+  if(!grade || !classNum){ wrap.classList.add("hidden"); manual.classList.add("hidden"); return; }
+
+  wrap.classList.remove("hidden");
+  document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">불러오는 중...</span>';
+  try{
+    const res = await fetch(`/api/infection-report?action=students&grade=${encodeURIComponent(grade)}&classNum=${encodeURIComponent(classNum)}`);
+    const data = await res.json();
+    const students = data.students || [];
+    if(students.length === 0){
+      document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">명단이 없어요. 아래에 직접 입력해주세요.</span>';
+      manual.classList.remove("hidden");
+      return;
+    }
+    manual.classList.add("hidden");
+    document.getElementById("studentPickList").innerHTML = students.map(s =>
+      `<span class="student-pick" data-num="${s.number}" data-name="${s.name}">${s.name}</span>`
+    ).join("");
+    document.querySelectorAll(".student-pick").forEach(el => {
+      el.addEventListener("click", () => selectStudent(el.dataset.num, el.dataset.name));
+    });
+  }catch(e){
+    document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">명단을 불러오지 못했어요. 직접 입력해주세요.</span>';
+    manual.classList.remove("hidden");
+  }
+}
+document.getElementById("rGrade").addEventListener("change", loadStudentPicker);
+document.getElementById("rClass").addEventListener("change", loadStudentPicker);
+
+function selectStudent(number, name){
+  selectedStudent = { number, name };
+  document.getElementById("studentPickWrap").classList.add("hidden");
+  document.getElementById("manualStudentFields").classList.add("hidden");
+  const box = document.getElementById("selectedStudentBox");
+  box.classList.add("show");
+  document.getElementById("selectedStudentText").textContent = `선택됨: ${number}번 ${name}`;
+}
+function clearSelectedStudent(){
+  selectedStudent = null;
+  document.getElementById("selectedStudentBox").classList.remove("show");
+  const grade = document.getElementById("rGrade").value;
+  const classNum = document.getElementById("rClass").value;
+  if(grade && classNum) document.getElementById("studentPickWrap").classList.remove("hidden");
+}
 
 document.getElementById("reportForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -396,15 +485,26 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
   const msgEl = document.getElementById("reportResultMsg");
   msgEl.textContent = ""; msgEl.className = "result-msg";
 
+  let studentNumber, studentName;
+  if(selectedStudent){
+    studentNumber = selectedStudent.number; studentName = selectedStudent.name;
+  }else{
+    studentNumber = document.getElementById("rNumber").value.trim();
+    studentName = document.getElementById("rName").value.trim();
+  }
+  if(!studentNumber || !studentName){
+    msgEl.textContent = "학생을 선택하거나 번호·이름을 입력해주세요.";
+    msgEl.classList.add("err");
+    return;
+  }
+
   const payload = {
     grade: document.getElementById("rGrade").value,
     classNum: document.getElementById("rClass").value,
-    studentNumber: document.getElementById("rNumber").value.trim(),
-    studentName: document.getElementById("rName").value.trim(),
+    studentNumber, studentName,
     diseaseType: document.getElementById("rDisease").value,
     diseaseEtc: document.getElementById("rDiseaseEtc").value.trim(),
     diagnosisDate: document.getElementById("rDiagDate").value,
-    exclusionStartDate: document.getElementById("rExStart").value,
     exclusionEndDate: document.getElementById("rExEnd").value,
     memo: document.getElementById("rMemo").value.trim()
   };
@@ -416,10 +516,13 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent = "감염병 발생 보고가 제출되었습니다. 보건실에서 확인 후 필요한 경우 추가 안내드리겠습니다.";
+      msgEl.textContent = "감염병 발생 보고가 제출되었습니다.";
       msgEl.classList.add("ok");
       document.getElementById("reportForm").reset();
+      clearSelectedStudent();
       document.getElementById("rDiseaseEtcField").style.display = "none";
+      document.getElementById("studentPickWrap").classList.add("hidden");
+      document.getElementById("manualStudentFields").classList.add("hidden");
       loadDashboard();
       setTimeout(closeReportModal, 1600);
     }else{
@@ -436,7 +539,7 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
 
 /* ---------- 현재 등교중지 학생 보기 (교직원용) ---------- */
 document.getElementById("openExclusionListBtn").addEventListener("click", async () => {
-  const pw = prompt("교직원 확인용 비밀번호를 입력해주세요.");
+  const pw = await askAdminPw();
   if(!pw) return;
   const box = document.getElementById("exclusionListBox");
   box.classList.remove("hidden");
@@ -448,6 +551,7 @@ document.getElementById("openExclusionListBtn").addEventListener("click", async 
     const data = await res.json();
     if(!data.success){
       box.innerHTML = `<div class="empty-msg">${data.message}</div>`;
+      sessionStorage.removeItem("infectionAdminPw");
       return;
     }
     if(data.list.length === 0){
@@ -479,9 +583,7 @@ fetch("data/infection-cards.json")
     list.sort((a,b) => new Date(b.date) - new Date(a.date));
     wrap.innerHTML = list.map(item => {
       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
-      const thumb = isImage
-        ? `<img src="${PDF_BASE}${item.filename}" alt="${item.title}">`
-        : `📄`;
+      const thumb = isImage ? `<img src="${PDF_BASE}${item.filename}" alt="${item.title}">` : `📄`;
       return `
         <div class="news-card" onclick='openCard(${JSON.stringify(item).replace(/'/g,"&apos;")})'>
           <div class="news-thumb">${thumb}</div>
@@ -490,38 +592,27 @@ fetch("data/infection-cards.json")
             <div class="news-title">${item.title}</div>
             <div class="news-date">${item.date}</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join("");
   })
-  .catch(() => {
-    document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>';
-  });
+  .catch(() => { document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>'; });
 
 function openCard(item){
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.filename);
   document.getElementById("pdfModalTitle").textContent = item.title;
-  document.getElementById("pdfModalBody").innerHTML = isImage
-    ? `<img src="${PDF_BASE}${item.filename}">`
-    : `<iframe src="${PDF_BASE}${item.filename}"></iframe>`;
+  document.getElementById("pdfModalBody").innerHTML = isImage ? `<img src="${PDF_BASE}${item.filename}">` : `<iframe src="${PDF_BASE}${item.filename}"></iframe>`;
   document.getElementById("pdfModal").classList.add("open");
 }
-function closePdf(){
-  document.getElementById("pdfModal").classList.remove("open");
-  document.getElementById("pdfModalBody").innerHTML = "";
-}
+function closePdf(){ document.getElementById("pdfModal").classList.remove("open"); document.getElementById("pdfModalBody").innerHTML = ""; }
 
-/* ---------- 학년/반 선택 ---------- */
-let selectedGrade = null;
-let selectedClass = null;
-
+/* ---------- 학년/반 선택 (물품신청) ---------- */
+let selectedGrade = null, selectedClass = null;
 document.querySelectorAll("#gradeGroup .choice-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("#gradeGroup .choice-btn").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
     selectedGrade = btn.dataset.val;
     selectedClass = null;
-
     const classField = document.getElementById("classField");
     const classGroup = document.getElementById("classGroup");
     if(selectedGrade === "행정실/교무실"){
@@ -530,9 +621,7 @@ document.querySelectorAll("#gradeGroup .choice-btn").forEach(btn => {
     }else{
       classField.classList.remove("hidden");
       let html = "";
-      for(let i=1;i<=10;i++){
-        html += `<button type="button" class="choice-btn" data-val="${i}반">${i}반</button>`;
-      }
+      for(let i=1;i<=10;i++) html += `<button type="button" class="choice-btn" data-val="${i}반">${i}반</button>`;
       classGroup.innerHTML = html;
       classGroup.querySelectorAll(".choice-btn").forEach(cb => {
         cb.addEventListener("click", () => {
@@ -546,7 +635,7 @@ document.querySelectorAll("#gradeGroup .choice-btn").forEach(btn => {
 });
 
 /* ---------- 품목별 수량 ---------- */
-const qty = { masks:0, tissues:0, sanitizer:0 };
+const qty = { kf94:0, beak:0, tissues:0, sanitizer:0 };
 document.querySelectorAll(".qty-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const target = btn.dataset.target;
@@ -555,6 +644,10 @@ document.querySelectorAll(".qty-btn").forEach(btn => {
     document.getElementById("qty-" + target).textContent = qty[target];
   });
 });
+
+/* 신청자 이름 기억 */
+const savedName = localStorage.getItem("infectionApplicantName");
+if(savedName) document.getElementById("applicantName").value = savedName;
 
 /* ---------- 제출 ---------- */
 document.getElementById("supplyForm").addEventListener("submit", async (e) => {
@@ -567,32 +660,34 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
 
   if(!selectedGrade){ resultMsg.textContent="학년을 선택해주세요."; resultMsg.classList.add("err"); return; }
   if(!selectedClass){ resultMsg.textContent="반을 선택해주세요."; resultMsg.classList.add("err"); return; }
-  if(qty.masks===0 && qty.tissues===0 && qty.sanitizer===0){
+  if(qty.kf94===0 && qty.beak===0 && qty.tissues===0 && qty.sanitizer===0){
     resultMsg.textContent="품목을 1개 이상 신청해주세요."; resultMsg.classList.add("err"); return;
   }
   if(!name){ resultMsg.textContent="신청자 성명을 입력해주세요."; resultMsg.classList.add("err"); return; }
 
+  localStorage.setItem("infectionApplicantName", name);
+
   const payload = {
     grade: selectedGrade, classNum: selectedClass,
-    masks: qty.masks, tissues: qty.tissues, sanitizer: qty.sanitizer,
+    kf94: qty.kf94, beak: qty.beak, tissues: qty.tissues, sanitizer: qty.sanitizer,
     applicantName: name, memo: document.getElementById("memo").value.trim()
   };
 
   submitBtn.disabled = true; submitBtn.textContent = "제출 중...";
-
   try{
     const res = await fetch("/api/infection-supply", {
       method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
     });
     const data = await res.json();
     if(data.success){
-      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> (꼭 기억해두세요!)`;
+      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> (학년+반 번호예요)`;
       resultMsg.classList.add("ok");
-      document.getElementById("supplyForm").reset();
-      qty.masks=0; qty.tissues=0; qty.sanitizer=0;
-      document.getElementById("qty-masks").textContent=0;
+      qty.kf94=0; qty.beak=0; qty.tissues=0; qty.sanitizer=0;
+      document.getElementById("qty-kf94").textContent=0;
+      document.getElementById("qty-beak").textContent=0;
       document.getElementById("qty-tissues").textContent=0;
       document.getElementById("qty-sanitizer").textContent=0;
+      document.getElementById("memo").value = "";
       document.querySelectorAll(".choice-btn.selected").forEach(el=>el.classList.remove("selected"));
       selectedGrade=null; selectedClass=null;
       document.getElementById("classGroup").innerHTML="";
@@ -611,28 +706,31 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
 /* ---------- 신청 조회 ---------- */
 document.getElementById("lookupBtn").addEventListener("click", async () => {
   const id = document.getElementById("lookupId").value.trim();
-  const name = document.getElementById("lookupName").value.trim();
   const box = document.getElementById("statusBox");
-  if(!id || !name){
+  if(!id){
     box.classList.add("show");
-    box.innerHTML = '<span style="color:#dc2626;">신청번호와 이름을 모두 입력해주세요.</span>';
+    box.innerHTML = '<span style="color:#dc2626;">신청번호를 입력해주세요.</span>';
     return;
   }
   box.classList.add("show");
   box.innerHTML = "조회 중...";
   try{
-    const res = await fetch(`/api/infection-supply?action=status&id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`);
+    const res = await fetch(`/api/infection-supply?id=${encodeURIComponent(id)}`);
     const data = await res.json();
     if(!data.success){
       box.innerHTML = `<span style="color:#dc2626;">${data.message}</span>`;
       return;
     }
     const d = data.data;
+    const ackNote = (d.status === "확인중" || d.status === "완료")
+      ? `<div class="ack-note">접수확인함 ✅<br>학급에서 필요한 물품은 학생 편에 전달하겠습니다. 보건실로 학생 보내주세요~</div>`
+      : "";
     box.innerHTML = `
       <span class="status-pill ${d.status}">${d.status}</span>
       <div style="margin-top:6px;">${d.grade} ${d.classNum} · ${d.applicantName}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:2px;">마스크 ${d.masks} / 소독티슈 ${d.tissues} / 손소독제 ${d.sanitizer}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">KF94 ${d.kf94} / 방역마스크 ${d.beak} / 소독티슈 ${d.tissues} / 손소독제 ${d.sanitizer}</div>
       ${d.adminMessage ? `<div style="margin-top:10px;padding:10px;background:#eef3ff;border-radius:8px;">💬 ${d.adminMessage}</div>` : ""}
+      ${ackNote}
     `;
   }catch(e){
     box.innerHTML = '<span style="color:#dc2626;">조회 중 오류가 발생했습니다.</span>';
@@ -641,13 +739,12 @@ document.getElementById("lookupBtn").addEventListener("click", async () => {
 
 /* ---------- 관리자 확인 ---------- */
 document.getElementById("adminOpenBtn").addEventListener("click", async () => {
-  const pw = prompt("관리자 비밀번호를 입력해주세요.");
+  const pw = await askAdminPw();
   if(!pw) return;
   const panel = document.getElementById("adminPanel");
   panel.classList.remove("hidden");
   const listEl = document.getElementById("adminList");
   listEl.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
-
   try{
     const res = await fetch("/api/infection-supply", {
       method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw, action: "list" })
@@ -655,10 +752,9 @@ document.getElementById("adminOpenBtn").addEventListener("click", async () => {
     const data = await res.json();
     if(!data.success){
       listEl.innerHTML = `<div class="empty-msg">${data.message}</div>`;
-      panel.dataset.pw = "";
+      sessionStorage.removeItem("infectionAdminPw");
       return;
     }
-    panel.dataset.pw = pw;
     renderAdminList(data.list, pw);
   }catch(e){
     listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>';
@@ -673,29 +769,29 @@ function renderAdminList(list, pw){
     return;
   }
   listEl.innerHTML = pending.map(item => `
-    <div class="admin-item" id="admin-${item.id}">
-      <div class="row"><strong>${item.id}</strong><span class="status-pill ${item.status}">${item.status}</span></div>
+    <div class="admin-item" id="admin-${item.rowNum}">
+      <div class="row"><strong>신청번호 ${item.id}</strong><span class="status-pill ${item.status}">${item.status}</span></div>
       <div class="row"><span>${item.grade} ${item.classNum} · ${item.applicantName}</span><span>${item.submittedAt}</span></div>
-      <div>마스크 ${item.masks} / 소독티슈 ${item.tissues} / 손소독제 ${item.sanitizer}</div>
+      <div>KF94 ${item.kf94} / 방역마스크 ${item.beak} / 소독티슈 ${item.tissues} / 손소독제 ${item.sanitizer}</div>
       ${item.memo ? `<div style="color:var(--muted);">비고: ${item.memo}</div>` : ""}
-      <textarea id="msg-${item.id}" placeholder="안내 메시지">확인중입니다. 내일 아침 자습시간 또는 쉬는시간에 학생을 보건실로 보내주시면 전달하겠습니다.</textarea>
-      <button onclick="confirmItem('${item.id}','${pw}')">확인 처리(확인중)</button>
-      <button onclick="completeItem('${item.id}','${pw}')" style="background:#16803c;margin-left:6px;">완료 처리</button>
+      <textarea id="msg-${item.rowNum}" placeholder="안내 메시지">확인중입니다. 내일 아침 자습시간 또는 쉬는시간에 학생을 보건실로 보내주시면 전달하겠습니다.</textarea>
+      <button onclick="confirmItem(${item.rowNum},'${pw}')">확인 처리(확인중)</button>
+      <button onclick="completeItem(${item.rowNum},'${pw}')" style="background:#16803c;margin-left:6px;">완료 처리</button>
     </div>
   `).join("");
 }
 
-async function updateStatus(id, pw, status){
-  const msg = document.getElementById(`msg-${id}`).value.trim();
+async function updateStatus(rowNum, pw, status){
+  const msg = document.getElementById(`msg-${rowNum}`).value.trim();
   try{
     const res = await fetch("/api/infection-supply", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ password: pw, id, status, message: msg, action: "update" })
+      body: JSON.stringify({ password: pw, rowNum, status, message: msg, action: "update" })
     });
     const data = await res.json();
     if(data.success){
       alert("처리되었습니다.");
-      document.getElementById(`admin-${id}`).remove();
+      document.getElementById(`admin-${rowNum}`).remove();
     }else{
       alert(data.message || "처리 중 오류가 발생했습니다.");
     }
@@ -703,8 +799,8 @@ async function updateStatus(id, pw, status){
     alert("서버 연결에 실패했습니다.");
   }
 }
-function confirmItem(id, pw){ updateStatus(id, pw, "확인중"); }
-function completeItem(id, pw){ updateStatus(id, pw, "완료"); }
+function confirmItem(rowNum, pw){ updateStatus(rowNum, pw, "확인중"); }
+function completeItem(rowNum, pw){ updateStatus(rowNum, pw, "완료"); }
 </script>
 
 </body>
