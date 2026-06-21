@@ -211,14 +211,14 @@
                     <div class="grid-cell" style="flex:1; margin-bottom:0; min-height:auto;">
                         <div class="cell-head" style="padding:8px 14px;">
                             <span style="font-size:12.5px;">🏥 오늘의 실시간 보건실 현황</span>
-                            <span class="cell-link" id="smile-open-link" title="새 탭에서 오늘의 보건실 현황을 실시간으로 확인">실시간 확인 ↗</span>
+                            <a class="cell-link" id="smile-open-link" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" title="새 탭에서 오늘의 보건실 현황을 실시간으로 확인">실시간 확인 ↗</a>
                         </div>
                         <div class="smile-frame-box blur-target" style="height:110px; min-height:110px;">
                             <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                             <div class="smile-fallback" id="smile-fallback-today">
                                 <div style="font-size:20px">🏥</div>
                                 <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
-                                <button class="smile-fallback-btn" id="smile-fallback-btn-today">↗ 새 탭에서 열기</button>
+                                <a class="smile-fallback-btn" id="smile-fallback-btn-today" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" style="display:inline-block;">↗ 새 탭에서 열기</a>
                             </div>
                         </div>
                         <div class="smile-reason">ⓘ 외부 사이트의 보안정책으로 다른 화면 안에 끼워서 보여줄 수 없도록 막아두었기 때문에, 새 탭에서만 정상적으로 확인하실 수 있습니다.</div>
@@ -351,9 +351,7 @@ function bindEvents() {
     document.getElementById('gate-pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
     document.getElementById('gate-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
 
-    document.getElementById('smile-open-link').addEventListener('click', function () { window.open(SMILE_URL, '_blank'); });
-    document.getElementById('smile-fallback-btn-today').addEventListener('click', function () { window.open(SMILE_URL, '_blank'); });
-
+    
     document.getElementById('lookup-btn').addEventListener('click', handleLookup);
     document.getElementById('lookup-period').addEventListener('change', function () {
         document.getElementById('lookup-custom-range').style.display = this.value === 'custom' ? 'flex' : 'none';
