@@ -1,7 +1,4 @@
 // /api/infection-supply.js
-// 물품신청 관련 기능을 한 파일에 모아둠 (Vercel 무료플랜 함수 개수 제한 때문)
-// POST body.action: "submit"(기본값) | "list" | "update"
-// GET ?action=status&id=...&name=...
 const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "물품신청";
@@ -11,7 +8,7 @@ function getSheetsClient(scopes) {
   return google.sheets({
     version: "v4",
     auth: new google.auth.JWT(
-      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      process.env.GOOGLE_CLIENT_EMAIL,
       null,
       (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
       scopes
@@ -74,4 +71,7 @@ async function handleList(req, res) {
   const rows = result.data.values || [];
   const list = rows.map(r => ({
     id: r[0], submittedAt: r[1], grade: r[2], classNum: r[3],
-    masks: r[4] || 0,
+    masks: r[4] || 0, tissues: r[5] || 0, sanitizer: r[6] || 0,
+    applicantName: r[7], memo: r[8] || "",
+    status: r[9] || "접수", adminMessage: r[10] || "", updatedAt: r[11] || ""
+  })).reverse();
