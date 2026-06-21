@@ -47,10 +47,33 @@ module.exports = async function handler(req, res) {
 
     const schoolYearRows = dataRows.filter(inSchoolYear);
 
+    function toYMD(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    const period = (req.query.period || 'year').toLowerCase();
+    let rankStart = rangeStart;
+    let periodLabel = schoolYearStart + '학년도 누적';
+    if (period === 'month') {
+      const d = new Date(now); d.setMonth(d.getMonth() - 1);
+      rankStart = toYMD(d);
+      periodLabel = '최근 1개월';
+    } else if (period === 'quarter') {
+      const d = new Date(now); d.setMonth(d.getMonth() - 3);
+      rankStart = toYMD(d);
+      periodLabel = '최근 3개월';
+    }
+    const rankEnd = toYMD(now);
+
+    const rankRows = dataRows.filter(function (row) {
+      const d = String(row[idx.date] || '').slice(0, 10);
+      return d && d >= rankStart && d <= rankEnd;
+    });
+
     const classCounts = {};
     const studentCounts = {};
 
-    schoolYearRows.forEach(function (row) {
+    rankRows.forEach(function (row) {
       const cls = row[idx.classInfo] || '미확인';
       classCounts[cls] = (classCounts[cls] || 0) + 1;
 
@@ -85,7 +108,8 @@ module.exports = async function handler(req, res) {
       classRanking: classRanking,
       studentRanking: studentRanking,
       gradeYearly: gradeYearly,
-      schoolYearLabel: schoolYearStart + '학년도'
+      schoolYearLabel: schoolYearStart + '학년도',
+      periodLabel: periodLabel
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.toString() });

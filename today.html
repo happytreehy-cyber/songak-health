@@ -45,14 +45,16 @@
         .today-task-item:last-child { border-bottom:none; }
         .today-task-item.closed { opacity:0.42; }
         .today-task-row { display:flex; align-items:flex-start; gap:12px; }
+        .today-task-left { display:flex; align-items:flex-start; gap:0; flex:1; min-width:0; }
+        .today-task-right { display:flex; align-items:center; gap:18px; flex:0 0 auto; padding-top:1px; }
         .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
         .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 170px; min-width:0; color:#1e293b; }
-        .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:0 1 auto; min-width:0; margin-left:22px; }
-        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 110px; white-space:nowrap; padding-top:1px; margin-left:auto; margin-right:18px; text-align:left; }
+        .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:1; min-width:0; margin-left:22px; }
+        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 100px; white-space:nowrap; text-align:right; }
         .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:202px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
-        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; margin-left:auto; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
         .status-btn.urgent { background:#fee2e2; color:#b91c1c; }
@@ -101,6 +103,9 @@
         .mini-rank-item .rk-count { color:#2563eb; font-weight:700; flex-shrink:0; }
         .mini-rank-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
 
+        .rank-period-toggle { display:flex; gap:6px; padding:8px 14px 0; }
+        .rank-period-toggle button { background:#f1f5f9; border:1px solid #e2e8f0; color:#64748b; font-size:11px; font-weight:600; padding:4px 10px; border-radius:14px; cursor:pointer; }
+        .rank-period-toggle button.active { background:#2563eb; border-color:#2563eb; color:#fff; }
         .stat-sub-title { font-size:12px; font-weight:700; color:#64748b; margin:10px 0 5px; }
 
         .legend-list { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; justify-content:center; overflow-y:auto; max-height:140px; }
@@ -291,12 +296,22 @@
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span><span class="cell-link" id="class-rank-year-label" style="color:#94a3b8; cursor:default;"></span></div>
+                <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span></div>
+                <div class="rank-period-toggle" id="rank-period-toggle-class">
+                    <button data-period="month">1개월</button>
+                    <button data-period="quarter">3개월</button>
+                    <button data-period="year" class="active">26누적</button>
+                </div>
                 <div class="cell-body blur-target" id="rank-class-list"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
-                <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span><span class="cell-link" id="student-rank-year-label" style="color:#94a3b8; cursor:default;"></span></div>
+                <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span></div>
+                <div class="rank-period-toggle" id="rank-period-toggle-student">
+                    <button data-period="month">1개월</button>
+                    <button data-period="quarter">3개월</button>
+                    <button data-period="year" class="active">26누적</button>
+                </div>
                 <div class="cell-body blur-target" id="rank-student-list"></div>
             </div>
                 </div>
@@ -357,6 +372,7 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 function bindEvents() {
+    bindRankPeriodToggles();
     document.getElementById('gate-btn').addEventListener('click', handleGateAuth);
     document.getElementById('gate-pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
     document.getElementById('gate-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
@@ -458,11 +474,15 @@ function renderTodayTasks() {
         var btnLabel = urgency === 'closed' ? '마감' : (urgency === 'urgent' ? '임박' : '진행중');
         item.innerHTML =
             '<div class="today-task-row">' +
-                '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
-                '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
-                '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
-                (task.period ? '<span class="today-task-period">📅 ' + escHtml(task.period) + '</span>' : '') +
-                '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
+                '<div class="today-task-left">' +
+                    '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
+                    '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
+                    '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
+                '</div>' +
+                '<div class="today-task-right">' +
+                    '<span class="today-task-period">' + (task.period ? '📅 ' + escHtml(task.period) : '') + '</span>' +
+                    '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
+                '</div>' +
             '</div>' +
             (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
         el.appendChild(item);
@@ -564,9 +584,11 @@ function renderMiniRankList(elId, list, unit) {
 }
 
 var gradeChartInstance = null;
+var RANK_PERIOD = 'year';
 
-function loadVisitStatus() {
-    fetch('/api/visit-ranking')
+function loadVisitStatus(period) {
+    if (period) RANK_PERIOD = period;
+    fetch('/api/visit-ranking?period=' + RANK_PERIOD)
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.success) return;
@@ -574,11 +596,27 @@ function loadVisitStatus() {
             renderDotPlot('rank-student-list', data.studentRanking, function () { return '#3b82f6'; });
             renderGradeBarChart(data.gradeYearly);
             document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
-            var yl2 = data.schoolYearLabel ? (data.schoolYearLabel + ' 누적') : '';
-            document.getElementById('class-rank-year-label').textContent = yl2;
-            document.getElementById('student-rank-year-label').textContent = yl2;
         })
         .catch(function () {});
+}
+
+function bindRankPeriodToggles() {
+    var groups = [document.getElementById('rank-period-toggle-class'), document.getElementById('rank-period-toggle-student')];
+    groups.forEach(function (group) {
+        if (!group) return;
+        group.querySelectorAll('button').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var period = btn.getAttribute('data-period');
+                groups.forEach(function (g) {
+                    if (!g) return;
+                    g.querySelectorAll('button').forEach(function (b) {
+                        b.classList.toggle('active', b.getAttribute('data-period') === period);
+                    });
+                });
+                loadVisitStatus(period);
+            });
+        });
+    });
 }
 
 function renderDotPlot(elId, list, colorFn) {
