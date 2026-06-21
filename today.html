@@ -40,7 +40,7 @@
 
         .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
         .section-divider-title { font-size:13.5px; font-weight:800; margin: 4px 0 8px; padding:7px 12px; border-radius:6px; letter-spacing:0.3px; }
-        .section-divider-title.notice { color:#9a3412; background:#fff1eb; border-left:4px solid #ea580c; }
+        .section-divider-title.notice { color:#9d174d; background:#fdf2f8; border-left:4px solid #ec4899; }
         .section-divider-title.visit { color:#1e3a8a; background:#eff6ff; border-left:4px solid #2563eb; }
         .section-gap-divider { height:0; border-top:2px solid #bfdbfe; margin: 18px 0 14px; }
         .today-task-item { border-bottom:1px dashed #cbd5e1; padding:12px 4px; }
@@ -50,18 +50,19 @@
         .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
         .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 170px; min-width:0; color:#1e293b; }
         .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:0 1 360px; min-width:0; margin-left:22px; margin-right:24px; }
-        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 auto; white-space:nowrap; padding-top:1px; margin-right:16px; }
+        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 auto; white-space:nowrap; padding-top:1px; margin-right:14px; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; margin-left:auto; }
         .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:202px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
-        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
         .status-btn.urgent { background:#fee2e2; color:#b91c1c; }
-        .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; }
-        .status-dot.closed { background:#6b7280; }
-        .status-dot.ongoing { background:#2563eb; }
-        .status-dot.urgent { background:#ef4444; }
+        .status-dot { width:11px; height:11px; border-radius:2px; flex-shrink:0; display:inline-block; transform:rotate(45deg); position:relative; box-shadow: inset -2px -2px 3px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.85), 0 0 4px 0 currentColor; }
+        .status-dot::after { content:''; position:absolute; top:1.5px; left:1.5px; width:3px; height:3px; background:rgba(255,255,255,0.95); border-radius:50%; filter:blur(0.3px); }
+        .status-dot.ongoing { background:linear-gradient(135deg, #93c5fd, #2563eb 60%, #1e3a8a); color:#3b82f6; }
+        .status-dot.urgent { background:linear-gradient(135deg, #fca5a5, #ef4444 60%, #991b1b); color:#ef4444; }
+        .status-dot.closed { background:linear-gradient(135deg, #e2e8f0, #94a3b8 60%, #475569); color:#94a3b8; }
         .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
         .today-task-pager { display:flex; align-items:center; justify-content:center; gap:14px; padding:10px 0 2px; font-size:12.5px; color:#475569; }
         .today-task-pager button { background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; }
@@ -298,9 +299,9 @@
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>🏫 학급반별 방문 TOP 10</span></div>
                 <div class="rank-period-toggle" id="rank-period-toggle-class">
+                    <button data-period="year" class="active">26누적</button>
                     <button data-period="month">1개월</button>
                     <button data-period="quarter">3개월</button>
-                    <button data-period="year" class="active">26누적</button>
                 </div>
                 <div class="cell-body blur-target" id="rank-class-list"></div>
             </div>
@@ -308,9 +309,9 @@
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>🩺 관심이 필요한 학생 TOP 10</span></div>
                 <div class="rank-period-toggle" id="rank-period-toggle-student">
+                    <button data-period="year" class="active">26누적</button>
                     <button data-period="month">1개월</button>
                     <button data-period="quarter">3개월</button>
-                    <button data-period="year" class="active">26누적</button>
                 </div>
                 <div class="cell-body blur-target" id="rank-student-list"></div>
             </div>
@@ -582,9 +583,8 @@ function renderMiniRankList(elId, list, unit) {
 var gradeChartInstance = null;
 var RANK_PERIOD = 'year';
 
-function loadVisitStatus(period) {
-    if (period) RANK_PERIOD = period;
-    fetch('/api/visit-ranking?period=' + RANK_PERIOD)
+function loadVisitStatus() {
+    fetch('/api/visit-ranking?period=year')
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (!data.success) return;
@@ -596,23 +596,53 @@ function loadVisitStatus(period) {
         .catch(function () {});
 }
 
+function loadClassRanking(period) {
+    fetch('/api/visit-ranking?period=' + period)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            renderDotPlot('rank-class-list', data.classRanking, function () { return '#3b82f6'; });
+        })
+        .catch(function () {});
+}
+
+function loadStudentRanking(period) {
+    fetch('/api/visit-ranking?period=' + period)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) return;
+            renderDotPlot('rank-student-list', data.studentRanking, function () { return '#3b82f6'; });
+        })
+        .catch(function () {});
+}
+
 function bindRankPeriodToggles() {
-    var groups = [document.getElementById('rank-period-toggle-class'), document.getElementById('rank-period-toggle-student')];
-    groups.forEach(function (group) {
-        if (!group) return;
-        group.querySelectorAll('button').forEach(function (btn) {
+    var classGroup = document.getElementById('rank-period-toggle-class');
+    var studentGroup = document.getElementById('rank-period-toggle-student');
+
+    if (classGroup) {
+        classGroup.querySelectorAll('button').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 var period = btn.getAttribute('data-period');
-                groups.forEach(function (g) {
-                    if (!g) return;
-                    g.querySelectorAll('button').forEach(function (b) {
-                        b.classList.toggle('active', b.getAttribute('data-period') === period);
-                    });
+                classGroup.querySelectorAll('button').forEach(function (b) {
+                    b.classList.toggle('active', b === btn);
                 });
-                loadVisitStatus(period);
+                loadClassRanking(period);
             });
         });
-    });
+    }
+
+    if (studentGroup) {
+        studentGroup.querySelectorAll('button').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var period = btn.getAttribute('data-period');
+                studentGroup.querySelectorAll('button').forEach(function (b) {
+                    b.classList.toggle('active', b === btn);
+                });
+                loadStudentRanking(period);
+            });
+        });
+    }
 }
 
 function renderDotPlot(elId, list, colorFn) {
