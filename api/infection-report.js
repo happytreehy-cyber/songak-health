@@ -279,10 +279,84 @@ async function handleUpdateCase(req, res) {
   res.status(200).json({ success: true, message: "수정되었습니다." });
 }
 
+const NEWS_TAB_NAME = "카드뉴스";
+
+async function ensureNewsTab(sheets, sheetId) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const exists = meta.data.sheets.some(s => s.properties.title === NEWS_TAB_NAME);
+  if (!exists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: NEWS_TAB_NAME } } }] }
+    });
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A1`,
+      valueInputOption: "RAW", requestBody: { values: [["제목","날짜","태그","URL"]] }
+    });
+  }
+}
+
+async function handleGetNewsCards(req, res) {
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  let rows = [];
+  try {
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A2:D` });
+    rows = result.data.values || [];
+  } catch (e) { rows = []; }
+  const cards = rows
+    .filter(r => r[0] && r[3])
+    .map((r, i) => ({ rowNum: i, title: r[0], date: r[1] || "", tag: r[2] || "", url: r[3] }));
+  res.status(200).json({ success: true, cards });
+}
+
+async function handleAddNewsCard(req, res) {
+  const { password, title, date, tag, url } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  if (!title || !url) {
+    res.status(400).json({ success: false, message: "제목과 파일을 모두 입력해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  await ensureNewsTab(sheets, sheetId);
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A1`,
+    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+    requestBody: { values: [[title, date || "", tag || "", url]] }
+  });
+  res.status(200).json({ success: true, message: "카드뉴스가 등록되었습니다." });
+}
+
+async function handleDeleteNewsCard(req, res) {
+  const { password, rowNum } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const tab = meta.data.sheets.find(s => s.properties.title === NEWS_TAB_NAME);
+  if (!tab) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    requestBody: { requests: [{
+      deleteDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber } }
+    }] }
+  });
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       if (req.query.action === "students") return await handleStudents(req, res);
+      if (req.query.action === "newscards") return await handleGetNewsCards(req, res);
       return await handleSummary(req, res);
     }
     if (req.method === "POST") {
@@ -290,6 +364,8 @@ module.exports = async (req, res) => {
       if (action === "checkpw") return await handleCheckLogin(req, res);
       if (action === "list") return await handleList(req, res);
       if (action === "updatecase") return await handleUpdateCase(req, res);
+      if (action === "addnewscard") return await handleAddNewsCard(req, res);
+      if (action === "deletenewscard") return await handleDeleteNewsCard(req, res);
       return await handleSubmit(req, res);
     }
     res.status(405).json({ success: false, message: "허용되지 않은 요청입니다." });
