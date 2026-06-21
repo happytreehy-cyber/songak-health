@@ -46,9 +46,10 @@
         .today-task-item.closed { opacity:0.42; }
         .today-task-row { display:flex; align-items:flex-start; gap:12px; }
         .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
-        .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 120px; min-width:0; color:#1e293b; }
+        .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 170px; min-width:0; color:#1e293b; }
         .today-task-content { font-size:13px; color:#475569; line-height:1.6; flex:1; min-width:0; }
-        .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:152px; }
+        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 auto; white-space:nowrap; padding-top:1px; }
+        .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:202px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
         .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; }
@@ -67,8 +68,8 @@
         .visit-stat-strip { display:flex; gap:10px; margin-bottom:12px; align-items:stretch; }
         .visit-stat-box { flex:1; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 16px; }
         .visit-stat-label { font-size:12px; color:#64748b; font-weight:600; margin-bottom:4px; }
-        .visit-stat-value { font-size:22px; font-weight:700; color:#1e3a8a; }
-        .visit-stat-value span { font-size:13px; font-weight:600; color:#64748b; margin-left:3px; }
+        .visit-stat-value { font-size:34px; font-weight:800; color:#1e3a8a; text-align:left; margin-top:2px; }
+        .visit-stat-value span { font-size:14px; font-weight:600; color:#64748b; margin-left:4px; }
 
         .reveal-wrap { position: relative; }
         .blur-target { filter: blur(6px); pointer-events: none; user-select: none; }
@@ -143,9 +144,14 @@
         .lookup-summary b { color:#1e3a8a; }
         .lookup-summary button { width:auto; background:#fff; color:#2563eb; border:1px solid #cbd5e1; border-radius:6px; padding:5px 10px; font-size:11.5px; font-weight:700; cursor:pointer; }
         .lookup-result { padding: 0 16px 16px; }
-        .lookup-row { display:flex; font-size:13px; padding:7px 9px; border-bottom:1px solid #f1f5f9; }
-        .lookup-row .lk-when { flex:0 0 205px; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .lookup-row .lk-symptom { flex:1; min-width:0; text-align:left; padding-left:8px; color:#1e293b; }
+        .lookup-head { display:flex; font-size:11px; font-weight:700; color:#64748b; padding:6px 9px; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
+        .lookup-row { display:flex; font-size:12.5px; padding:7px 9px; border-bottom:1px solid #f1f5f9; align-items:center; }
+        .lk-date { flex:0 0 44px; color:#334155; }
+        .lk-in { flex:0 0 42px; color:#2563eb; }
+        .lk-out { flex:0 0 42px; color:#64748b; }
+        .lk-num { flex:0 0 26px; color:#334155; }
+        .lk-name { flex:0 0 52px; color:#1e293b; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lk-symptom { flex:1; min-width:0; text-align:left; padding-left:6px; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .lookup-empty { font-size:13px; color:#94a3b8; padding:12px 0; text-align:center; }
     </style>
 </head>
@@ -204,8 +210,15 @@
                             <rect x="84" y="58" width="24" height="7" rx="3.5" fill="#F0997B"/>
                             <rect x="91" y="59" width="10" height="5" rx="2" fill="#fff"/>
 
-                            <path d="M178 14 q3 -5 6 0 q3 -5 6 0 q0 5 -6 9 q-6 -4 -6 -9z" fill="#D4537E" opacity="0.8"/>
-                            <path d="M16 14 q2.5 -4 5 0 q2.5 -4 5 0 q0 4 -5 7.5 q-5 -3.5 -5 -7.5z" fill="#D4537E" opacity="0.55"/>
+                            <circle cx="184" cy="18" r="9" fill="#FAC775" opacity="0.9"/>
+                            <circle cx="180.5" cy="15.5" r="1.2" fill="#42342B"/>
+                            <circle cx="187.5" cy="15.5" r="1.2" fill="#42342B"/>
+                            <path d="M180 20 Q184 23 188 20" stroke="#42342B" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+
+                            <circle cx="21" cy="18" r="7" fill="#FAC775" opacity="0.65"/>
+                            <circle cx="18.5" cy="16" r="0.9" fill="#42342B" opacity="0.8"/>
+                            <circle cx="23.5" cy="16" r="0.9" fill="#42342B" opacity="0.8"/>
+                            <path d="M18.5 19.5 Q21 21.5 23.5 19.5" stroke="#42342B" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.8"/>
                         </svg>
                     </div>
                     <div class="grid-cell" style="flex:1; margin-bottom:0; min-height:auto;">
@@ -317,11 +330,8 @@ function loadNotices() {
             if (!data.success) return;
             TODAY_TASKS = data.notices.map(function (n) {
                 var extra = '';
-                if (n.period) {
-                    extra += '<span style="color:#2563eb; font-weight:600;">📅 기간: ' + escHtml(n.period) + '</span>';
-                }
                 if (n.link) {
-                    extra += (extra ? '<br>' : '') + '<a href="' + n.link + '" target="_blank">🔗 바로가기 / 다운로드</a>';
+                    extra += '<a href="' + n.link + '" target="_blank">🔗 바로가기 / 다운로드</a>';
                     if (/^https?:\/\//.test(n.link)) {
                         extra += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
                     }
@@ -451,6 +461,7 @@ function renderTodayTasks() {
                 '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
                 '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
                 '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
+                (task.period ? '<span class="today-task-period">📅 ' + escHtml(task.period) + '</span>' : '') +
                 '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
             '</div>' +
             (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
@@ -707,15 +718,27 @@ function renderLookupPage() {
     var start = LOOKUP_PAGE * LOOKUP_PAGE_SIZE;
     var pageItems = LOOKUP_RECORDS.slice(start, start + LOOKUP_PAGE_SIZE);
 
-    resultEl.innerHTML = '';
+    resultEl.innerHTML =
+        '<div class="lookup-head">' +
+            '<span class="lk-date">날짜</span>' +
+            '<span class="lk-in">입실</span>' +
+            '<span class="lk-out">퇴실</span>' +
+            '<span class="lk-num">번호</span>' +
+            '<span class="lk-name">이름</span>' +
+            '<span class="lk-symptom">증상</span>' +
+        '</div>';
+
     pageItems.forEach(function (r) {
         var row = document.createElement('div');
         row.className = 'lookup-row';
         var shortDate = (r.date && r.date.length >= 10) ? r.date.slice(5) : r.date;
-        var whenText = shortDate + ' ' + r.checkin + ' · ' + r.number + '번 ' + r.name;
         row.innerHTML =
-            '<span class="lk-when" title="' + escHtml(r.date) + ' ' + escHtml(r.checkin) + ' · ' + escHtml(r.number) + '번 ' + escHtml(r.name) + '">' + escHtml(whenText) + '</span>' +
-            '<span class="lk-symptom">' + escHtml(r.symptom) + '</span>';
+            '<span class="lk-date">' + escHtml(shortDate) + '</span>' +
+            '<span class="lk-in">' + escHtml(r.checkin || '-') + '</span>' +
+            '<span class="lk-out">' + escHtml(r.checkout || '-') + '</span>' +
+            '<span class="lk-num">' + escHtml(r.number) + '</span>' +
+            '<span class="lk-name" title="' + escHtml(r.name) + '">' + escHtml(r.name) + '</span>' +
+            '<span class="lk-symptom" title="' + escHtml(r.symptom) + '">' + escHtml(r.symptom) + '</span>';
         resultEl.appendChild(row);
     });
 
