@@ -178,7 +178,11 @@
           <button type="button" class="choice-btn" data-val="1학년">1학년</button>
           <button type="button" class="choice-btn" data-val="2학년">2학년</button>
           <button type="button" class="choice-btn" data-val="3학년">3학년</button>
-          <button type="button" class="choice-btn" data-val="행정실/교무실">행정실/교무실</button>
+          <button type="button" class="choice-btn" data-val="행정실">행정실</button>
+          <button type="button" class="choice-btn" data-val="교무실1">교무실1</button>
+          <button type="button" class="choice-btn" data-val="교무실2">교무실2</button>
+          <button type="button" class="choice-btn" data-val="교무실3">교무실3</button>
+          <button type="button" class="choice-btn" data-val="기타">기타</button>
         </div>
       </div>
 
@@ -192,7 +196,7 @@
 
         <div class="item-row">
           <div class="item-left"><span class="item-emoji">😷</span>
-            <div><div class="item-name">KF94 덴탈마스크</div><div class="item-desc">흰색, 일반형</div></div></div>
+            <div><div class="item-name">KF94 덴탈마스크</div><div class="item-desc">흰색, 일반형 · 단위: Box</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="kf94" data-dir="-1">−</button>
             <span class="qty-val" id="qty-kf94">0</span>
@@ -202,7 +206,7 @@
 
         <div class="item-row">
           <div class="item-left"><span class="item-emoji">😷</span>
-            <div><div class="item-name">방역마스크(새부리형)</div><div class="item-desc">방역용</div></div></div>
+            <div><div class="item-name">방역마스크(새부리형)</div><div class="item-desc">방역용 · 단위: Box</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="beak" data-dir="-1">−</button>
             <span class="qty-val" id="qty-beak">0</span>
@@ -212,7 +216,7 @@
 
         <div class="item-row">
           <div class="item-left"><span class="item-emoji">🧻</span>
-            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장</div></div></div>
+            <div><div class="item-name">소독티슈</div><div class="item-desc">개별 포장 · 단위: 개</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="tissues" data-dir="-1">−</button>
             <span class="qty-val" id="qty-tissues">0</span>
@@ -222,7 +226,7 @@
 
         <div class="item-row">
           <div class="item-left"><span class="item-emoji">🧴</span>
-            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계</div></div></div>
+            <div><div class="item-name">손소독제</div><div class="item-desc">알코올계 · 단위: 개</div></div></div>
           <div class="qty-row">
             <button type="button" class="qty-btn" data-target="sanitizer" data-dir="-1">−</button>
             <span class="qty-val" id="qty-sanitizer">0</span>
@@ -232,12 +236,7 @@
       </div>
 
       <div class="field">
-        <label><span class="step-num">4</span>신청자 성명</label>
-        <input type="text" id="applicantName" placeholder="이름을 입력해주세요 (다음에는 자동으로 기억돼요)" required>
-      </div>
-
-      <div class="field">
-        <label><span class="step-num">5</span>비고 (선택)</label>
+        <label><span class="step-num">4</span>비고 (선택)</label>
         <textarea id="memo" placeholder="전달할 내용이 있으면 입력해주세요."></textarea>
       </div>
 
@@ -615,9 +614,12 @@ document.querySelectorAll("#gradeGroup .choice-btn").forEach(btn => {
     selectedClass = null;
     const classField = document.getElementById("classField");
     const classGroup = document.getElementById("classGroup");
-    if(selectedGrade === "행정실/교무실"){
+    if(selectedGrade.indexOf("학년") === -1){
       classField.classList.add("hidden");
       selectedClass = "-";
+      if(selectedGrade === "기타"){
+        document.getElementById("memo").placeholder = "어느 부서인지 꼭 적어주세요! (예: 도서관, 방송실 등)";
+      }
     }else{
       classField.classList.remove("hidden");
       let html = "";
@@ -645,10 +647,6 @@ document.querySelectorAll(".qty-btn").forEach(btn => {
   });
 });
 
-/* 신청자 이름 기억 */
-const savedName = localStorage.getItem("infectionApplicantName");
-if(savedName) document.getElementById("applicantName").value = savedName;
-
 /* ---------- 제출 ---------- */
 document.getElementById("supplyForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -656,21 +654,16 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
   const submitBtn = document.getElementById("submitBtn");
   resultMsg.textContent = ""; resultMsg.className = "result-msg";
 
-  const name = document.getElementById("applicantName").value.trim();
-
-  if(!selectedGrade){ resultMsg.textContent="학년을 선택해주세요."; resultMsg.classList.add("err"); return; }
+  if(!selectedGrade){ resultMsg.textContent="학년(또는 부서)을 선택해주세요."; resultMsg.classList.add("err"); return; }
   if(!selectedClass){ resultMsg.textContent="반을 선택해주세요."; resultMsg.classList.add("err"); return; }
   if(qty.kf94===0 && qty.beak===0 && qty.tissues===0 && qty.sanitizer===0){
     resultMsg.textContent="품목을 1개 이상 신청해주세요."; resultMsg.classList.add("err"); return;
   }
-  if(!name){ resultMsg.textContent="신청자 성명을 입력해주세요."; resultMsg.classList.add("err"); return; }
-
-  localStorage.setItem("infectionApplicantName", name);
 
   const payload = {
     grade: selectedGrade, classNum: selectedClass,
     kf94: qty.kf94, beak: qty.beak, tissues: qty.tissues, sanitizer: qty.sanitizer,
-    applicantName: name, memo: document.getElementById("memo").value.trim()
+    memo: document.getElementById("memo").value.trim()
   };
 
   submitBtn.disabled = true; submitBtn.textContent = "제출 중...";
