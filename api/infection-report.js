@@ -120,9 +120,10 @@ async function handleSummary(req, res) {
     if (diagDate && diagDate >= thirtyDaysAgo) last30days++;
 
     allCasesMasked.push({
-      no: idx + 1, disease, grade, classNum, studentNumber,
-      maskedName: maskName(studentName), diagnosisDate,
-      exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정"
+      no: idx + 1, rowNum: idx, disease, grade, classNum, studentNumber,
+      maskedName: maskName(studentName), fullName: studentName, diagnosisDate,
+      exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정",
+      ended: exclusionEnd ? (parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false
     });
 
     if (exclusionEnd) {
@@ -252,6 +253,32 @@ async function handleCheckLogin(req, res) {
   res.status(200).json({ success: true, message: "" });
 }
 
+async function handleUpdateCase(req, res) {
+  const {
+    rowNum, grade, classNum, studentNumber, studentName,
+    diseaseType, diseaseEtc, diagnosisDate, exclusionEndDate, memo
+  } = req.body;
+
+  if (rowNum === undefined || !grade || !classNum || !studentNumber || !studentName || !diagnosisDate) {
+    res.status(400).json({ success: false, message: "필수 항목을 모두 입력해주세요." });
+    return;
+  }
+
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const disease = diseaseType === "기타" ? (diseaseEtc || "기타") : diseaseType;
+  const sheetRowNumber = Number(rowNum) + 2;
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId,
+    range: `${SHEET_TAB_NAME}!B${sheetRowNumber}:I${sheetRowNumber}`,
+    valueInputOption: "RAW",
+    requestBody: { values: [[grade, classNum, studentNumber, studentName, disease, diagnosisDate, exclusionEndDate || "", memo || ""]] }
+  });
+
+  res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
@@ -262,6 +289,7 @@ module.exports = async (req, res) => {
       const action = req.body.action || "submit";
       if (action === "checkpw") return await handleCheckLogin(req, res);
       if (action === "list") return await handleList(req, res);
+      if (action === "updatecase") return await handleUpdateCase(req, res);
       return await handleSubmit(req, res);
     }
     res.status(405).json({ success: false, message: "허용되지 않은 요청입니다." });
