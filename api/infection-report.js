@@ -198,6 +198,60 @@ async function handleStudents(req, res) {
   res.status(200).json({ success: true, students });
 }
 
+const ACCOUNT_TAB_NAME = "교직원계정";
+const LOG_TAB_NAME = "접속기록";
+
+async function handleCheckLogin(req, res) {
+  const { name, password } = req.body;
+  if (!name || !password) {
+    res.status(400).json({ success: false, message: "이름과 비밀번호를 모두 입력해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+
+  let rows = [];
+  try {
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${ACCOUNT_TAB_NAME}!A2:B` });
+    rows = result.data.values || [];
+  } catch (e) {
+    res.status(200).json({ success: false, message: "교직원계정 탭을 찾을 수 없습니다. 관리자에게 문의해주세요." });
+    return;
+  }
+
+  const match = rows.find(r => r[0] === name && r[1] === password);
+  if (!match) {
+    res.status(200).json({ success: false, message: "이름 또는 비밀번호가 올바르지 않습니다." });
+    return;
+  }
+
+  // 접속기록 남기기
+  try {
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const exists = meta.data.sheets.some(s => s.properties.title === LOG_TAB_NAME);
+    if (!exists) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: sheetId,
+        requestBody: { requests: [{ addSheet: { properties: { title: LOG_TAB_NAME } } }] }
+      });
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: sheetId, range: `${LOG_TAB_NAME}!A1`,
+        valueInputOption: "RAW", requestBody: { values: [["이름", "접속일시", "접속메뉴"]] }
+      });
+    }
+    const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId, range: `${LOG_TAB_NAME}!A1`,
+      valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+      requestBody: { values: [[name, now, "감염병현황"]] }
+    });
+  } catch (e) {
+    console.error("접속기록 저장 실패:", e);
+  }
+
+  res.status(200).json({ success: true, message: "" });
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
@@ -206,6 +260,7 @@ module.exports = async (req, res) => {
     }
     if (req.method === "POST") {
       const action = req.body.action || "submit";
+      if (action === "checkpw") return await handleCheckLogin(req, res);
       if (action === "list") return await handleList(req, res);
       return await handleSubmit(req, res);
     }
