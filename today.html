@@ -47,12 +47,12 @@
         .today-task-row { display:flex; align-items:flex-start; gap:12px; }
         .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
         .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 170px; min-width:0; color:#1e293b; }
-        .today-task-content { font-size:13px; color:#475569; line-height:1.6; flex:0 1 360px; min-width:0; padding-left:6px; }
-        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 auto; white-space:nowrap; padding-top:1px; margin-left:10px; margin-right:auto; }
+        .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:0 1 auto; min-width:0; margin-left:22px; }
+        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 110px; white-space:nowrap; padding-top:1px; margin-left:auto; margin-right:18px; text-align:left; }
         .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:202px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
-        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; }
+        .status-btn { font-size:12px; font-weight:700; border:none; border-radius:20px; padding:5px 14px; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; margin-left:auto; }
         .status-btn.ongoing { background:#dbeafe; color:#2563eb; }
         .status-btn.closed { background:#e5e7eb; color:#6b7280; }
         .status-btn.urgent { background:#fee2e2; color:#b91c1c; }
@@ -194,10 +194,10 @@
         <div class="reveal-wrap">
             <div id="blurred-content">
                 <div class="visit-stat-strip" id="visit-stat-strip">
-                    <div class="visit-stat-box" style="flex:0 0 200px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div class="visit-stat-box" style="flex:0 0 200px; display:flex; flex-direction:column; justify-content:flex-start;">
                         <div class="visit-stat-label" id="stat-year-label">학년도 누적 방문</div>
                         <div class="visit-stat-value blur-target" id="stat-year-total">-<span>건</span></div>
-                        <svg viewBox="0 0 200 78" style="width:100%; height:60px; margin-top:2px;" aria-hidden="true">
+                        <svg viewBox="0 0 200 78" style="width:100%; height:60px; margin-top:auto;" aria-hidden="true">
                             <rect x="118" y="40" width="44" height="32" rx="6" fill="#85B7EB"/>
                             <circle cx="140" cy="26" r="13" fill="#FAC775"/>
                             <path d="M128 21 Q140 6 152 21 L152 24 Q140 13 128 24 Z" fill="#42342B"/>
