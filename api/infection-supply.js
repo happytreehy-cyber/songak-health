@@ -2,7 +2,7 @@
 const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "물품신청";
-const HEADER = ["신청번호","제출일시","학년","반","마스크","소독티슈","손소독제","신청자","비고","처리상태","관리자메시지","처리일시"];
+const HEADER = ["신청번호","제출일시","학년","반","KF94덴탈마스크","방역마스크(새부리형)","소독티슈","손소독제","신청자","비고","처리상태","관리자메시지","처리일시"];
 
 function getSheetsClient(scopes) {
   return google.sheets({
@@ -33,14 +33,24 @@ async function ensureTab(sheets, sheetId) {
   }
 }
 
+// 1학년 1반 -> "11", 2학년 2반 -> "22", 10반 -> "110"
+// 행정실/교무실1/교무실2/교무실3/기타 -> 이름 그대로가 신청번호 (예: "교무실1")
+function classCode(grade, classNum) {
+  if (!grade) return "00";
+  if (grade.indexOf("학년") === -1) return grade; // 부서명 그대로 사용
+  const g = grade.replace(/[^0-9]/g, "");
+  const c = (classNum || "").replace(/[^0-9]/g, "");
+  return g + c;
+}
+
 async function handleSubmit(req, res) {
-  const { grade, classNum, masks, tissues, sanitizer, applicantName, memo } = req.body;
-  if (!grade || !classNum || !applicantName) {
-    res.status(400).json({ success: false, message: "학년·반·신청자 이름을 모두 입력해주세요." });
+  const { grade, classNum, kf94, beak, tissues, sanitizer, applicantName, memo } = req.body;
+  if (!grade || !classNum) {
+    res.status(400).json({ success: false, message: "학년·반(또는 부서)을 선택해주세요." });
     return;
   }
-  const m = Number(masks) || 0, t = Number(tissues) || 0, s = Number(sanitizer) || 0;
-  if (m === 0 && t === 0 && s === 0) {
+  const k = Number(kf94) || 0, b = Number(beak) || 0, t = Number(tissues) || 0, s = Number(sanitizer) || 0;
+  if (k === 0 && b === 0 && t === 0 && s === 0) {
     res.status(400).json({ success: false, message: "물품을 1개 이상 신청해주세요." });
     return;
   }
@@ -49,8 +59,8 @@ async function handleSubmit(req, res) {
   await ensureTab(sheets, sheetId);
   const now = new Date();
   const submittedAt = now.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  const id = "S" + now.getTime().toString().slice(-8);
-  const row = [id, submittedAt, grade, classNum, m, t, s, applicantName, memo || "", "접수", "", ""];
+  const id = classCode(grade, classNum);
+  const row = [id, submittedAt, grade, classNum, k, b, t, s, applicantName || "-", memo || "", "접수", "", ""];
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
     valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
@@ -67,11 +77,82 @@ async function handleList(req, res) {
   }
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:L` });
+  const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:M` });
   const rows = result.data.values || [];
-  const list = rows.map(r => ({
-    id: r[0], submittedAt: r[1], grade: r[2], classNum: r[3],
-    masks: r[4] || 0, tissues: r[5] || 0, sanitizer: r[6] || 0,
-    applicantName: r[7], memo: r[8] || "",
-    status: r[9] || "접수", adminMessage: r[10] || "", updatedAt: r[11] || ""
+  const list = rows.map((r, i) => ({
+    rowNum: i, id: r[0], submittedAt: r[1], grade: r[2], classNum: r[3],
+    kf94: r[4] || 0, beak: r[5] || 0, tissues: r[6] || 0, sanitizer: r[7] || 0,
+    applicantName: r[8], memo: r[9] || "",
+    status: r[10] || "접수", adminMessage: r[11] || "", updatedAt: r[12] || ""
   })).reverse();
+  res.status(200).json({ success: true, list });
+}
+
+async function handleUpdate(req, res) {
+  const { password, rowNum, status, message } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  if (rowNum === undefined || !status) {
+    res.status(400).json({ success: false, message: "필수 항목이 누락되었습니다." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!K${sheetRowNumber}:M${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[status, message || "", now]] }
+  });
+  res.status(200).json({ success: true, message: "처리 완료되었습니다." });
+}
+
+async function handleStatus(req, res) {
+  const { id } = req.query;
+  if (!id) {
+    res.status(400).json({ success: false, message: "신청번호를 입력해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:M` });
+  const rows = result.data.values || [];
+  // 같은 신청번호(반)가 여러 번 신청됐을 수 있으니, 가장 마지막(최신) 것을 반환
+  let found = null;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    if (rows[i][0] === id) { found = rows[i]; break; }
+  }
+  if (!found) {
+    res.status(404).json({ success: false, message: "신청 내역을 찾을 수 없습니다. 신청번호를 확인해주세요." });
+    return;
+  }
+  res.status(200).json({
+    success: true,
+    data: {
+      id: found[0], submittedAt: found[1], grade: found[2], classNum: found[3],
+      kf94: found[4], beak: found[5], tissues: found[6], sanitizer: found[7],
+      applicantName: found[8], memo: found[9],
+      status: found[10] || "접수", adminMessage: found[11] || "", updatedAt: found[12] || ""
+    }
+  });
+}
+
+module.exports = async (req, res) => {
+  try {
+    if (req.method === "GET") {
+      return await handleStatus(req, res);
+    }
+    if (req.method === "POST") {
+      const action = req.body.action || "submit";
+      if (action === "list") return await handleList(req, res);
+      if (action === "update") return await handleUpdate(req, res);
+      return await handleSubmit(req, res);
+    }
+    res.status(405).json({ success: false, message: "허용되지 않은 요청입니다." });
+  } catch (err) {
+    console.error("infection-supply error:", err);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }
+};
