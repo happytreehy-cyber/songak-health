@@ -68,7 +68,7 @@ async function handleSubmit(req, res) {
     valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
     requestBody: { values: [row] }
   });
-  res.status(200).json({ success: true, message: "신청이 접수되었습니다.", id });
+  res.status(200).json({ success: true, message: "신청이 접수되었습니다.", id, submittedAt });
 }
 
 async function handleList(req, res) {
