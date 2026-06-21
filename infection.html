@@ -579,7 +579,25 @@ function renderCharts(){
     </div>`;
   }).join("");
 
-  const allCases = s.allCasesMasked || [];
+  window.allCasesData = allCases; // 더블클릭 수정용 캐시
+  const ongoingCases = allCases.filter(it => !it.ended);
+  const endedCases = allCases.filter(it => it.ended).reverse(); // 최신 종료 먼저
+  const PAGE_SIZE = 6;
+  window.endedCasesData = endedCases;
+  window.casePage = 0; // 0 = 진행중, 1+ = 종료 페이지
+
+  function caseRowHtml(it){
+    const g = (it.grade||"").replace(/[^0-9]/g,"");
+    const c = (it.classNum||"").replace(/[^0-9]/g,"");
+    return `
+    <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
+      <span class="c-disease">${it.no}. ${it.disease}</span>
+      <span class="c-class">${g}-${c},${it.studentNumber}</span>
+      <span class="c-name">${it.maskedName}</span>
+      <span class="c-date">${it.diagnosisDate}</span>
+      <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
+    </div>`;
+  }
   const caseHeader = `
     <div class="case-row case-head">
       <span class="c-disease">증상명</span>
@@ -588,18 +606,6 @@ function renderCharts(){
       <span class="c-date">확진일</span>
       <span class="c-period">등교중지기간</span>
     </div>`;
-  const caseRows = allCases.map(it => {
-    const g = (it.grade||"").replace(/[^0-9]/g,"");
-    const c = (it.classNum||"").replace(/[^0-9]/g,"");
-    return `
-    <div class="case-row">
-      <span class="c-disease">${it.no}. ${it.disease}</span>
-      <span class="c-class">${g}-${c},${it.studentNumber}</span>
-      <span class="c-name">${it.maskedName}</span>
-      <span class="c-date">${it.diagnosisDate}</span>
-      <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
-    </div>`;
-  }).join("");
 
   wrap.innerHTML = `
     <div class="chart-block">
@@ -616,9 +622,69 @@ function renderCharts(){
     ${ allCases.length ? `
     <div class="chart-block">
       <div class="chart-title">📋 전체 발생 사례 (이름 비공개 표시)</div>
-      <div class="case-table">${caseHeader}${caseRows}</div>
+      <div class="hint" style="margin-bottom:8px;">💡 칸을 더블클릭하면 내용을 수정할 수 있어요. 초록색 배경은 현재 진행 중인 사례예요.</div>
+      <div class="case-table" id="caseTableBody"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted);">
+        <button type="button" class="qty-btn" id="casePrevBtn">‹</button>
+        <span id="casePageLabel"></span>
+        <button type="button" class="qty-btn" id="caseNextBtn">›</button>
+      </div>
     </div>` : "" }
   `;
+
+  function renderCasePage(){
+    const body = document.getElementById("caseTableBody");
+    const label = document.getElementById("casePageLabel");
+    if(!body) return;
+    if(window.casePage === 0){
+      body.innerHTML = caseHeader + (ongoingCases.length ? ongoingCases.map(caseRowHtml).join("") : '<div class="empty-chart">현재 진행 중인 사례가 없습니다.</div>');
+      label.textContent = `진행중 (${ongoingCases.length}) · 종료사례 보려면 › 클릭`;
+    }else{
+      const pageIdx = window.casePage - 1;
+      const start = pageIdx * PAGE_SIZE;
+      const pageItems = endedCases.slice(start, start + PAGE_SIZE);
+      body.innerHTML = caseHeader + (pageItems.length ? pageItems.map(caseRowHtml).join("") : '<div class="empty-chart">종료된 사례가 없습니다.</div>');
+      const totalPages = Math.max(1, Math.ceil(endedCases.length / PAGE_SIZE));
+      label.textContent = `종료사례 ${pageIdx+1}/${totalPages}페이지`;
+    }
+  }
+  renderCasePage();
+  document.getElementById("casePrevBtn").addEventListener("click", () => {
+    if(window.casePage > 0){ window.casePage--; renderCasePage(); }
+  });
+  document.getElementById("caseNextBtn").addEventListener("click", () => {
+    const totalPages = Math.max(1, Math.ceil(endedCases.length / PAGE_SIZE));
+    if(window.casePage === 0){ if(endedCases.length>0){ window.casePage = 1; renderCasePage(); } }
+    else if(window.casePage < totalPages){ window.casePage++; renderCasePage(); }
+  });
+}
+
+function openCaseEdit(rowNum){
+  const item = (window.allCasesData||[]).find(c => c.rowNum === rowNum);
+  if(!item) return;
+  document.getElementById("reportModal").classList.add("open");
+  document.getElementById("rGrade").value = item.grade;
+  document.getElementById("rGrade").dispatchEvent(new Event("change"));
+  setTimeout(() => {
+    document.getElementById("rClass").value = item.classNum;
+    document.getElementById("rNumber").value = item.studentNumber;
+    document.getElementById("rName").value = item.fullName;
+    document.getElementById("manualStudentFields").classList.remove("hidden");
+    document.getElementById("studentPickWrap").classList.add("hidden");
+    selectedStudent = { number: item.studentNumber, name: item.fullName };
+    const stdOptions = ["인플루엔자","코로나19","수두","유행성이하선염","수족구병","결핵","백일해","성홍열","유행성각결막염"];
+    if(stdOptions.includes(item.disease)){
+      document.getElementById("rDisease").value = item.disease;
+    }else{
+      document.getElementById("rDisease").value = "기타";
+      document.getElementById("rDiseaseEtc").value = item.disease;
+      document.getElementById("rDiseaseEtcField").style.display = "block";
+    }
+    document.getElementById("rDiagDate").value = item.diagnosisDate;
+    document.getElementById("rExEnd").value = (item.exclusionEnd && item.exclusionEnd !== "미정") ? item.exclusionEnd : "";
+    document.getElementById("reportForm").dataset.editRowNum = item.rowNum;
+    document.getElementById("reportSubmitBtn").textContent = "수정 완료";
+  }, 300);
 }
 
 /* ---------- 감염병 발생 보고 모달 ---------- */
@@ -627,7 +693,11 @@ let selectedStudent = null;
 document.getElementById("openReportBtn").addEventListener("click", () => {
   document.getElementById("reportModal").classList.add("open");
 });
-function closeReportModal(){ document.getElementById("reportModal").classList.remove("open"); }
+function closeReportModal(){
+  document.getElementById("reportModal").classList.remove("open");
+  delete document.getElementById("reportForm").dataset.editRowNum;
+  document.getElementById("reportSubmitBtn").textContent = "감염병 발생 보고하기";
+}
 
 document.getElementById("rDisease").addEventListener("change", (e) => {
   document.getElementById("rDiseaseEtcField").style.display = e.target.value === "기타" ? "block" : "none";
@@ -702,6 +772,7 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     return;
   }
 
+  const editRowNum = document.getElementById("reportForm").dataset.editRowNum;
   const payload = {
     grade: document.getElementById("rGrade").value,
     classNum: document.getElementById("rClass").value,
@@ -712,6 +783,10 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     exclusionEndDate: document.getElementById("rExEnd").value,
     memo: document.getElementById("rMemo").value.trim()
   };
+  if(editRowNum !== undefined){
+    payload.action = "updatecase";
+    payload.rowNum = Number(editRowNum);
+  }
 
   btn.disabled = true; btn.textContent = "제출 중...";
   try{
@@ -720,9 +795,11 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent = "감염병 발생 보고가 제출되었습니다.";
+      msgEl.textContent = editRowNum !== undefined ? "수정되었습니다." : "감염병 발생 보고가 제출되었습니다.";
       msgEl.classList.add("ok");
       document.getElementById("reportForm").reset();
+      delete document.getElementById("reportForm").dataset.editRowNum;
+      document.getElementById("reportSubmitBtn").textContent = "감염병 발생 보고하기";
       clearSelectedStudent();
       document.getElementById("rDiseaseEtcField").style.display = "none";
       document.getElementById("studentPickWrap").classList.add("hidden");
@@ -934,12 +1011,36 @@ document.getElementById("adminOpenBtn").addEventListener("click", async () => {
 
 function renderAdminList(list, pw){
   const listEl = document.getElementById("adminList");
+
+  // 부서(학년·반)별 누적 통계 - 전체 신청 기준(완료 포함)
+  const totals = {};
+  list.forEach(item => {
+    const key = `${item.grade} ${item.classNum}`;
+    if(!totals[key]) totals[key] = { kf94:0, beak:0, tissues:0, sanitizer:0, count:0 };
+    totals[key].kf94 += Number(item.kf94)||0;
+    totals[key].beak += Number(item.beak)||0;
+    totals[key].tissues += Number(item.tissues)||0;
+    totals[key].sanitizer += Number(item.sanitizer)||0;
+    totals[key].count += 1;
+  });
+  const totalRows = Object.entries(totals).map(([key,t]) => `
+    <div class="case-row">
+      <span class="c-disease">${key}</span>
+      <span class="c-class">${t.count}회</span>
+      <span class="c-name">KF94 ${t.kf94}</span>
+      <span class="c-date">방역 ${t.beak}</span>
+      <span class="c-period">티슈${t.tissues}/소독${t.sanitizer}</span>
+    </div>`).join("");
+  const statsHtml = Object.keys(totals).length ? `
+    <div class="chart-block">
+      <div class="chart-title">📦 부서별 누적 수령 통계</div>
+      <div class="case-table">${totalRows}</div>
+    </div>` : "";
+
   const pending = list.filter(x => x.status !== "완료");
-  if(pending.length === 0){
-    listEl.innerHTML = '<div class="empty-msg">대기 중인 신청이 없습니다.</div>';
-    return;
-  }
-  listEl.innerHTML = pending.map(item => `
+  const pendingHtml = pending.length === 0
+    ? '<div class="empty-msg">대기 중인 신청이 없습니다.</div>'
+    : pending.map(item => `
     <div class="admin-item" id="admin-${item.rowNum}">
       <div class="row"><strong>신청번호 ${item.id}</strong><span class="status-pill ${item.status}">${item.status}</span></div>
       <div class="row"><span>${item.grade} ${item.classNum} · ${item.applicantName}</span><span>${item.submittedAt}</span></div>
@@ -950,6 +1051,8 @@ function renderAdminList(list, pw){
       <button onclick="completeItem(${item.rowNum},'${pw}')" style="background:#16803c;margin-left:6px;">완료 처리</button>
     </div>
   `).join("");
+
+  listEl.innerHTML = statsHtml + pendingHtml;
 }
 
 async function updateStatus(rowNum, pw, status){
