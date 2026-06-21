@@ -344,7 +344,7 @@ const PDF_BASE = "assets/infection-pdfs/";
 async function loadDashboard(){
   const grid = document.getElementById("dashGrid");
   try{
-    const res = await fetch("/api/infection-report-summary");
+    const res = await fetch("/api/infection-report");
     const data = await res.json();
     if(!data.success){ grid.innerHTML = '<div class="empty-msg">현황을 불러오지 못했습니다.</div>'; return; }
     const s = data.summary;
@@ -354,8 +354,10 @@ async function loadDashboard(){
       .map(([k,v]) => `<div class="row"><span>${k}</span><strong>${v}건</strong></div>`).join("") || '<div class="row"><span>-</span></div>';
 
     grid.innerHTML = `
+      <div class="dash-stat"><div class="num">${s.totalCases}</div><div class="label">누적 발생(전체)</div></div>
       <div class="dash-stat"><div class="num">${s.currentlyExcluded}</div><div class="label">현재 등교중지 중</div></div>
       <div class="dash-stat"><div class="num">${s.last7days}</div><div class="label">최근 7일 신규</div></div>
+      <div class="dash-stat"><div class="num">${s.last30days}</div><div class="label">최근 30일 신규</div></div>
       <div class="dash-detail"><strong>감염병별 누적 발생</strong>${diseaseRows}</div>
       <div class="dash-detail"><strong>학년별 발생 현황</strong>${gradeRows}</div>
     `;
@@ -428,8 +430,8 @@ document.getElementById("openExclusionListBtn").addEventListener("click", async 
   box.classList.remove("hidden");
   box.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
   try{
-    const res = await fetch("/api/infection-report-list", {
-      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw })
+    const res = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw, action: "list" })
     });
     const data = await res.json();
     if(!data.success){
@@ -607,7 +609,7 @@ document.getElementById("lookupBtn").addEventListener("click", async () => {
   box.classList.add("show");
   box.innerHTML = "조회 중...";
   try{
-    const res = await fetch(`/api/infection-supply-status?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`);
+    const res = await fetch(`/api/infection-supply?action=status&id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`);
     const data = await res.json();
     if(!data.success){
       box.innerHTML = `<span style="color:#dc2626;">${data.message}</span>`;
@@ -635,8 +637,8 @@ document.getElementById("adminOpenBtn").addEventListener("click", async () => {
   listEl.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
 
   try{
-    const res = await fetch("/api/infection-supply-list", {
-      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw })
+    const res = await fetch("/api/infection-supply", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ password: pw, action: "list" })
     });
     const data = await res.json();
     if(!data.success){
@@ -674,9 +676,9 @@ function renderAdminList(list, pw){
 async function updateStatus(id, pw, status){
   const msg = document.getElementById(`msg-${id}`).value.trim();
   try{
-    const res = await fetch("/api/infection-supply-update", {
+    const res = await fetch("/api/infection-supply", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ password: pw, id, status, message: msg })
+      body: JSON.stringify({ password: pw, id, status, message: msg, action: "update" })
     });
     const data = await res.json();
     if(data.success){
