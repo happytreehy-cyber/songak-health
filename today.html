@@ -44,13 +44,11 @@
         .today-task-item { border-bottom:1px dashed #cbd5e1; padding:12px 4px; }
         .today-task-item:last-child { border-bottom:none; }
         .today-task-item.closed { opacity:0.42; }
-        .today-task-row { display:flex; align-items:flex-start; gap:12px; }
-        .today-task-left { display:flex; align-items:flex-start; gap:0; flex:1; min-width:0; }
-        .today-task-right { display:flex; align-items:center; gap:18px; flex:0 0 auto; padding-top:1px; }
+        .today-task-row { display:flex; align-items:flex-start; gap:0; flex-wrap:nowrap; }
         .today-task-num { flex:0 0 20px; font-size:13px; font-weight:700; color:#94a3b8; padding-top:1px; }
         .today-task-title { font-size:13.5px; font-weight:700; flex:0 0 170px; min-width:0; color:#1e293b; }
-        .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:1; min-width:0; margin-left:22px; }
-        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 100px; white-space:nowrap; text-align:right; }
+        .today-task-content { font-size:13px; color:#1e293b; line-height:1.6; flex:0 1 360px; min-width:0; margin-left:22px; margin-right:24px; }
+        .today-task-period { font-size:12px; color:#2563eb; font-weight:600; flex:0 0 auto; white-space:nowrap; padding-top:1px; margin-right:16px; }
         .today-task-extra { font-size:12.5px; color:#475569; line-height:1.7; margin-top:6px; padding-left:202px; }
         .today-task-extra img { max-width:130px; border-radius:8px; margin-top:6px; display:block; }
         .today-task-extra a { color:#2563eb; font-weight:600; }
@@ -474,15 +472,11 @@ function renderTodayTasks() {
         var btnLabel = urgency === 'closed' ? '마감' : (urgency === 'urgent' ? '임박' : '진행중');
         item.innerHTML =
             '<div class="today-task-row">' +
-                '<div class="today-task-left">' +
-                    '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
-                    '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
-                    '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
-                '</div>' +
-                '<div class="today-task-right">' +
-                    '<span class="today-task-period">' + (task.period ? '📅 ' + escHtml(task.period) : '') + '</span>' +
-                    '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
-                '</div>' +
+                '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
+                '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
+                '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
+                (task.period ? '<span class="today-task-period">📅 ' + escHtml(task.period) + '</span>' : '') +
+                '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
             '</div>' +
             (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
         el.appendChild(item);
@@ -766,17 +760,22 @@ function renderLookupPage() {
             '<span class="lk-symptom">증상</span>' +
         '</div>';
 
+    function simplifySymptom(s) {
+        return String(s || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+    }
+
     pageItems.forEach(function (r) {
         var row = document.createElement('div');
         row.className = 'lookup-row';
         var shortDate = (r.date && r.date.length >= 10) ? r.date.slice(5) : r.date;
+        var symptomShort = simplifySymptom(r.symptom);
         row.innerHTML =
             '<span class="lk-date">' + escHtml(shortDate) + '</span>' +
             '<span class="lk-in">' + escHtml(r.checkin || '-') + '</span>' +
             '<span class="lk-out">' + escHtml(r.checkout || '-') + '</span>' +
             '<span class="lk-num">' + escHtml(r.number) + '</span>' +
             '<span class="lk-name" title="' + escHtml(r.name) + '">' + escHtml(r.name) + '</span>' +
-            '<span class="lk-symptom" title="' + escHtml(r.symptom) + '">' + escHtml(r.symptom) + '</span>';
+            '<span class="lk-symptom" title="' + escHtml(r.symptom) + '">' + escHtml(symptomShort) + '</span>';
         resultEl.appendChild(row);
     });
 
