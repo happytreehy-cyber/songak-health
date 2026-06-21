@@ -2,7 +2,8 @@
 const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "감염병발생보고";
-const HEADER = ["제출일시","학년","반","번호","학생명","감염병종류","진단일","등교중지시작일","등교중지종료예정일","비고","처리상태","보건교사확인","안내완료"];
+const HEADER = ["제출일시","학년","반","번호","학생명","감염병종류","진단일(=등교중지시작일)","등교중지종료(예정)일","비고","처리상태","보건교사확인","안내완료"];
+const STUDENT_TAB_NAME = "학생명단";
 
 function getSheetsClient(scopes) {
   return google.sheets({
@@ -36,11 +37,19 @@ function parseKoreanDate(str) {
   return isNaN(d) ? null : d;
 }
 
+// 이름 마스킹: 이민성 -> 이0성, 김철 -> 김0
+function maskName(name) {
+  if (!name) return "";
+  if (name.length <= 1) return name;
+  if (name.length === 2) return name[0] + "0";
+  return name[0] + "0" + name.slice(-1);
+}
+
 async function handleSubmit(req, res) {
   const {
     grade, classNum, studentNumber, studentName,
     diseaseType, diseaseEtc, diagnosisDate,
-    exclusionStartDate, exclusionEndDate, memo
+    exclusionEndDate, memo
   } = req.body;
 
   if (!grade || !classNum || !studentNumber || !studentName || !diagnosisDate || (!diseaseType && !diseaseEtc)) {
@@ -66,9 +75,10 @@ async function handleSubmit(req, res) {
   }
 
   const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  // 진단일 = 등교중지 시작일 (별도 입력 없음)
   const row = [
     now, grade, classNum, studentNumber, studentName, disease, diagnosisDate,
-    exclusionStartDate || "", exclusionEndDate || "", memo || "",
+    exclusionEndDate || "", memo || "",
     "접수", "미확인", "미완료"
   ];
 
@@ -87,7 +97,7 @@ async function handleSummary(req, res) {
 
   let rows = [];
   try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:I` });
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:H` });
     rows = result.data.values || [];
   } catch (e) { rows = []; }
 
@@ -97,9 +107,11 @@ async function handleSummary(req, res) {
 
   const byDisease = {}, byGrade = {};
   let last7days = 0, last30days = 0, currentlyExcluded = 0;
+  const maskedCurrent = [];
+  const allCasesMasked = [];
 
-  rows.forEach(r => {
-    const grade = r[1], disease = r[5], diagnosisDate = r[6], exclusionEnd = r[8];
+  rows.forEach((r, idx) => {
+    const grade = r[1], classNum = r[2], studentNumber = r[3], studentName = r[4], disease = r[5], diagnosisDate = r[6], exclusionEnd = r[7];
     if (disease) byDisease[disease] = (byDisease[disease] || 0) + 1;
     if (grade) byGrade[grade] = (byGrade[grade] || 0) + 1;
 
@@ -107,15 +119,24 @@ async function handleSummary(req, res) {
     if (diagDate && diagDate >= sevenDaysAgo) last7days++;
     if (diagDate && diagDate >= thirtyDaysAgo) last30days++;
 
+    allCasesMasked.push({
+      no: idx + 1, disease, grade, classNum, studentNumber,
+      maskedName: maskName(studentName), diagnosisDate,
+      exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정"
+    });
+
     if (exclusionEnd) {
       const endDate = parseKoreanDate(exclusionEnd);
-      if (endDate && endDate >= today) currentlyExcluded++;
+      if (endDate && endDate >= today) {
+        currentlyExcluded++;
+        maskedCurrent.push({ grade, classNum, maskedName: maskName(studentName), disease, exclusionEnd });
+      }
     }
   });
 
   res.status(200).json({
     success: true,
-    summary: { totalCases: rows.length, byDisease, byGrade, last7days, last30days, currentlyExcluded }
+    summary: { totalCases: rows.length, byDisease, byGrade, last7days, last30days, currentlyExcluded, maskedCurrent, allCasesMasked }
   });
 }
 
@@ -130,7 +151,7 @@ async function handleList(req, res) {
 
   let rows = [];
   try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:M` });
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:L` });
     rows = result.data.values || [];
   } catch (e) { rows = []; }
 
@@ -138,7 +159,7 @@ async function handleList(req, res) {
   const list = rows.map(r => ({
     submittedAt: r[0], grade: r[1], classNum: r[2], studentNumber: r[3],
     studentName: r[4], disease: r[5], diagnosisDate: r[6],
-    exclusionStart: r[7], exclusionEnd: r[8], memo: r[9] || "", status: r[10] || "접수"
+    exclusionStart: r[6], exclusionEnd: r[7], memo: r[8] || "", status: r[9] || "접수"
   })).filter(item => {
     if (!item.exclusionEnd) return false;
     const end = new Date(item.exclusionEnd);
@@ -148,9 +169,33 @@ async function handleList(req, res) {
   res.status(200).json({ success: true, list });
 }
 
+async function handleStudents(req, res) {
+  const { grade, classNum } = req.query;
+  if (!grade || !classNum) {
+    res.status(400).json({ success: false, message: "학년과 반을 선택해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  let rows = [];
+  try {
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STUDENT_TAB_NAME}!A2:D` });
+    rows = result.data.values || [];
+  } catch (e) {
+    res.status(200).json({ success: true, students: [], message: "학생명단 탭을 찾을 수 없습니다." });
+    return;
+  }
+  const students = rows
+    .filter(r => r[0] === grade && r[1] === classNum)
+    .map(r => ({ number: r[2], name: r[3] }))
+    .sort((a, b) => Number(a.number) - Number(b.number));
+  res.status(200).json({ success: true, students });
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
+      if (req.query.action === "students") return await handleStudents(req, res);
       return await handleSummary(req, res);
     }
     if (req.method === "POST") {
