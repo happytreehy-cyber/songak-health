@@ -1,7 +1,4 @@
 // /api/infection-report.js
-// 감염병 발생 보고 관련 기능을 한 파일에 모아둠 (Vercel 무료플랜 함수 개수 제한 때문)
-// GET (action 없음 또는 ?action=summary) -> 공개용 집계
-// POST body.action: "submit"(기본값) | "list"(교직원용, 비밀번호 필요)
 const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "감염병발생보고";
@@ -11,7 +8,7 @@ function getSheetsClient(scopes) {
   return google.sheets({
     version: "v4",
     auth: new google.auth.JWT(
-      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      process.env.GOOGLE_CLIENT_EMAIL,
       null,
       (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
       scopes
@@ -46,42 +43,4 @@ async function handleSubmit(req, res) {
     exclusionStartDate, exclusionEndDate, memo
   } = req.body;
 
-  if (!grade || !classNum || !studentNumber || !studentName || !diagnosisDate || (!diseaseType && !diseaseEtc)) {
-    res.status(400).json({ success: false, message: "필수 항목을 모두 입력해주세요." });
-    return;
-  }
-
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  await ensureTab(sheets, sheetId);
-
-  const disease = diseaseType === "기타" ? (diseaseEtc || "기타") : diseaseType;
-
-  const existing = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:G` });
-  const rows = existing.data.values || [];
-  const dup = rows.some(r =>
-    r[1] === grade && r[2] === classNum && r[3] === String(studentNumber) &&
-    r[4] === studentName && r[5] === disease && r[6] === diagnosisDate
-  );
-  if (dup) {
-    res.status(409).json({ success: false, message: "이미 같은 내용의 보고가 접수되어 있습니다." });
-    return;
-  }
-
-  const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  const row = [
-    now, grade, classNum, studentNumber, studentName, disease, diagnosisDate,
-    exclusionStartDate || "", exclusionEndDate || "", memo || "",
-    "접수", "미확인", "미완료"
-  ];
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
-    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [row] }
-  });
-
-  res.status(200).json({ success: true, message: "감염병 발생 보고가 제출되었습니다." });
-}
-
-as
+  if (!grade || !classNum || !studentNumber || !studentName || !diagnosisDate ||
