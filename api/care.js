@@ -47,47 +47,39 @@ async function fetchGradeTab(sheets, sheetId, grade) {
 
   if (!rows.length) return { tabFound: true, students: [] };
 
-  const header = rows[0].map(h => String(h || "").trim());
   const dataRows = rows.slice(1);
 
+  // 헤더 글자가 시트마다 다르거나 오타가 있을 수 있어서, 칸 "위치"로 고정해서 읽는다.
+  // A=학년(0) B=반(1) C=번호(2) D=이름(3) E=여성질환(4) F=두통(5) G=비염(6)
+  // H=아토피(7) I=천식(8) J=알레르기(9) K=관리필요(10) L=도움반(11) M=비고(12)
   const idx = {
-    grade: findCol(header, ["학년"]),
-    classNum: findCol(header, ["반"]),
-    number: findCol(header, ["번호"]),
-    name: findCol(header, ["이름"]),
-    femaleIssue: findCol(header, ["여성질환"]),
-    headache: findCol(header, ["두통으로치료중", "두통", "두통으로 치료중"]),
-    rhinitis: findCol(header, ["비염"]),
-    atopy: findCol(header, ["아토피"]),
-    asthma: findCol(header, ["천식"]),
-    allergy: findCol(header, ["동물/식품/약품 알러지", "동물/식품알레르기", "동물/식품/약품알러지"]),
-    careNeeded: findCol(header, ["관리필요"]),
-    helpClass: findCol(header, ["도움반"]),
-    note: findCol(header, ["교내 활동시 확인", "교내활동시확인"])
+    grade: 0, classNum: 1, number: 2, name: 3,
+    femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9,
+    careNeeded: 10, helpClass: 11, note: 12
   };
 
   const students = dataRows
-    .filter(r => r[idx.name])
+    .filter(r => r[idx.name] && String(r[idx.name]).trim())
     .map(r => {
       const conditions = [];
       function push(label, value, type) {
         if (value && String(value).trim()) conditions.push({ label, value: String(value).trim(), type });
       }
-      push("여성질환", idx.femaleIssue !== -1 ? r[idx.femaleIssue] : "", "female");
-      push("두통", idx.headache !== -1 ? r[idx.headache] : "", "headache");
-      push("비염", idx.rhinitis !== -1 ? r[idx.rhinitis] : "", "rhinitis");
-      push("아토피", idx.atopy !== -1 ? r[idx.atopy] : "", "atopy");
-      push("천식", idx.asthma !== -1 ? r[idx.asthma] : "", "asthma");
-      push("알레르기", idx.allergy !== -1 ? r[idx.allergy] : "", "allergy");
+      push("여성질환", r[idx.femaleIssue], "female");
+      push("두통", r[idx.headache], "headache");
+      push("비염", r[idx.rhinitis], "rhinitis");
+      push("아토피", r[idx.atopy], "atopy");
+      push("천식", r[idx.asthma], "asthma");
+      push("알레르기", r[idx.allergy], "allergy");
 
       return {
-        grade: idx.grade !== -1 ? r[idx.grade] || "" : grade,
-        classNum: idx.classNum !== -1 ? r[idx.classNum] || "" : "",
-        number: idx.number !== -1 ? r[idx.number] || "" : "",
+        grade: r[idx.grade] || grade,
+        classNum: r[idx.classNum] || "",
+        number: r[idx.number] || "",
         name: r[idx.name] || "",
         conditions,
-        careNeeded: idx.careNeeded !== -1 ? (r[idx.careNeeded] || "") : "",
-        helpClass: idx.helpClass !== -1 ? (r[idx.helpClass] || "") : "",
+        careNeeded: r[idx.careNeeded] || "",
+        helpClass: r[idx.helpClass] || "",
         note: idx.note !== -1 ? (r[idx.note] || "") : ""
       };
     })
