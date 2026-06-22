@@ -108,6 +108,13 @@ module.exports = async (req, res) => {
 
     const sheetId = process.env.GOOGLE_SHEET_ID;
     const sheets = getSheetsClient();
+
+    if (req.query.debug === "1") {
+      const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+      const titles = meta.data.sheets.map(s => s.properties.title);
+      return res.status(200).json({ success: true, allTabs: titles });
+    }
+
     const gradeParam = req.query.grade;
     const grades = gradeParam && TAB_BY_GRADE[gradeParam] ? [gradeParam] : ["1", "2", "3"];
 
