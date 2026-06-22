@@ -42,7 +42,7 @@ async function fetchGradeTab(sheets, sheetId, grade) {
     });
     rows = result.data.values || [];
   } catch (e) {
-    return { tabFound: false, students: [] };
+    return { tabFound: false, students: [], error: e.message || e.toString() };
   }
 
   if (!rows.length) return { tabFound: true, students: [] };
@@ -115,21 +115,40 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, allTabs: titles });
     }
 
+    if (req.query.debugheader && TAB_BY_GRADE[req.query.debugheader]) {
+      const g = req.query.debugheader;
+      const tabName = TAB_BY_GRADE[g];
+      const result = await sheets.spreadsheets.values.get({
+        spreadsheetId: sheetId,
+        range: `${tabName}!${ROW_RANGE}`
+      });
+      const rows = result.data.values || [];
+      return res.status(200).json({
+        success: true,
+        tabName,
+        headerRow: rows[0] || [],
+        sampleDataRows: rows.slice(1, 4)
+      });
+    }
+
     const gradeParam = req.query.grade;
     const grades = gradeParam && TAB_BY_GRADE[gradeParam] ? [gradeParam] : ["1", "2", "3"];
 
     const results = {};
     let anyTabMissing = [];
+    let errors = {};
     for (const g of grades) {
       const r = await fetchGradeTab(sheets, sheetId, g);
       results[g] = r.students;
       if (!r.tabFound) anyTabMissing.push(TAB_BY_GRADE[g]);
+      if (r.error) errors[g] = r.error;
     }
 
     res.status(200).json({
       success: true,
       data: results,
-      missingTabs: anyTabMissing
+      missingTabs: anyTabMissing,
+      errors
     });
   } catch (error) {
     console.error("care api error:", error);
