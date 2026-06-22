@@ -64,23 +64,24 @@ body.locked main,body.locked .sticky-header-wrapper{display:none;}
 .stat-pill .num{font-size:20px;font-weight:800;color:var(--navy);}
 .stat-pill .label{font-size:11px;color:var(--muted);margin-top:2px;}
 
-/* ---- 학생 카드 ---- */
-.student-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
-.student-card.care-flag{border-left:4px solid #f59e0b;}
-.student-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
-.student-id{font-size:12.5px;color:var(--muted);font-weight:600;}
-.student-name{font-size:15px;font-weight:800;color:var(--text);}
-.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
-.tag{font-size:11.5px;font-weight:700;border-radius:20px;padding:3px 10px;}
-.tag.female{background:#f3e8ff;color:#7e22ce;}
-.tag.headache{background:#dbeafe;color:#1d4ed8;}
-.tag.rhinitis{background:#dcfce7;color:#15803d;}
-.tag.atopy{background:#dcfce7;color:#166534;}
-.tag.asthma{background:#bbf7d0;color:#14532d;}
-.tag.allergy{background:#fee2e2;color:#b91c1c;}
-.tag.care{background:#fef9c3;color:#854d0e;}
-.tag.help{background:#dbeafe;color:#1e3a8a;}
-.student-note{font-size:12.5px;color:#b91c1c;background:#fef2f2;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.5;}
+/* ---- 한눈에 보는 표(구글시트 스타일) ---- */
+.table-scroll{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
+table.care-table{border-collapse:collapse;width:100%;min-width:760px;font-size:12.5px;}
+table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:7px 8px;text-align:center;white-space:nowrap;}
+table.care-table thead th{position:sticky;top:0;font-size:12px;font-weight:800;color:#334155;background:#f1f5f9;z-index:1;}
+table.care-table th.col-female,td.col-female{background:#f3e8ff;}
+table.care-table th.col-headache,td.col-headache{background:#dbeafe;}
+table.care-table th.col-rhinitis,td.col-rhinitis{background:#dcfce7;}
+table.care-table th.col-atopy,td.col-atopy{background:#bbf7d0;}
+table.care-table th.col-asthma,td.col-asthma{background:#86efac;}
+table.care-table th.col-allergy,td.col-allergy{background:#fecaca;}
+table.care-table th.col-care,td.col-care{background:#fef08a;}
+table.care-table th.col-help,td.col-help{background:#bfdbfe;}
+td.col-name{font-weight:800;color:var(--text);background:#fff;}
+td.col-class{color:var(--muted);background:#fff;}
+td.col-note{white-space:normal;text-align:left;color:#b91c1c;font-weight:600;min-width:220px;max-width:340px;}
+tr.care-flag-row td.col-name{color:#b45309;}
+td.empty-cell{color:#cbd5e1;}
 .empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
 .loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
 </style>
@@ -144,7 +145,7 @@ body.locked main,body.locked .sticky-header-wrapper{display:none;}
     <select id="classFilter"><option value="">전체 반</option></select>
   </div>
 
-  <div id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+  <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
 </main>
 
 <script>
@@ -284,21 +285,50 @@ function renderList(students){
     return;
   }
 
-  listEl.innerHTML = filtered.map(s => {
-    const tags = s.conditions.map(c => `<span class="tag ${c.type}">${escHtml(c.label)} · ${escHtml(c.value)}</span>`).join('');
-    const careTag = s.careNeeded ? `<span class="tag care">⚠ 관리필요 · ${escHtml(s.careNeeded)}</span>` : '';
-    const helpTag = s.helpClass ? `<span class="tag help">🧩 도움반 · ${escHtml(s.helpClass)}</span>` : '';
-    const noteHtml = s.note ? `<div class="student-note">${escHtml(s.note)}</div>` : '';
+  function cellByType(s, type){
+    const c = s.conditions.find(c => c.type === type);
+    return c ? `<td class="col-${type}">${escHtml(c.value)}</td>` : `<td class="col-${type} empty-cell">-</td>`;
+  }
+
+  const rows = filtered.map(s => {
+    const careCell = s.careNeeded ? `<td class="col-care">${escHtml(s.careNeeded)}</td>` : `<td class="col-care empty-cell">-</td>`;
+    const helpCell = s.helpClass ? `<td class="col-help">${escHtml(s.helpClass)}</td>` : `<td class="col-help empty-cell">-</td>`;
+    const noteCell = s.note ? `<td class="col-note">${escHtml(s.note)}</td>` : `<td class="col-note empty-cell">-</td>`;
     return `
-      <div class="student-card ${s.careNeeded ? 'care-flag' : ''}">
-        <div class="student-top">
-          <span class="student-id">${escHtml(s.classNum)}반 ${escHtml(s.number)}번</span>
-          <span class="student-name">${escHtml(s.name)}</span>
-        </div>
-        <div class="tag-row">${tags}${careTag}${helpTag}</div>
-        ${noteHtml}
-      </div>`;
+      <tr class="${s.careNeeded ? 'care-flag-row' : ''}">
+        <td class="col-class">${escHtml(s.classNum)}</td>
+        <td class="col-class">${escHtml(s.number)}</td>
+        <td class="col-name">${escHtml(s.name)}</td>
+        ${cellByType(s, 'female')}
+        ${cellByType(s, 'headache')}
+        ${cellByType(s, 'rhinitis')}
+        ${cellByType(s, 'atopy')}
+        ${cellByType(s, 'asthma')}
+        ${cellByType(s, 'allergy')}
+        ${careCell}
+        ${helpCell}
+        ${noteCell}
+      </tr>`;
   }).join('');
+
+  listEl.innerHTML = `
+    <table class="care-table">
+      <thead>
+        <tr>
+          <th>반</th><th>번호</th><th>이름</th>
+          <th class="col-female">여성질환</th>
+          <th class="col-headache">두통</th>
+          <th class="col-rhinitis">비염</th>
+          <th class="col-atopy">아토피</th>
+          <th class="col-asthma">천식</th>
+          <th class="col-allergy">알레르기</th>
+          <th class="col-care">관리필요</th>
+          <th class="col-help">도움반</th>
+          <th>교내 활동시 확인</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
 }
 
 document.querySelectorAll('.grade-tab').forEach(tab => {
