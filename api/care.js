@@ -12,6 +12,15 @@ const TAB_BY_GRADE = {
 // 헤더는 6행(A6:M6) 기준.
 const ROW_RANGE = "A6:M300";
 
+// 학년마다 칸(컬럼) 배치가 달라서, 학년별로 따로 지정한다.
+// 1학년·2학년: 학년,반,번호,이름,여성질환,두통,비염,아토피,천식,알레르기,관리필요,도움반,비고 (13칸)
+// 3학년: 학년,반,번호,이름,여성질환,비염,아토피,천식,알레르기,관리필요,비고 (11칸, 두통·도움반 없음)
+const COLUMN_MAP = {
+  "1": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
+  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
+  "3": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: -1, rhinitis: 5, atopy: 6, asthma: 7, allergy: 8, careNeeded: 9, helpClass: -1, note: 10 }
+};
+
 function getSheetsClient() {
   return google.sheets({
     version: "v4",
@@ -47,13 +56,8 @@ async function fetchGradeTab(sheets, sheetId, grade) {
 
   if (!rows.length) return { tabFound: true, students: [] };
 
-  // 헤더 글자나 위치가 시트마다 달라서(머리글 오타, 머리글 줄 없음 등),
   // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
-  const idx = {
-    grade: 0, classNum: 1, number: 2, name: 3,
-    femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9,
-    careNeeded: 10, helpClass: 11, note: 12
-  };
+  const idx = COLUMN_MAP[grade]
 
   const dataRows = rows.filter(r => String(r[idx.grade] || "").trim() === String(grade));
 
