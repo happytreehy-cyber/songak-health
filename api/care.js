@@ -47,16 +47,15 @@ async function fetchGradeTab(sheets, sheetId, grade) {
 
   if (!rows.length) return { tabFound: true, students: [] };
 
-  const dataRows = rows.slice(1);
-
-  // 헤더 글자가 시트마다 다르거나 오타가 있을 수 있어서, 칸 "위치"로 고정해서 읽는다.
-  // A=학년(0) B=반(1) C=번호(2) D=이름(3) E=여성질환(4) F=두통(5) G=비염(6)
-  // H=아토피(7) I=천식(8) J=알레르기(9) K=관리필요(10) L=도움반(11) M=비고(12)
+  // 헤더 글자나 위치가 시트마다 달라서(머리글 오타, 머리글 줄 없음 등),
+  // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
   const idx = {
     grade: 0, classNum: 1, number: 2, name: 3,
     femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9,
     careNeeded: 10, helpClass: 11, note: 12
   };
+
+  const dataRows = rows.filter(r => String(r[idx.grade] || "").trim() === String(grade));
 
   const students = dataRows
     .filter(r => r[idx.name] && String(r[idx.name]).trim())
