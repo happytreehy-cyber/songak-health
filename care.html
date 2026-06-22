@@ -51,18 +51,24 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 body.locked main,body.locked .sticky-header-wrapper{display:none;}
 
 /* ---- 학년 탭 ---- */
-.grade-tabs{display:flex;gap:8px;margin-bottom:14px;}
-.grade-tab{flex:1;text-align:center;padding:10px 0;border:1px solid var(--border);background:#fff;border-radius:10px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;}
-.grade-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.grade-tabs{display:flex;gap:10px;margin-bottom:16px;}
+.grade-tab{flex:1;text-align:center;padding:14px 0;border:2px solid var(--border);background:#fff;border-radius:12px;font-size:16px;font-weight:800;color:#475569;cursor:pointer;transition:all .15s;}
+.grade-tab:hover{border-color:#93c5fd;background:#f0f7ff;}
+.grade-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 4px 10px rgba(31,60,136,.3);}
+.tab-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:-4px 0 14px;}
 
 /* ---- 검색 / 통계 ---- */
 .search-row{display:flex;gap:8px;margin-bottom:14px;}
 .search-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;}
 .search-row select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;}
-.stat-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.stat-pill{flex:1;min-width:80px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;}
-.stat-pill .num{font-size:20px;font-weight:800;color:var(--navy);}
-.stat-pill .label{font-size:11px;color:var(--muted);margin-top:2px;}
+.stat-strip{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.stat-pill{flex:1;min-width:80px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center;}
+.stat-pill .num{font-size:22px;font-weight:800;color:var(--navy);}
+.stat-pill .label{font-size:12px;color:#475569;font-weight:600;margin-top:3px;}
+
+/* ---- 범례(색깔 설명) ---- */
+.legend-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 12px;font-size:12.5px;color:#9a3412;margin-bottom:14px;}
+.legend-box b{color:#b45309;}
 
 /* ---- 한눈에 보는 표(구글시트 스타일) ---- */
 .table-scroll{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
@@ -81,10 +87,11 @@ td.col-name{font-weight:800;color:var(--text);background:#fff;}
 td.col-class{color:var(--muted);background:#fff;}
 tr.care-flag-row td.col-name{color:#b45309;}
 td.empty-cell{color:#cbd5e1;background:#fff;}
-td.col-note{white-space:normal;text-align:left;color:#b91c1c;font-weight:700;min-width:280px;font-size:12px;line-height:1.5;}
+td.col-note{white-space:normal !important;text-align:left !important;color:#b91c1c;font-weight:700;width:1%;max-width:380px;font-size:12px;line-height:1.5;}
 
 /* 칸 안의 동그란 알약(pill) 표시 */
 .chip{display:inline-block;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;line-height:1.3;white-space:nowrap;}
+.chip.bloodType{background:#dc2626;color:#fff;}
 .chip.female{background:#a855f7;color:#fff;}
 .chip.headache{background:#3b82f6;color:#fff;}
 .chip.rhinitis{background:#22c55e;color:#fff;}
@@ -145,12 +152,15 @@ td.col-note{white-space:normal;text-align:left;color:#b91c1c;font-weight:700;min
   <div class="section-divider-title status">👩‍🎓 학년별 요보호 학생 현황</div>
 
   <div class="grade-tabs">
-    <div class="grade-tab active" data-grade="1">1학년</div>
-    <div class="grade-tab" data-grade="2">2학년</div>
-    <div class="grade-tab" data-grade="3">3학년</div>
+    <div class="grade-tab active" data-grade="1">👉 1학년</div>
+    <div class="grade-tab" data-grade="2">👉 2학년</div>
+    <div class="grade-tab" data-grade="3">👉 3학년</div>
   </div>
+  <div class="tab-hint">위 버튼을 눌러서 보고 싶은 학년을 선택하세요</div>
 
   <div class="stat-strip" id="statStrip"></div>
+
+  <div class="legend-box">🟠 <b>이름이 갈색(주황색)으로 표시된 학생</b> = "관리필요" 사유가 있는 학생입니다.</div>
 
   <div class="search-row">
     <input type="text" id="searchInput" placeholder="이름 또는 번호로 검색">
@@ -296,6 +306,7 @@ const GRADE_COLUMNS = {
     { type: 'help', label: '도움반' }
   ],
   "2": [
+    { type: 'bloodType', label: '혈액형' },
     { type: 'female', label: '여성질환' },
     { type: 'headache', label: '두통' },
     { type: 'rhinitis', label: '비염' },
@@ -339,7 +350,10 @@ function renderList(students){
       return s.helpClass ? `<td><span class="chip help">${escHtml(s.helpClass)}</span></td>` : `<td class="empty-cell">-</td>`;
     }
     const c = s.conditions.find(c => c.type === col.type);
-    return c ? `<td><span class="chip ${col.type}">${escHtml(c.value)}</span></td>` : `<td class="empty-cell">-</td>`;
+    if (!c) return `<td class="empty-cell">-</td>`;
+    let v = c.value;
+    if (/^[.·•ㆍ\s]+$/.test(v)) v = col.label;
+    return `<td><span class="chip ${col.type}">${escHtml(v)}</span></td>`;
   }
 
   const rows = filtered.map(s => {
