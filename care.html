@@ -32,7 +32,7 @@ a{text-decoration:none;color:inherit;}
 .day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
 .back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:#0369a1;font-weight:700;padding:5px 12px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;text-decoration:none;white-space:nowrap;}
 
-main{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .section-divider-title{font-size:13.5px;font-weight:800;margin:18px 0 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;}
 .section-divider-title.status{color:#1e3a8a;background:#eff6ff;border-left:4px solid #2563eb;}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
@@ -66,22 +66,34 @@ body.locked main,body.locked .sticky-header-wrapper{display:none;}
 
 /* ---- 한눈에 보는 표(구글시트 스타일) ---- */
 .table-scroll{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
-table.care-table{border-collapse:collapse;width:100%;min-width:760px;font-size:12.5px;}
-table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:7px 8px;text-align:center;white-space:nowrap;}
+table.care-table{border-collapse:collapse;width:100%;min-width:1020px;font-size:12.5px;}
+table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:8px 6px;text-align:center;white-space:nowrap;vertical-align:middle;}
 table.care-table thead th{position:sticky;top:0;font-size:12px;font-weight:800;color:#334155;background:#f1f5f9;z-index:1;}
-table.care-table th.col-female,td.col-female{background:#f3e8ff;}
-table.care-table th.col-headache,td.col-headache{background:#dbeafe;}
-table.care-table th.col-rhinitis,td.col-rhinitis{background:#dcfce7;}
-table.care-table th.col-atopy,td.col-atopy{background:#bbf7d0;}
-table.care-table th.col-asthma,td.col-asthma{background:#86efac;}
-table.care-table th.col-allergy,td.col-allergy{background:#fecaca;}
-table.care-table th.col-care,td.col-care{background:#fef08a;}
-table.care-table th.col-help,td.col-help{background:#bfdbfe;}
+table.care-table th.col-female{background:#f3e8ff;}
+table.care-table th.col-headache{background:#dbeafe;}
+table.care-table th.col-rhinitis{background:#dcfce7;}
+table.care-table th.col-atopy{background:#bbf7d0;}
+table.care-table th.col-asthma{background:#86efac;}
+table.care-table th.col-allergy{background:#fecaca;}
+table.care-table th.col-care{background:#fef08a;}
+table.care-table th.col-help{background:#bfdbfe;}
 td.col-name{font-weight:800;color:var(--text);background:#fff;}
 td.col-class{color:var(--muted);background:#fff;}
-td.col-note{white-space:normal;text-align:left;color:#b91c1c;font-weight:600;min-width:220px;max-width:340px;}
 tr.care-flag-row td.col-name{color:#b45309;}
-td.empty-cell{color:#cbd5e1;}
+td.empty-cell{color:#cbd5e1;background:#fff;}
+td.col-note{white-space:normal;text-align:left;color:#b91c1c;font-weight:700;min-width:280px;font-size:12px;line-height:1.5;}
+
+/* 칸 안의 동그란 알약(pill) 표시 */
+.chip{display:inline-block;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;line-height:1.3;white-space:nowrap;}
+.chip.female{background:#a855f7;color:#fff;}
+.chip.headache{background:#3b82f6;color:#fff;}
+.chip.rhinitis{background:#22c55e;color:#fff;}
+.chip.atopy{background:#16a34a;color:#fff;}
+.chip.asthma{background:#15803d;color:#fff;}
+.chip.allergy{background:#ef4444;color:#fff;}
+.chip.care{background:#eab308;color:#1c1303;}
+.chip.help{background:#2563eb;color:#fff;}
+
 .empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
 .loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
 </style>
@@ -287,13 +299,13 @@ function renderList(students){
 
   function cellByType(s, type){
     const c = s.conditions.find(c => c.type === type);
-    return c ? `<td class="col-${type}">${escHtml(c.value)}</td>` : `<td class="col-${type} empty-cell">-</td>`;
+    return c ? `<td><span class="chip ${type}">${escHtml(c.value)}</span></td>` : `<td class="empty-cell">-</td>`;
   }
 
   const rows = filtered.map(s => {
-    const careCell = s.careNeeded ? `<td class="col-care">${escHtml(s.careNeeded)}</td>` : `<td class="col-care empty-cell">-</td>`;
-    const helpCell = s.helpClass ? `<td class="col-help">${escHtml(s.helpClass)}</td>` : `<td class="col-help empty-cell">-</td>`;
-    const noteCell = s.note ? `<td class="col-note">${escHtml(s.note)}</td>` : `<td class="col-note empty-cell">-</td>`;
+    const careCell = s.careNeeded ? `<td><span class="chip care">${escHtml(s.careNeeded)}</span></td>` : `<td class="empty-cell">-</td>`;
+    const helpCell = s.helpClass ? `<td><span class="chip help">${escHtml(s.helpClass)}</span></td>` : `<td class="empty-cell">-</td>`;
+    const noteCell = s.note ? `<td class="col-note">📌 ${escHtml(s.note)}</td>` : `<td class="col-note empty-cell">-</td>`;
     return `
       <tr class="${s.careNeeded ? 'care-flag-row' : ''}">
         <td class="col-class">${escHtml(s.classNum)}</td>
