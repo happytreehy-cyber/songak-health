@@ -9,15 +9,16 @@ const TAB_BY_GRADE = {
 };
 
 // 시트 상단 6행은 요약 통계, 7행부터 데이터 시작. 헤더는 6행 기준.
-const ROW_RANGE = "A6:M300";
+// 2학년은 N열(비고)까지 있어서 N열까지 읽어온다.
+const ROW_RANGE = "A6:N300";
 
-// 학년마다 칸(컬럼) 배치가 달라서, 학년별로 따로 지정한다.
-// 1학년: 학년,반,번호,이름,여성질환,두통,비염,아토피,천식,알레르기,관리필요,도움반,비고
-// 2학년: 학년,반,번호,이름,혈액형(미사용),여성질환,비염,아토피,천식,알레르기,관리필요,도움반,비고 (두통 칸 없음, 혈액형 칸 있음)
-// 3학년: 학년,반,번호,이름,여성질환(생리통),비염,아토피,천식,알레르기,관리필요,비고 (두통·도움반 없음)
+// 헤더 글자 자동 인식이 실패할 때 사용할 학년별 고정 위치(직접 확인한 실제 칸 배치)
+// 1학년: A학년 B반 C번호 D이름 E여성질환 F두통 G비염 H아토피 I천식 J알레르기 K관리필요 L도움반 M비고
+// 2학년: A학년 B반 C번호 D이름 E혈액형(미사용) F여성질환 G두통(숨김칸) H비염 I아토피 J천식 K알레르기 L관리필요 M도움반 N비고
+// 3학년: A학년 B반 C번호 D이름 E여성질환(생리통) F비염 G아토피 H천식 I알레르기 J관리필요 K비고 (두통·도움반 없음)
 const COLUMN_MAP = {
   "1": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
-  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 5, headache: -1, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
+  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 5, headache: 6, rhinitis: 7, atopy: 8, asthma: 9, allergy: 10, careNeeded: 11, helpClass: 12, note: 13 },
   "3": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: -1, rhinitis: 5, atopy: 6, asthma: 7, allergy: 8, careNeeded: 9, helpClass: -1, note: 10 }
 };
 
@@ -79,9 +80,9 @@ async function fetchGradeTab(sheets, sheetId, grade) {
     note: findColByKeywords(headerNorm, ["교내활동시확인", "교내활동"])
   };
 
-  // 헤더 글자를 못 찾았으면(헤더 줄이 없거나 비정상) 위치 고정값으로 대신 사용
+  // 헤더 글자를 못 찾았으면(헤더 줄이 없거나 비정상) 직접 확인한 학년별 고정 위치를 대신 사용
   if (idx.name === -1) {
-    idx = { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 };
+    idx = COLUMN_MAP[grade] || COLUMN_MAP["1"];
   }
 
   // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
