@@ -8,16 +8,16 @@ const TAB_BY_GRADE = {
   "3": "3학년 요보호"
 };
 
-// 시트 상단 6행은 요약 통계(학습도움반/관리필요/비염아토피/천식/알러지 수), 7행부터 데이터 시작.
-// 헤더는 6행(A6:M6) 기준.
+// 시트 상단 6행은 요약 통계, 7행부터 데이터 시작. 헤더는 6행 기준.
 const ROW_RANGE = "A6:M300";
 
 // 학년마다 칸(컬럼) 배치가 달라서, 학년별로 따로 지정한다.
-// 1학년·2학년: 학년,반,번호,이름,여성질환,두통,비염,아토피,천식,알레르기,관리필요,도움반,비고 (13칸)
-// 3학년: 학년,반,번호,이름,여성질환,비염,아토피,천식,알레르기,관리필요,비고 (11칸, 두통·도움반 없음)
+// 1학년: 학년,반,번호,이름,여성질환,두통,비염,아토피,천식,알레르기,관리필요,도움반,비고
+// 2학년: 학년,반,번호,이름,혈액형(미사용),여성질환,비염,아토피,천식,알레르기,관리필요,도움반,비고 (두통 칸 없음, 혈액형 칸 있음)
+// 3학년: 학년,반,번호,이름,여성질환(생리통),비염,아토피,천식,알레르기,관리필요,비고 (두통·도움반 없음)
 const COLUMN_MAP = {
   "1": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
-  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
+  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 5, headache: -1, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
   "3": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: -1, rhinitis: 5, atopy: 6, asthma: 7, allergy: 8, careNeeded: 9, helpClass: -1, note: 10 }
 };
 
