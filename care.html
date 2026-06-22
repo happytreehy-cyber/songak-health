@@ -58,9 +58,11 @@ body.locked main,body.locked .sticky-header-wrapper{display:none;}
 .tab-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:-4px 0 14px;}
 
 /* ---- 검색 / 통계 ---- */
-.search-row{display:flex;gap:8px;margin-bottom:14px;}
-.search-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;}
-.search-row select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;}
+.search-row{display:flex;gap:14px;margin-bottom:14px;align-items:flex-end;}
+.filter-group{display:flex;flex-direction:column;gap:4px;}
+.filter-label{font-size:12px;color:var(--muted);font-weight:700;}
+.search-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;width:100%;}
+.search-row select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;min-width:140px;}
 .stat-strip{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
 .stat-pill{flex:1;min-width:80px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center;}
 .stat-pill .num{font-size:22px;font-weight:800;color:var(--navy);}
@@ -72,8 +74,8 @@ body.locked main,body.locked .sticky-header-wrapper{display:none;}
 
 /* ---- 한눈에 보는 표(구글시트 스타일) ---- */
 .table-scroll{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
-table.care-table{border-collapse:collapse;width:100%;min-width:1020px;font-size:12.5px;}
-table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:8px 6px;text-align:center;white-space:nowrap;vertical-align:middle;}
+table.care-table{border-collapse:collapse;width:100%;table-layout:auto;font-size:12.5px;}
+table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:7px 5px;text-align:center;white-space:nowrap;vertical-align:middle;}
 table.care-table thead th{position:sticky;top:0;font-size:12px;font-weight:800;color:#334155;background:#f1f5f9;z-index:1;}
 table.care-table th.col-female{background:#f3e8ff;}
 table.care-table th.col-headache{background:#dbeafe;}
@@ -87,7 +89,7 @@ td.col-name{font-weight:800;color:var(--text);background:#fff;}
 td.col-class{color:var(--muted);background:#fff;}
 tr.care-flag-row td.col-name{color:#b45309;}
 td.empty-cell{color:#cbd5e1;background:#fff;}
-td.col-note{white-space:normal !important;text-align:left !important;color:#b91c1c;font-weight:700;width:1%;max-width:380px;font-size:12px;line-height:1.5;}
+td.col-note{white-space:normal !important;text-align:left !important;color:#b91c1c;font-weight:700;width:340px;min-width:300px;font-size:12px;line-height:1.6;padding:8px 10px !important;}
 
 /* 칸 안의 동그란 알약(pill) 표시 */
 .chip{display:inline-block;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;line-height:1.3;white-space:nowrap;}
@@ -163,8 +165,14 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
   <div class="legend-box">🟠 <b>이름이 갈색(주황색)으로 표시된 학생</b> = "관리필요" 사유가 있는 학생입니다.</div>
 
   <div class="search-row">
-    <input type="text" id="searchInput" placeholder="이름 또는 번호로 검색">
-    <select id="classFilter"><option value="">전체 반</option></select>
+    <div class="filter-group">
+      <span class="filter-label">학급 검색</span>
+      <select id="classFilter"><option value="">전체 학급</option></select>
+    </div>
+    <div class="filter-group" style="flex:1;">
+      <span class="filter-label">이름·번호 검색</span>
+      <input type="text" id="searchInput" placeholder="🔍 이름 또는 번호 입력">
+    </div>
   </div>
 
   <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
@@ -269,7 +277,7 @@ async function loadGrade(grade){
 function buildClassFilter(students){
   const sel = document.getElementById('classFilter');
   const classes = [...new Set(students.map(s => s.classNum).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
-  sel.innerHTML = '<option value="">전체 반</option>' + classes.map(c => `<option value="${c}">${c}반</option>`).join('');
+  sel.innerHTML = '<option value="">전체 학급</option>' + classes.map(c => `<option value="${c}">${c}반</option>`).join('');
 }
 
 function renderGrade(grade){
@@ -282,14 +290,14 @@ function renderGrade(grade){
 function renderStats(students){
   const careCount = students.filter(s => s.careNeeded && s.careNeeded.trim()).length;
   const helpCount = students.filter(s => s.helpClass && s.helpClass.trim()).length;
+  const respCount = students.filter(s => s.conditions.some(c => c.type === 'asthma' || c.type === 'rhinitis' || c.type === 'atopy')).length;
   const allergyCount = students.filter(s => s.conditions.some(c => c.type === 'allergy')).length;
-  const respCount = students.filter(s => s.conditions.some(c => c.type === 'rhinitis' || c.type === 'atopy' || c.type === 'asthma')).length;
   document.getElementById('statStrip').innerHTML = `
     <div class="stat-pill"><div class="num">${students.length}</div><div class="label">전체 요보호</div></div>
     <div class="stat-pill"><div class="num">${careCount}</div><div class="label">관리필요</div></div>
+    <div class="stat-pill"><div class="num">${respCount}</div><div class="label">천식/비염/아토피</div></div>
+    <div class="stat-pill"><div class="num">${allergyCount}</div><div class="label">동물·식품알레르기</div></div>
     <div class="stat-pill"><div class="num">${helpCount}</div><div class="label">도움반</div></div>
-    <div class="stat-pill"><div class="num">${respCount}</div><div class="label">비염/아토피/천식</div></div>
-    <div class="stat-pill"><div class="num">${allergyCount}</div><div class="label">알레르기</div></div>
   `;
 }
 
@@ -317,7 +325,7 @@ const GRADE_COLUMNS = {
     { type: 'help', label: '도움반' }
   ],
   "3": [
-    { type: 'female', label: '여성질환(생리통)' },
+    { type: 'female', label: '여성질환' },
     { type: 'rhinitis', label: '비염' },
     { type: 'atopy', label: '아토피' },
     { type: 'asthma', label: '천식' },
