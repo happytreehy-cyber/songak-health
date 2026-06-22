@@ -283,6 +283,37 @@ function renderStats(students){
   `;
 }
 
+// 학년마다 실제 존재하는 칸이 달라서, 학년별로 보여줄 항목을 따로 정의
+const GRADE_COLUMNS = {
+  "1": [
+    { type: 'female', label: '여성질환' },
+    { type: 'headache', label: '두통' },
+    { type: 'rhinitis', label: '비염' },
+    { type: 'atopy', label: '아토피' },
+    { type: 'asthma', label: '천식' },
+    { type: 'allergy', label: '알레르기' },
+    { type: 'care', label: '관리필요' },
+    { type: 'help', label: '도움반' }
+  ],
+  "2": [
+    { type: 'female', label: '여성질환' },
+    { type: 'rhinitis', label: '비염' },
+    { type: 'atopy', label: '아토피' },
+    { type: 'asthma', label: '천식' },
+    { type: 'allergy', label: '알레르기' },
+    { type: 'care', label: '관리필요' },
+    { type: 'help', label: '도움반' }
+  ],
+  "3": [
+    { type: 'female', label: '여성질환(생리통)' },
+    { type: 'rhinitis', label: '비염' },
+    { type: 'atopy', label: '아토피' },
+    { type: 'asthma', label: '천식' },
+    { type: 'allergy', label: '알레르기' },
+    { type: 'care', label: '관리필요' }
+  ]
+};
+
 function renderList(students){
   const q = document.getElementById('searchInput').value.trim();
   const classFilter = document.getElementById('classFilter').value;
@@ -297,45 +328,40 @@ function renderList(students){
     return;
   }
 
-  function cellByType(s, type){
-    const c = s.conditions.find(c => c.type === type);
-    return c ? `<td><span class="chip ${type}">${escHtml(c.value)}</span></td>` : `<td class="empty-cell">-</td>`;
+  const columns = GRADE_COLUMNS[currentGrade] || GRADE_COLUMNS["1"];
+
+  function cellFor(s, col){
+    if (col.type === 'care') {
+      return s.careNeeded ? `<td><span class="chip care">${escHtml(s.careNeeded)}</span></td>` : `<td class="empty-cell">-</td>`;
+    }
+    if (col.type === 'help') {
+      return s.helpClass ? `<td><span class="chip help">${escHtml(s.helpClass)}</span></td>` : `<td class="empty-cell">-</td>`;
+    }
+    const c = s.conditions.find(c => c.type === col.type);
+    return c ? `<td><span class="chip ${col.type}">${escHtml(c.value)}</span></td>` : `<td class="empty-cell">-</td>`;
   }
 
   const rows = filtered.map(s => {
-    const careCell = s.careNeeded ? `<td><span class="chip care">${escHtml(s.careNeeded)}</span></td>` : `<td class="empty-cell">-</td>`;
-    const helpCell = s.helpClass ? `<td><span class="chip help">${escHtml(s.helpClass)}</span></td>` : `<td class="empty-cell">-</td>`;
+    const cells = columns.map(col => cellFor(s, col)).join('');
     const noteCell = s.note ? `<td class="col-note">📌 ${escHtml(s.note)}</td>` : `<td class="col-note empty-cell">-</td>`;
     return `
       <tr class="${s.careNeeded ? 'care-flag-row' : ''}">
         <td class="col-class">${escHtml(s.classNum)}</td>
         <td class="col-class">${escHtml(s.number)}</td>
         <td class="col-name">${escHtml(s.name)}</td>
-        ${cellByType(s, 'female')}
-        ${cellByType(s, 'headache')}
-        ${cellByType(s, 'rhinitis')}
-        ${cellByType(s, 'atopy')}
-        ${cellByType(s, 'asthma')}
-        ${cellByType(s, 'allergy')}
-        ${careCell}
-        ${helpCell}
+        ${cells}
         ${noteCell}
       </tr>`;
   }).join('');
+
+  const headerCells = columns.map(col => `<th class="col-${col.type}">${col.label}</th>`).join('');
 
   listEl.innerHTML = `
     <table class="care-table">
       <thead>
         <tr>
           <th>반</th><th>번호</th><th>이름</th>
-          <th class="col-female">여성질환</th>
-          <th class="col-headache">두통</th>
-          <th class="col-rhinitis">비염</th>
-          <th class="col-atopy">아토피</th>
-          <th class="col-asthma">천식</th>
-          <th class="col-allergy">알레르기</th>
-          <th class="col-care">관리필요</th>
-          <th class="col-help">도움반</th>
+          ${headerCells}
           <th>교내 활동시 확인</th>
         </tr>
       </thead>
