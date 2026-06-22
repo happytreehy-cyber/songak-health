@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학생 요보호 관리 | 송악고등학교 온라인 보건실</title>
+<meta name="color-scheme" content="light only">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--navy:#1f3c88;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;--accent:#2563eb;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+a{text-decoration:none;color:inherit;}
+
+/* ---- 헤더 / 날짜바 (1·2번 메뉴와 동일) ---- */
+.sticky-header-wrapper{position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.navbar{height:46px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;border-bottom:1px solid #f1f5f9;}
+.nav-left{display:flex;align-items:center;gap:10px;}
+.nav-logo-img{width:22px;height:22px;object-fit:contain;}
+.nav-title-group{display:flex;align-items:baseline;gap:8px;}
+.nav-main-title{font-size:16px;font-weight:700;color:#1e3a8a;}
+.nav-sub-title{font-size:12px;color:#64748b;font-weight:400;}
+.date-strip-bar{background:#fff;padding:4px 20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid #e2e8f0;}
+.date-badge-mini{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:#2563eb;}
+.date-full-text{font-size:13px;font-weight:700;color:#1e293b;}
+.calendar-strip{display:flex;gap:10px;font-size:12px;color:#94a3b8;background:#f8fafc;padding:2px 8px;border-radius:15px;}
+.day-item{color:#94a3b8;}
+.day-item.sun{color:#ef4444;}
+.day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:#0369a1;font-weight:700;padding:5px 12px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;text-decoration:none;white-space:nowrap;}
+
+main{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+.section-divider-title{font-size:13.5px;font-weight:800;margin:18px 0 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;}
+.section-divider-title.status{color:#1e3a8a;background:#eff6ff;border-left:4px solid #2563eb;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.intro-card{background:#eef3ff;border:none;}
+.intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
+
+/* ---- 잠금화면 (1·2번 메뉴와 동일) ---- */
+.site-lock{position:fixed;inset:0;background:#1f3c88;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.site-lock-box{background:#fff;border-radius:16px;padding:32px 26px;max-width:340px;width:100%;text-align:center;}
+.site-lock-box .icon{font-size:34px;margin-bottom:10px;}
+.site-lock-box h2{font-size:17px;margin:0 0 6px;color:#1c2333;}
+.site-lock-box p{font-size:13px;color:#6b7280;margin:0 0 18px;}
+.site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-bottom:10px;}
+.site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
+.site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
+body.locked main,body.locked .sticky-header-wrapper{display:none;}
+
+/* ---- 학년 탭 ---- */
+.grade-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.grade-tab{flex:1;text-align:center;padding:10px 0;border:1px solid var(--border);background:#fff;border-radius:10px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;}
+.grade-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* ---- 검색 / 통계 ---- */
+.search-row{display:flex;gap:8px;margin-bottom:14px;}
+.search-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;}
+.search-row select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;background:#fff;}
+.stat-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.stat-pill{flex:1;min-width:80px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;}
+.stat-pill .num{font-size:20px;font-weight:800;color:var(--navy);}
+.stat-pill .label{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ---- 학생 카드 ---- */
+.student-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.student-card.care-flag{border-left:4px solid #f59e0b;}
+.student-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.student-id{font-size:12.5px;color:var(--muted);font-weight:600;}
+.student-name{font-size:15px;font-weight:800;color:var(--text);}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.tag{font-size:11.5px;font-weight:700;border-radius:20px;padding:3px 10px;}
+.tag.female{background:#f3e8ff;color:#7e22ce;}
+.tag.headache{background:#dbeafe;color:#1d4ed8;}
+.tag.rhinitis{background:#dcfce7;color:#15803d;}
+.tag.atopy{background:#dcfce7;color:#166534;}
+.tag.asthma{background:#bbf7d0;color:#14532d;}
+.tag.allergy{background:#fee2e2;color:#b91c1c;}
+.tag.care{background:#fef9c3;color:#854d0e;}
+.tag.help{background:#dbeafe;color:#1e3a8a;}
+.student-note{font-size:12.5px;color:#b91c1c;background:#fef2f2;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.5;}
+.empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
+.loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
+</style>
+</head>
+<body class="locked">
+
+<div class="site-lock" id="siteLock">
+  <div class="site-lock-box">
+    <div class="icon">🔒</div>
+    <h2>교직원 본인 확인</h2>
+    <p>비밀번호를 입력하면 학생 요보호 관리 화면을<br>확인할 수 있어요.</p>
+    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="off" data-lpignore="true">
+    <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
+      <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
+    </label>
+    <button type="button" id="siteLockBtn">확인</button>
+    <div class="site-lock-err" id="siteLockErr"></div>
+  </div>
+</div>
+
+<div class="sticky-header-wrapper">
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="logo.png" alt="로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+      <div class="nav-title-group">
+        <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+        <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+      </div>
+    </div>
+  </nav>
+  <section class="date-strip-bar">
+    <div class="date-badge-mini" id="date-badge-mini"></div>
+    <span class="date-full-text" id="date-full-text"></span>
+    <div class="calendar-strip" id="calendar-strip"></div>
+  </section>
+</div>
+
+<main>
+  <a href="index.html" class="back-btn" style="margin:14px 0 10px;display:inline-flex;">← 이전으로</a>
+  <div class="page-title-row" style="margin:0 0 4px;display:flex;align-items:center;gap:10px;">
+    <h1 style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">🩺 학생 요보호 관리</h1>
+  </div>
+
+  <div class="card intro-card">
+    <p>📋 여성질환 · 두통 · 비염 · 아토피 · 천식 · 알레르기 등 건강 취약 학생의 집중 케어 지침을 학년별로 확인하는 공간입니다.</p>
+  </div>
+
+  <div class="section-divider-title status">👩‍🎓 학년별 요보호 학생 현황</div>
+
+  <div class="grade-tabs">
+    <div class="grade-tab active" data-grade="1">1학년</div>
+    <div class="grade-tab" data-grade="2">2학년</div>
+    <div class="grade-tab" data-grade="3">3학년</div>
+  </div>
+
+  <div class="stat-strip" id="statStrip"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="이름 또는 번호로 검색">
+    <select id="classFilter"><option value="">전체 반</option></select>
+  </div>
+
+  <div id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+</main>
+
+<script>
+/* ---------- 잠금화면 ---------- */
+(function(){
+  const UNLOCK_KEY = "songakStaffUnlocked";
+  const UNLOCK_HOURS = 12;
+
+  function isUnlocked(){
+    const raw = localStorage.getItem(UNLOCK_KEY);
+    if(!raw) return false;
+    try{
+      const data = JSON.parse(raw);
+      const ageHours = (Date.now() - data.time) / (1000*60*60);
+      return ageHours < UNLOCK_HOURS;
+    }catch(e){ return false; }
+  }
+
+  if (isUnlocked()) {
+    document.body.classList.remove("locked");
+    document.getElementById("siteLock").style.display = "none";
+  }
+
+  const savedName = localStorage.getItem("songak_staff_name");
+  if (savedName) {
+    document.getElementById("siteLockName").value = savedName;
+    document.getElementById("siteLockRemember").checked = true;
+  }
+
+  async function tryUnlock(){
+    const name = document.getElementById("siteLockName").value.trim();
+    const pw = document.getElementById("siteLockInput").value.trim();
+    const remember = document.getElementById("siteLockRemember").checked;
+    const errEl = document.getElementById("siteLockErr");
+    if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
+    if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
+    errEl.textContent = "";
+
+    if (remember) localStorage.setItem("songak_staff_name", name);
+    else localStorage.removeItem("songak_staff_name");
+    localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
+    fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
+
+    document.body.classList.remove("locked");
+    document.getElementById("siteLock").style.display = "none";
+  }
+  document.getElementById("siteLockBtn").addEventListener("click", tryUnlock);
+  document.getElementById("siteLockInput").addEventListener("keydown", (e) => { if(e.key === "Enter") tryUnlock(); });
+})();
+
+/* ---------- 날짜바 ---------- */
+(function(){
+  const WK = ['일','월','화','수','목','금','토'];
+  function pad(n){ return n < 10 ? '0'+n : n; }
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), w = now.getDay();
+  document.getElementById('date-badge-mini').textContent = pad(d);
+  document.getElementById('date-full-text').textContent = y+'년 '+(m+1)+'월 '+d+'일 '+WK[w]+'요일';
+  const cal = document.getElementById('calendar-strip');
+  cal.innerHTML = '';
+  const sun = new Date(now); sun.setDate(d - w);
+  for(let i=0;i<7;i++){
+    const dd = new Date(sun); dd.setDate(sun.getDate()+i);
+    const span = document.createElement('span');
+    let cls = 'day-item';
+    if(dd.getDay()===0) cls += ' sun';
+    if(dd.getDate()===d && dd.getMonth()===m) cls += ' today';
+    span.className = cls; span.textContent = dd.getDate();
+    cal.appendChild(span);
+  }
+})();
+
+/* ---------- 학생 요보호 데이터 ---------- */
+let ALL_DATA = {};      // { "1": [...], "2": [...], "3": [...] }
+let currentGrade = "1";
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadGrade(grade){
+  currentGrade = grade;
+  document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
+
+  if (ALL_DATA[grade]) { renderGrade(grade); return; }
+
+  document.getElementById('studentList').innerHTML = '<div class="loading-msg">불러오는 중...</div>';
+  try{
+    const res = await fetch('/api/care?grade=' + grade);
+    const data = await res.json();
+    if(!data.success){
+      document.getElementById('studentList').innerHTML = '<div class="empty-msg">오류: ' + escHtml(data.message||'') + '</div>';
+      return;
+    }
+    ALL_DATA[grade] = data.data[grade] || [];
+    renderGrade(grade);
+  }catch(e){
+    document.getElementById('studentList').innerHTML = '<div class="empty-msg">데이터를 불러오지 못했습니다.</div>';
+  }
+}
+
+function buildClassFilter(students){
+  const sel = document.getElementById('classFilter');
+  const classes = [...new Set(students.map(s => s.classNum).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+  sel.innerHTML = '<option value="">전체 반</option>' + classes.map(c => `<option value="${c}">${c}반</option>`).join('');
+}
+
+function renderGrade(grade){
+  const students = ALL_DATA[grade] || [];
+  buildClassFilter(students);
+  renderStats(students);
+  renderList(students);
+}
+
+function renderStats(students){
+  const careCount = students.filter(s => s.careNeeded && s.careNeeded.trim()).length;
+  const helpCount = students.filter(s => s.helpClass && s.helpClass.trim()).length;
+  const allergyCount = students.filter(s => s.conditions.some(c => c.type === 'allergy')).length;
+  const respCount = students.filter(s => s.conditions.some(c => c.type === 'rhinitis' || c.type === 'atopy' || c.type === 'asthma')).length;
+  document.getElementById('statStrip').innerHTML = `
+    <div class="stat-pill"><div class="num">${students.length}</div><div class="label">전체 요보호</div></div>
+    <div class="stat-pill"><div class="num">${careCount}</div><div class="label">관리필요</div></div>
+    <div class="stat-pill"><div class="num">${helpCount}</div><div class="label">도움반</div></div>
+    <div class="stat-pill"><div class="num">${respCount}</div><div class="label">비염/아토피/천식</div></div>
+    <div class="stat-pill"><div class="num">${allergyCount}</div><div class="label">알레르기</div></div>
+  `;
+}
+
+function renderList(students){
+  const q = document.getElementById('searchInput').value.trim();
+  const classFilter = document.getElementById('classFilter').value;
+
+  let filtered = students;
+  if (classFilter) filtered = filtered.filter(s => String(s.classNum) === classFilter);
+  if (q) filtered = filtered.filter(s => s.name.includes(q) || String(s.number).includes(q));
+
+  const listEl = document.getElementById('studentList');
+  if (!filtered.length){
+    listEl.innerHTML = '<div class="empty-msg">해당하는 학생이 없습니다.</div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(s => {
+    const tags = s.conditions.map(c => `<span class="tag ${c.type}">${escHtml(c.label)} · ${escHtml(c.value)}</span>`).join('');
+    const careTag = s.careNeeded ? `<span class="tag care">⚠ 관리필요 · ${escHtml(s.careNeeded)}</span>` : '';
+    const helpTag = s.helpClass ? `<span class="tag help">🧩 도움반 · ${escHtml(s.helpClass)}</span>` : '';
+    const noteHtml = s.note ? `<div class="student-note">${escHtml(s.note)}</div>` : '';
+    return `
+      <div class="student-card ${s.careNeeded ? 'care-flag' : ''}">
+        <div class="student-top">
+          <span class="student-id">${escHtml(s.classNum)}반 ${escHtml(s.number)}번</span>
+          <span class="student-name">${escHtml(s.name)}</span>
+        </div>
+        <div class="tag-row">${tags}${careTag}${helpTag}</div>
+        ${noteHtml}
+      </div>`;
+  }).join('');
+}
+
+document.querySelectorAll('.grade-tab').forEach(tab => {
+  tab.addEventListener('click', () => loadGrade(tab.dataset.grade));
+});
+document.getElementById('searchInput').addEventListener('input', () => renderList(ALL_DATA[currentGrade] || []));
+document.getElementById('classFilter').addEventListener('change', () => renderList(ALL_DATA[currentGrade] || []));
+
+loadGrade('1');
+</script>
+</body>
+</html>
