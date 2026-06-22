@@ -18,7 +18,7 @@ const ROW_RANGE = "A6:N300";
 // 3학년: A학년 B반 C번호 D이름 E여성질환(생리통) F비염 G아토피 H천식 I알레르기 J관리필요 K비고 (두통·도움반 없음)
 const COLUMN_MAP = {
   "1": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 },
-  "2": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 5, headache: 6, rhinitis: 7, atopy: 8, asthma: 9, allergy: 10, careNeeded: 11, helpClass: 12, note: 13 },
+  "2": { grade: 0, classNum: 1, number: 2, name: 3, bloodType: 4, femaleIssue: 5, headache: 6, rhinitis: 7, atopy: 8, asthma: 9, allergy: 10, careNeeded: 11, helpClass: 12, note: 13 },
   "3": { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: -1, rhinitis: 5, atopy: 6, asthma: 7, allergy: 8, careNeeded: 9, helpClass: -1, note: 10 }
 };
 
@@ -77,13 +77,15 @@ async function fetchGradeTab(sheets, sheetId, grade) {
     allergy: findColByKeywords(headerNorm, ["알레르기", "알러지"]),
     careNeeded: findColByKeywords(headerNorm, ["관리필요"]),
     helpClass: findColByKeywords(headerNorm, ["도움반"]),
-    note: findColByKeywords(headerNorm, ["교내활동시확인", "교내활동"])
+    note: findColByKeywords(headerNorm, ["교내활동시확인", "교내활동"]),
+    bloodType: findColByKeywords(headerNorm, ["혈액형"])
   };
 
   // 헤더 글자를 못 찾았으면(헤더 줄이 없거나 비정상) 직접 확인한 학년별 고정 위치를 대신 사용
   if (idx.name === -1) {
     idx = COLUMN_MAP[grade] || COLUMN_MAP["1"];
   }
+  if (idx.bloodType === undefined) idx.bloodType = -1;
 
   // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
   const dataRows = rows.filter(r => String(r[idx.grade] || "").trim() === String(grade));
@@ -93,8 +95,14 @@ async function fetchGradeTab(sheets, sheetId, grade) {
     .map(r => {
       const conditions = [];
       function push(label, value, type) {
-        if (value && String(value).trim()) conditions.push({ label, value: String(value).trim(), type });
+        if (value && String(value).trim()) {
+          let v = String(value).trim();
+          // 시트에 점(.)이나 동그라미(•)만 표시된 경우, 칸 제목 글자를 그대로 보여준다.
+          if (/^[.·•ㆍ\s]+$/.test(v)) v = label;
+          conditions.push({ label, value: v, type });
+        }
       }
+      push("혈액형", idx.bloodType !== -1 ? r[idx.bloodType] : "", "bloodType");
       push("여성질환", idx.femaleIssue !== -1 ? r[idx.femaleIssue] : "", "female");
       push("두통", idx.headache !== -1 ? r[idx.headache] : "", "headache");
       push("비염", idx.rhinitis !== -1 ? r[idx.rhinitis] : "", "rhinitis");
