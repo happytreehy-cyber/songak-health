@@ -33,9 +33,13 @@ function getSheetsClient() {
   });
 }
 
-function findCol(header, candidates) {
-  for (const c of candidates) {
-    const i = header.indexOf(c);
+function normalize(s) {
+  return String(s || "").replace(/[\s\n\r]+/g, "");
+}
+
+function findColByKeywords(headerNorm, keywords) {
+  for (const kw of keywords) {
+    const i = headerNorm.findIndex(h => h.includes(kw));
     if (i !== -1) return i;
   }
   return -1;
@@ -56,9 +60,31 @@ async function fetchGradeTab(sheets, sheetId, grade) {
 
   if (!rows.length) return { tabFound: true, students: [] };
 
-  // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
-  const idx = COLUMN_MAP[grade]
+  // 6행(헤더)의 실제 글자를 읽어서 칸 위치를 자동으로 찾는다 (학년마다 구조가 달라도 안전).
+  const headerNorm = rows[0].map(h => normalize(h));
 
+  let idx = {
+    grade: findColByKeywords(headerNorm, ["학년"]),
+    classNum: findColByKeywords(headerNorm, ["반"]),
+    number: findColByKeywords(headerNorm, ["번호"]),
+    name: findColByKeywords(headerNorm, ["이름"]),
+    femaleIssue: findColByKeywords(headerNorm, ["여성질환"]),
+    headache: findColByKeywords(headerNorm, ["두통"]),
+    rhinitis: findColByKeywords(headerNorm, ["비염"]),
+    atopy: findColByKeywords(headerNorm, ["아토피"]),
+    asthma: findColByKeywords(headerNorm, ["천식"]),
+    allergy: findColByKeywords(headerNorm, ["알레르기", "알러지"]),
+    careNeeded: findColByKeywords(headerNorm, ["관리필요"]),
+    helpClass: findColByKeywords(headerNorm, ["도움반"]),
+    note: findColByKeywords(headerNorm, ["교내활동시확인", "교내활동"])
+  };
+
+  // 헤더 글자를 못 찾았으면(헤더 줄이 없거나 비정상) 위치 고정값으로 대신 사용
+  if (idx.name === -1) {
+    idx = { grade: 0, classNum: 1, number: 2, name: 3, femaleIssue: 4, headache: 5, rhinitis: 6, atopy: 7, asthma: 8, allergy: 9, careNeeded: 10, helpClass: 11, note: 12 };
+  }
+
+  // "학년" 칸 숫자가 이 탭의 학년과 정확히 일치하는 줄만 진짜 학생 데이터로 인정한다.
   const dataRows = rows.filter(r => String(r[idx.grade] || "").trim() === String(grade));
 
   const students = dataRows
@@ -68,12 +94,12 @@ async function fetchGradeTab(sheets, sheetId, grade) {
       function push(label, value, type) {
         if (value && String(value).trim()) conditions.push({ label, value: String(value).trim(), type });
       }
-      push("여성질환", r[idx.femaleIssue], "female");
-      push("두통", r[idx.headache], "headache");
-      push("비염", r[idx.rhinitis], "rhinitis");
-      push("아토피", r[idx.atopy], "atopy");
-      push("천식", r[idx.asthma], "asthma");
-      push("알레르기", r[idx.allergy], "allergy");
+      push("여성질환", idx.femaleIssue !== -1 ? r[idx.femaleIssue] : "", "female");
+      push("두통", idx.headache !== -1 ? r[idx.headache] : "", "headache");
+      push("비염", idx.rhinitis !== -1 ? r[idx.rhinitis] : "", "rhinitis");
+      push("아토피", idx.atopy !== -1 ? r[idx.atopy] : "", "atopy");
+      push("천식", idx.asthma !== -1 ? r[idx.asthma] : "", "asthma");
+      push("알레르기", idx.allergy !== -1 ? r[idx.allergy] : "", "allergy");
 
       return {
         grade: r[idx.grade] || grade,
@@ -81,8 +107,8 @@ async function fetchGradeTab(sheets, sheetId, grade) {
         number: r[idx.number] || "",
         name: r[idx.name] || "",
         conditions,
-        careNeeded: r[idx.careNeeded] || "",
-        helpClass: r[idx.helpClass] || "",
+        careNeeded: idx.careNeeded !== -1 ? (r[idx.careNeeded] || "") : "",
+        helpClass: idx.helpClass !== -1 ? (r[idx.helpClass] || "") : "",
         note: idx.note !== -1 ? (r[idx.note] || "") : ""
       };
     })
@@ -118,10 +144,27 @@ module.exports = async (req, res) => {
         range: `${tabName}!${ROW_RANGE}`
       });
       const rows = result.data.values || [];
+      const headerNorm = (rows[0] || []).map(h => normalize(h));
+      const detectedIdx = {
+        grade: findColByKeywords(headerNorm, ["학년"]),
+        classNum: findColByKeywords(headerNorm, ["반"]),
+        number: findColByKeywords(headerNorm, ["번호"]),
+        name: findColByKeywords(headerNorm, ["이름"]),
+        femaleIssue: findColByKeywords(headerNorm, ["여성질환"]),
+        headache: findColByKeywords(headerNorm, ["두통"]),
+        rhinitis: findColByKeywords(headerNorm, ["비염"]),
+        atopy: findColByKeywords(headerNorm, ["아토피"]),
+        asthma: findColByKeywords(headerNorm, ["천식"]),
+        allergy: findColByKeywords(headerNorm, ["알레르기", "알러지"]),
+        careNeeded: findColByKeywords(headerNorm, ["관리필요"]),
+        helpClass: findColByKeywords(headerNorm, ["도움반"]),
+        note: findColByKeywords(headerNorm, ["교내활동시확인", "교내활동"])
+      };
       return res.status(200).json({
         success: true,
         tabName,
         headerRow: rows[0] || [],
+        detectedIdx,
         sampleDataRows: rows.slice(1, 4)
       });
     }
