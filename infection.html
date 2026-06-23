@@ -61,6 +61,8 @@
   .site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-bottom:10px;}
   .site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
   .site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
+  .site-lock-back{display:block;margin-top:16px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
+  .site-lock-back:hover{color:#1f3c88;text-decoration:underline;}
   body.locked main, body.locked .sticky-header-wrapper{display:none;}
   .empty-chart{font-size:12.5px;color:var(--muted);padding:6px 0;}
   .case-table{font-size:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -182,13 +184,14 @@
     <div class="icon">🔒</div>
     <h2>교직원 본인 확인</h2>
     <p>비밀번호와 이름을 입력하면 감염병 발생 현황 · 보고 · 물품신청을<br>한 번에 모두 확인할 수 있어요.</p>
-    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="off" data-lpignore="true">
+    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
     <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
       <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
     </label>
     <button type="button" id="siteLockBtn">확인</button>
     <div class="site-lock-err" id="siteLockErr"></div>
+    <a href="index.html" class="site-lock-back">← 이전으로 (대표 화면)</a>
   </div>
 </div>
 
