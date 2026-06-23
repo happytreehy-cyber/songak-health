@@ -39,19 +39,19 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .intro-card{background:#eef3ff;border:none;}
 .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
 
-/* ---- 잠금화면: 제목바는 선명하게, 본문만 블러+오버레이 ---- */
+/* ---- 잠금화면: 제목바는 선명하게, 본문만 살짝 흐리게, 화면 위쪽에 바로 보이게 ---- */
 .content-area{position:relative;}
-.site-lock{position:absolute;inset:0;background:rgba(245,247,251,0.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
-.site-lock-box{background:#fff;border-radius:16px;padding:32px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.12);}
-.site-lock-box .icon{font-size:34px;margin-bottom:10px;}
-.site-lock-box h2{font-size:17px;margin:0 0 6px;color:#1c2333;}
-.site-lock-box p{font-size:13px;color:#6b7280;margin:0 0 18px;}
-.site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-bottom:10px;}
-.site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
+.site-lock{position:fixed;top:88px;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:20px;pointer-events:none;}
+.site-lock-box{background:#fff;border-radius:16px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.18);pointer-events:auto;}
+.site-lock-box .icon{font-size:30px;margin-bottom:8px;}
+.site-lock-box h2{font-size:16px;margin:0 0 6px;color:#1c2333;}
+.site-lock-box p{font-size:12.5px;color:#6b7280;margin:0 0 16px;}
+.site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:10px 12px;font-size:14px;text-align:center;margin-bottom:9px;}
+.site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
 .site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
-.site-lock-back{display:block;margin-top:16px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
+.site-lock-back{display:block;margin-top:14px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
 .site-lock-back:hover{color:#1f3c88;text-decoration:underline;}
-body.locked main{filter:blur(6px);pointer-events:none;user-select:none;}
+body.locked .blur-wrap{filter:blur(3px) brightness(0.97);pointer-events:none;user-select:none;}
 
 /* ---- 학년 탭 ---- */
 .grade-tabs{display:flex;gap:10px;margin-bottom:16px;}
@@ -133,6 +133,10 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 .add-form-card select,.add-form-card input,.add-form-card textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13.5px;font-family:inherit;box-sizing:border-box;}
 .add-form-card textarea{min-height:64px;margin-bottom:16px;resize:vertical;}
 .add-form-card select:disabled,.add-form-card input:disabled{background:#f1f5f9;color:var(--muted);}
+.name-suggest-box{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:8px;margin-top:2px;max-height:180px;overflow-y:auto;z-index:30;box-shadow:0 6px 16px rgba(0,0,0,.1);display:none;}
+.name-suggest-box.show{display:block;}
+.name-suggest-item{padding:9px 12px;font-size:13.5px;cursor:pointer;}
+.name-suggest-item:hover{background:#eff6ff;}
 .symptom-chip-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
 .symptom-chip{font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer;border:1.5px solid transparent;opacity:.55;transition:opacity .12s, transform .12s;}
 .symptom-chip.selected{opacity:1;box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;transform:scale(1.04);}
@@ -179,6 +183,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 
   <div class="section-divider-title status">👩‍🎓 학년별 요보호 학생 현황</div>
 
+  <div class="blur-wrap">
   <div class="grade-tabs">
     <div class="grade-tab active" data-grade="1">👉 1학년</div>
     <div class="grade-tab" data-grade="2">👉 2학년</div>
@@ -205,19 +210,20 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       <div class="filter-group">
         <span class="filter-label">&nbsp;</span>
         <div class="list-toggle-btn-box" id="listToggleBtn">
-          <span id="listToggleLabel">1학년 명단 접기</span> <span id="listToggleArrow">▼</span>
+          <span id="listToggleLabel">1학년 명단 펼치기</span> <span id="listToggleArrow">▼</span>
         </div>
       </div>
     </div>
 
-    <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+    <div class="table-scroll" id="studentList" style="display:none;"><div class="loading-msg">불러오는 중...</div></div>
+  </div>
   </div>
 
   <div class="section-divider-title add-section" style="margin-top:22px;">
     ➕ 요보호 학생 추가하기 (담임 선생님 작성)
   </div>
 
-
+  <div class="blur-wrap">
   <div class="add-form-card" id="addFormCard">
     <div class="add-step-title">1. 인적사항</div>
     <div class="add-grid">
@@ -245,10 +251,10 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
           <option value="10">10반</option>
         </select>
       </div>
-      <div>
+      <div style="position:relative;">
         <div class="add-field-label">이름 (입력하면 검색돼요)</div>
-        <input type="text" id="addName" list="addNameList" placeholder="반을 먼저 입력하세요" autocomplete="off">
-        <datalist id="addNameList"></datalist>
+        <input type="text" id="addName" placeholder="반을 먼저 입력하세요" autocomplete="off">
+        <div id="addNameSuggest" class="name-suggest-box"></div>
       </div>
       <div>
         <div class="add-field-label">번호 (자동 입력)</div>
@@ -287,6 +293,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       <button id="addAnotherBtn" type="button">학생 한 명 더 추가하기</button>
       <button id="backToListBtn" type="button" class="back-to-list-btn">← 학생 명단으로 돌아가기</button>
     </div>
+  </div>
   </div>
 </main>
 
@@ -379,14 +386,14 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 /* ---------- 학생 요보호 데이터 ---------- */
 let ALL_DATA = {};      // { "1": [...], "2": [...], "3": [...] }
 let currentGrade = "1";
-let listCollapsed = false;
+let listCollapsed = true;
 
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function loadGrade(grade){
   currentGrade = grade;
   document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
-  listCollapsed = false;
+  listCollapsed = true;
   const addGradeSel = document.getElementById('addGrade');
   if (addGradeSel) { addGradeSel.value = grade; addGradeSel.dispatchEvent(new Event('change')); }
 
@@ -418,8 +425,9 @@ function renderGrade(grade){
   buildClassFilter(students);
   renderStats(students);
   renderList(students);
-  document.getElementById('listToggleLabel').textContent = grade + '학년 명단 접기 (' + students.length + '명)';
-  document.getElementById('studentList').style.display = '';
+  const label = listCollapsed ? (grade + '학년 명단 펼치기') : (grade + '학년 명단 접기 (' + students.length + '명)');
+  document.getElementById('listToggleLabel').textContent = label;
+  document.getElementById('studentList').style.display = listCollapsed ? 'none' : '';
   document.getElementById('listToggleArrow').textContent = '▼';
 }
 
@@ -568,12 +576,13 @@ function applyListToggleState(wrapper, arrow){
   const addGrade = document.getElementById('addGrade');
   const addClass = document.getElementById('addClass');
   const addName = document.getElementById('addName');
-  const addNameList = document.getElementById('addNameList');
+  const addNameSuggest = document.getElementById('addNameSuggest');
   const addNumber = document.getElementById('addNumber');
   const etcInput = document.getElementById('etcInput');
   const addErr = document.getElementById('addErr');
   const submitBtn = document.getElementById('addSubmitBtn');
   let nameToNumberMap = {};
+  let studentNameList = [];
 
   function updateHeadacheChipVisibility(){
     const chip = document.querySelector('.symptom-chip[data-sym="headache"]');
@@ -592,11 +601,13 @@ function applyListToggleState(wrapper, arrow){
     const grade = addGrade.value;
     const classNum = addClass.value.trim();
     nameToNumberMap = {};
+    studentNameList = [];
     addName.value = '';
     addNumber.value = '';
-    addNameList.innerHTML = '';
+    addNameSuggest.classList.remove('show');
+    addNameSuggest.innerHTML = '';
     if (!classNum) {
-      addName.placeholder = '반을 먼저 입력하세요';
+      addName.placeholder = '반을 먼저 선택하세요';
       return;
     }
     addName.placeholder = '불러오는 중...';
@@ -608,8 +619,8 @@ function applyListToggleState(wrapper, arrow){
         return;
       }
       data.students.forEach(s => { nameToNumberMap[s.name] = s.number; });
-      addNameList.innerHTML = data.students.map(s => `<option value="${escHtml(s.name)}">${escHtml(s.name)} (${escHtml(s.number)}번)</option>`).join('');
-      addName.placeholder = '이름을 입력하거나 선택하세요';
+      studentNameList = data.students;
+      addName.placeholder = '이름을 입력해보세요 (예: 김)';
     } catch(e) {
       addName.placeholder = '학생 목록을 불러오지 못했어요';
     }
@@ -617,16 +628,44 @@ function applyListToggleState(wrapper, arrow){
 
   addGrade.addEventListener('change', loadStudentNames);
   addClass.addEventListener('change', loadStudentNames);
-  function syncNumberFromName(){
+
+  function renderNameSuggestions(){
     const typed = addName.value.trim();
-    if (nameToNumberMap[typed] !== undefined) {
-      addNumber.value = nameToNumberMap[typed];
-    } else {
-      addNumber.value = '';
+    if (!typed || !studentNameList.length) {
+      addNameSuggest.classList.remove('show');
+      addNameSuggest.innerHTML = '';
+      return;
     }
+    const matched = studentNameList.filter(s => s.name.includes(typed));
+    if (!matched.length) {
+      addNameSuggest.classList.remove('show');
+      addNameSuggest.innerHTML = '';
+      return;
+    }
+    addNameSuggest.innerHTML = matched.map(s =>
+      `<div class="name-suggest-item" data-name="${escHtml(s.name)}" data-number="${escHtml(s.number)}">${escHtml(s.name)} (${escHtml(s.number)}번)</div>`
+    ).join('');
+    addNameSuggest.classList.add('show');
   }
-  addName.addEventListener('input', syncNumberFromName);
-  addName.addEventListener('change', syncNumberFromName);
+
+  addName.addEventListener('input', function(){
+    addNumber.value = nameToNumberMap[addName.value.trim()] !== undefined ? nameToNumberMap[addName.value.trim()] : '';
+    renderNameSuggestions();
+  });
+  addName.addEventListener('focus', renderNameSuggestions);
+  addNameSuggest.addEventListener('click', function(e){
+    const item = e.target.closest('.name-suggest-item');
+    if (!item) return;
+    addName.value = item.dataset.name;
+    addNumber.value = item.dataset.number;
+    addNameSuggest.classList.remove('show');
+    addNameSuggest.innerHTML = '';
+  });
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('#addName') && !e.target.closest('#addNameSuggest')) {
+      addNameSuggest.classList.remove('show');
+    }
+  });
 
   document.querySelectorAll('.symptom-chip').forEach(chip => {
     chip.addEventListener('click', function(){
@@ -686,8 +725,9 @@ function applyListToggleState(wrapper, arrow){
     document.getElementById('addFormCard').style.display = '';
     addClass.value = '';
     addName.value = '';
-    addNameList.innerHTML = '';
-    addName.placeholder = '반을 먼저 입력하세요';
+    addNameSuggest.innerHTML = '';
+    addNameSuggest.classList.remove('show');
+    addName.placeholder = '반을 먼저 선택하세요';
     addNumber.value = '';
     document.querySelectorAll('.symptom-chip.selected').forEach(c => c.classList.remove('selected'));
     etcInput.style.display = 'none';
