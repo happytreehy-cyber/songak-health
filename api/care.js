@@ -130,8 +130,106 @@ async function fetchGradeTab(sheets, sheetId, grade) {
   return { tabFound: true, students };
 }
 
+const STUDENT_TAB_NAME = "학생명단";
+
+function getSheetsClientRW() {
+  return google.sheets({
+    version: "v4",
+    auth: new google.auth.JWT(
+      process.env.GOOGLE_CLIENT_EMAIL,
+      null,
+      (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
+      ["https://www.googleapis.com/auth/spreadsheets"]
+    )
+  });
+}
+
+async function handleGetStudents(req, res) {
+  const { grade, classNum } = req.query;
+  if (!grade || !classNum) {
+    return res.status(400).json({ success: false, message: "학년과 반을 선택해주세요." });
+  }
+  const gradeNum = String(grade).replace(/[^0-9]/g, "");
+  const classNumNum = String(classNum).replace(/[^0-9]/g, "");
+
+  const sheets = getSheetsClient();
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  let rows = [];
+  try {
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STUDENT_TAB_NAME}!C2:F` });
+    rows = result.data.values || [];
+  } catch (e) {
+    return res.status(200).json({ success: true, students: [], message: "학생명단 탭을 찾을 수 없습니다." });
+  }
+  const students = rows
+    .filter(r => String(r[0] || "").replace(/[^0-9]/g, "") === gradeNum && String(r[1] || "").replace(/[^0-9]/g, "") === classNumNum)
+    .filter(r => r[3])
+    .map(r => ({ number: r[2], name: r[3] }))
+    .sort((a, b) => Number(a.number) - Number(b.number));
+  res.status(200).json({ success: true, students });
+}
+
+async function handleAddStudent(req, res) {
+  const { grade, classNum, number, name, symptoms, etcText, note } = req.body || {};
+  if (!grade || !classNum || !number || !name) {
+    return res.status(400).json({ success: false, message: "학년·반·번호·이름을 모두 입력해주세요." });
+  }
+  if (!TAB_BY_GRADE[grade]) {
+    return res.status(400).json({ success: false, message: "올바르지 않은 학년입니다." });
+  }
+
+  const idx = COLUMN_MAP[grade];
+  const tabName = TAB_BY_GRADE[grade];
+
+  const maxIdx = Math.max(...Object.values(idx).filter(v => typeof v === "number" && v >= 0));
+  const row = new Array(maxIdx + 1).fill("");
+  row[idx.grade] = String(grade);
+  row[idx.classNum] = String(classNum);
+  row[idx.number] = String(number);
+  row[idx.name] = String(name);
+
+  const sym = symptoms || {};
+  if (sym.female && idx.femaleIssue !== -1) row[idx.femaleIssue] = "여성질환";
+  if (sym.headache && idx.headache !== -1) row[idx.headache] = "두통";
+  if (sym.rhinitis && idx.rhinitis !== -1) row[idx.rhinitis] = "비염";
+  if (sym.atopy && idx.atopy !== -1) row[idx.atopy] = "아토피";
+  if (sym.asthma && idx.asthma !== -1) row[idx.asthma] = "천식";
+  if (sym.allergy && idx.allergy !== -1) row[idx.allergy] = "알레르기";
+
+  let noteText = String(note || "").trim();
+  if (sym.etc && etcText && String(etcText).trim()) {
+    noteText = `[기타: ${String(etcText).trim()}] ${noteText}`.trim();
+  }
+  if (idx.note !== -1) row[idx.note] = noteText;
+
+  const sheets = getSheetsClientRW();
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: `${tabName}!A:A`,
+      valueInputOption: "RAW",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: { values: [row] }
+    });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: "시트에 저장하는 중 오류가 발생했습니다: " + (e.message || e.toString()) });
+  }
+
+  res.status(200).json({ success: true, message: "요보호 학생이 추가되었습니다." });
+}
+
 module.exports = async (req, res) => {
   try {
+    if (req.method === "GET" && req.query.action === "students") {
+      return await handleGetStudents(req, res);
+    }
+
+    if (req.method === "POST") {
+      return await handleAddStudent(req, res);
+    }
+
     if (req.method !== "GET") {
       return res.status(405).json({ success: false, message: "허용되지 않은 요청입니다." });
     }
