@@ -112,6 +112,33 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 
 .empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
 .loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
+
+/* ---- 학생명단 접기/펼치기 바 ---- */
+.list-toggle-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 16px;margin-bottom:12px;cursor:pointer;}
+.list-toggle-title{font-weight:700;font-size:14px;color:var(--text);}
+.list-toggle-btn{font-size:13px;color:var(--muted);font-weight:600;}
+.list-toggle-btn i{font-style:normal;font-size:12px;}
+
+/* ---- 요보호 학생 추가하기 폼 ---- */
+.add-form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.add-step-title{font-weight:800;font-size:15.5px;color:var(--text);margin-bottom:10px;}
+.add-grid{display:grid;grid-template-columns:0.8fr 0.8fr 1.6fr 1fr;gap:10px;margin-bottom:18px;}
+.add-field-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.add-field-hint{font-size:12.5px;color:var(--muted);margin-bottom:6px;}
+.add-form-card select,.add-form-card input,.add-form-card textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13.5px;font-family:inherit;box-sizing:border-box;}
+.add-form-card textarea{min-height:64px;margin-bottom:16px;resize:vertical;}
+.add-form-card select:disabled,.add-form-card input:disabled{background:#f1f5f9;color:var(--muted);}
+.symptom-chip-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px;}
+.symptom-chip{font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer;border:1.5px solid transparent;opacity:.55;transition:opacity .12s, transform .12s;}
+.symptom-chip.selected{opacity:1;box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;transform:scale(1.04);}
+#addSubmitBtn{width:100%;background:#4338ca;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;}
+#addSubmitBtn:disabled{background:#94a3b8;cursor:not-allowed;}
+.add-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
+
+.add-success-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+.add-success-title{font-weight:800;font-size:15px;color:#166534;margin-bottom:6px;}
+.add-success-text{font-size:13.5px;color:#166534;line-height:1.7;margin-bottom:12px;}
+#addAnotherBtn{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body class="locked">
@@ -121,7 +148,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     <div class="icon">🔒</div>
     <h2>교직원 본인 확인</h2>
     <p>비밀번호를 입력하면 학생 요보호 관리 화면을<br>확인할 수 있어요.</p>
-    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호 (119+휴대폰 뒷자리)" autocomplete="off" data-lpignore="true">
+    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
     <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
       <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
@@ -171,25 +198,91 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 
   <div class="legend-box">🟠 <b>이름이 갈색(주황색)으로 표시된 학생</b> = "관리필요" 사유가 있는 학생입니다.</div>
 
-  <div class="search-row">
-    <div class="filter-group">
-      <span class="filter-label">학급 검색</span>
-      <select id="classFilter"><option value="">전체 학급</option></select>
-    </div>
-    <div class="filter-group" style="flex:1;">
-      <span class="filter-label">이름·번호 검색</span>
-      <input type="text" id="searchInput" placeholder="🔍 이름 또는 번호 입력">
-    </div>
+  <div class="list-toggle-bar" id="listToggleBar">
+    <span class="list-toggle-title">📋 <span id="listToggleLabel">1학년 학생 명단</span></span>
+    <span class="list-toggle-btn" id="listToggleBtn">접기 <i>▲</i></span>
   </div>
 
-  <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+  <div id="studentListWrapper">
+    <div class="search-row">
+      <div class="filter-group">
+        <span class="filter-label">학급 검색</span>
+        <select id="classFilter"><option value="">전체 학급</option></select>
+      </div>
+      <div class="filter-group" style="flex:1;">
+        <span class="filter-label">이름·번호 검색</span>
+        <input type="text" id="searchInput" placeholder="🔍 이름 또는 번호 입력">
+      </div>
+    </div>
+
+    <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+  </div>
+
+  <div class="section-divider-title status" style="margin-top:22px;">
+    <i>➕</i> 요보호 학생 추가하기 (담임 선생님 작성)
+  </div>
+
+  <div class="add-form-card" id="addFormCard">
+    <div class="add-step-title">1. 인적사항</div>
+    <div class="add-grid">
+      <div>
+        <div class="add-field-label">학년</div>
+        <select id="addGrade">
+          <option value="1">1학년</option>
+          <option value="2">2학년</option>
+          <option value="3">3학년</option>
+        </select>
+      </div>
+      <div>
+        <div class="add-field-label">반</div>
+        <input type="number" id="addClass" placeholder="예: 3">
+      </div>
+      <div style="grid-column:span 2;">
+        <div class="add-field-label">이름 (목록에서 선택)</div>
+        <select id="addName"><option value="">반을 먼저 선택하세요 ▾</option></select>
+      </div>
+      <div>
+        <div class="add-field-label">번호 (자동 입력)</div>
+        <input type="text" id="addNumber" placeholder="자동 입력" disabled>
+      </div>
+    </div>
+
+    <div class="add-step-title">2. 해당 증상 선택</div>
+    <div class="symptom-chip-row" id="symptomChipRow">
+      <span class="symptom-chip" data-sym="female" style="background:#f3e8ff;color:#6b21a8;">여성질환</span>
+      <span class="symptom-chip" data-sym="headache" style="background:#dbeafe;color:#1d4ed8;">두통</span>
+      <span class="symptom-chip" data-sym="rhinitis" style="background:#dcfce7;color:#166534;">비염</span>
+      <span class="symptom-chip" data-sym="atopy" style="background:#bbf7d0;color:#166534;">아토피</span>
+      <span class="symptom-chip" data-sym="asthma" style="background:#86efac;color:#166534;">천식</span>
+      <span class="symptom-chip" data-sym="allergy" style="background:#fecaca;color:#991b1b;">알레르기</span>
+      <span class="symptom-chip" data-sym="etc" style="background:#fef08a;color:#854d0e;border:1.5px solid #eab308;">기타(직접입력)</span>
+    </div>
+    <input type="text" id="etcInput" placeholder="기타 선택시 → 어떤 증상인지 직접 적어주세요" style="display:none;margin-top:8px;">
+
+    <div class="add-step-title" style="margin-top:18px;">3. 교내활동시 확인</div>
+    <div class="add-field-hint">교내활동시 어떤 부분 주의가 필요한지 기재해주세요.</div>
+    <textarea id="addNote" placeholder="예: 체육활동 - 천식 있어 격한 활동 자제 필요"></textarea>
+
+    <button id="addSubmitBtn" type="button">제출하기</button>
+    <div class="add-err" id="addErr"></div>
+  </div>
+
+  <div class="add-success-box" id="addSuccessBox" style="display:none;">
+    <div class="add-success-title">✅ 제출 완료!</div>
+    <div class="add-success-text">
+      확인 후 요보호 시트에 입력하겠습니다.<br>
+      바쁘신 중에도 시간 내어 작성해주셔서 진심으로 감사합니다.<br>
+      선생님의 관심 덕분에 학생이 더 건강하게 지낼 수 있어요. 🙏
+    </div>
+    <button id="addAnotherBtn" type="button">학생 한 명 더 추가하기</button>
+  </div>
 </main>
 
 <script>
 /* ---------- 잠금화면 ---------- */
 (function(){
   const UNLOCK_KEY = "songakStaffUnlocked";
-  const UNLOCK_HOURS = 12;
+  const UNLOCK_HOURS = 6;
 
   function isUnlocked(){
     const raw = localStorage.getItem(UNLOCK_KEY);
@@ -263,6 +356,9 @@ function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&l
 async function loadGrade(grade){
   currentGrade = grade;
   document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
+  document.getElementById('listToggleLabel').textContent = grade + '학년 학생 명단';
+  const addGradeSel = document.getElementById('addGrade');
+  if (addGradeSel) { addGradeSel.value = grade; addGradeSel.dispatchEvent(new Event('change')); }
 
   if (ALL_DATA[grade]) { renderGrade(grade); return; }
 
@@ -292,6 +388,7 @@ function renderGrade(grade){
   buildClassFilter(students);
   renderStats(students);
   renderList(students);
+  document.getElementById('listToggleLabel').textContent = grade + '학년 학생 명단 (' + students.length + '명)';
 }
 
 function renderStats(students){
@@ -410,6 +507,138 @@ document.getElementById('searchInput').addEventListener('input', () => renderLis
 document.getElementById('classFilter').addEventListener('change', () => renderList(ALL_DATA[currentGrade] || []));
 
 loadGrade('1');
+
+/* ---------- 학생명단 접기/펼치기 ---------- */
+(function(){
+  const bar = document.getElementById('listToggleBar');
+  const wrapper = document.getElementById('studentListWrapper');
+  const btn = document.getElementById('listToggleBtn');
+  let collapsed = false;
+  bar.addEventListener('click', function(){
+    collapsed = !collapsed;
+    wrapper.style.display = collapsed ? 'none' : '';
+    btn.innerHTML = collapsed ? '펼치기 <i>▼</i>' : '접기 <i>▲</i>';
+  });
+})();
+
+/* ---------- 요보호 학생 추가하기 ---------- */
+(function(){
+  const addGrade = document.getElementById('addGrade');
+  const addClass = document.getElementById('addClass');
+  const addName = document.getElementById('addName');
+  const addNumber = document.getElementById('addNumber');
+  const etcInput = document.getElementById('etcInput');
+  const addErr = document.getElementById('addErr');
+  const submitBtn = document.getElementById('addSubmitBtn');
+
+  function updateHeadacheChipVisibility(){
+    const chip = document.querySelector('.symptom-chip[data-sym="headache"]');
+    if (!chip) return;
+    if (addGrade.value === '3') {
+      chip.style.display = 'none';
+      chip.classList.remove('selected');
+    } else {
+      chip.style.display = '';
+    }
+  }
+  addGrade.addEventListener('change', updateHeadacheChipVisibility);
+  updateHeadacheChipVisibility();
+
+  async function loadStudentNames(){
+    const grade = addGrade.value;
+    const classNum = addClass.value.trim();
+    addName.innerHTML = '<option value="">불러오는 중...</option>';
+    addNumber.value = '';
+    if (!classNum) {
+      addName.innerHTML = '<option value="">반을 먼저 입력하세요 ▾</option>';
+      return;
+    }
+    try {
+      const res = await fetch('/api/care?action=students&grade=' + encodeURIComponent(grade) + '&classNum=' + encodeURIComponent(classNum));
+      const data = await res.json();
+      if (!data.success || !data.students || !data.students.length) {
+        addName.innerHTML = '<option value="">해당 반 학생을 찾지 못했어요 ▾</option>';
+        return;
+      }
+      addName.innerHTML = '<option value="">학생 이름을 선택하세요 ▾</option>' +
+        data.students.map(s => `<option value="${escHtml(s.name)}" data-number="${escHtml(s.number)}">${escHtml(s.name)} (${escHtml(s.number)}번)</option>`).join('');
+    } catch(e) {
+      addName.innerHTML = '<option value="">학생 목록을 불러오지 못했어요 ▾</option>';
+    }
+  }
+
+  addGrade.addEventListener('change', loadStudentNames);
+  addClass.addEventListener('change', loadStudentNames);
+  addName.addEventListener('change', function(){
+    const opt = addName.options[addName.selectedIndex];
+    addNumber.value = opt && opt.dataset.number ? opt.dataset.number : '';
+  });
+
+  document.querySelectorAll('.symptom-chip').forEach(chip => {
+    chip.addEventListener('click', function(){
+      chip.classList.toggle('selected');
+      if (chip.dataset.sym === 'etc') {
+        etcInput.style.display = chip.classList.contains('selected') ? '' : 'none';
+        if (!chip.classList.contains('selected')) etcInput.value = '';
+      }
+    });
+  });
+
+  submitBtn.addEventListener('click', async function(){
+    addErr.textContent = '';
+    const grade = addGrade.value;
+    const classNum = addClass.value.trim();
+    const name = addName.value;
+    const number = addNumber.value;
+
+    if (!classNum || !name || !number) {
+      addErr.textContent = '반·이름을 선택해주세요. (이름을 선택하면 번호가 자동으로 채워져요)';
+      return;
+    }
+
+    const symptoms = {};
+    document.querySelectorAll('.symptom-chip.selected').forEach(c => { symptoms[c.dataset.sym] = true; });
+    const etcText = etcInput.value.trim();
+    const note = document.getElementById('addNote').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '제출 중...';
+
+    try {
+      const res = await fetch('/api/care', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grade, classNum, number, name, symptoms, etcText, note })
+      });
+      const data = await res.json();
+      submitBtn.disabled = false;
+      submitBtn.textContent = '제출하기';
+      if (!data.success) {
+        addErr.textContent = data.message || '제출에 실패했습니다.';
+        return;
+      }
+      document.getElementById('addFormCard').style.display = 'none';
+      document.getElementById('addSuccessBox').style.display = '';
+      delete ALL_DATA[grade];
+    } catch(e) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '제출하기';
+      addErr.textContent = '제출 중 오류가 발생했습니다.';
+    }
+  });
+
+  document.getElementById('addAnotherBtn').addEventListener('click', function(){
+    document.getElementById('addSuccessBox').style.display = 'none';
+    document.getElementById('addFormCard').style.display = '';
+    addClass.value = '';
+    addName.innerHTML = '<option value="">반을 먼저 입력하세요 ▾</option>';
+    addNumber.value = '';
+    document.querySelectorAll('.symptom-chip.selected').forEach(c => c.classList.remove('selected'));
+    etcInput.style.display = 'none';
+    etcInput.value = '';
+    document.getElementById('addNote').value = '';
+  });
+})();
 </script>
 </body>
 </html>
