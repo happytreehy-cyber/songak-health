@@ -48,6 +48,8 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .site-lock-box input{width:100%;border:1px solid #e3e7f0;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-bottom:10px;}
 .site-lock-box button{width:100%;background:#1f3c88;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}
 .site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
+.site-lock-back{display:block;margin-top:16px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
+.site-lock-back:hover{color:#1f3c88;text-decoration:underline;}
 body.locked main,body.locked .sticky-header-wrapper{display:none;}
 
 /* ---- 학년 탭 ---- */
@@ -113,11 +115,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 .empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
 .loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
 
-/* ---- 학생명단 접기/펼치기 바 ---- */
-.list-toggle-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 16px;margin-bottom:12px;cursor:pointer;}
-.list-toggle-title{font-weight:700;font-size:14px;color:var(--text);}
-.list-toggle-btn{font-size:13px;color:var(--muted);font-weight:600;}
-.list-toggle-btn i{font-style:normal;font-size:12px;}
+/* ---- 학생명단 접기/펼치기 (검색줄 우측 박스형) ---- */
+.list-toggle-btn-box{border:2px solid #ef4444;background:#fef2f2;border-radius:10px;padding:9px 14px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#b91c1c;white-space:nowrap;user-select:none;}
+.list-toggle-btn-box:hover{background:#fee2e2;}
+
+/* ---- 요보호 학생 추가하기 제목바 (마젠타색으로 구분) ---- */
+.section-divider-title.add-section{color:#86198f;background:#fdf4ff;border-left:4px solid #c026d3;}
 
 /* ---- 요보호 학생 추가하기 폼 ---- */
 .add-form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
@@ -139,6 +142,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 .add-success-title{font-weight:800;font-size:15px;color:#166534;margin-bottom:6px;}
 .add-success-text{font-size:13.5px;color:#166534;line-height:1.7;margin-bottom:12px;}
 #addAnotherBtn{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
+.back-to-list-btn{background:#fff;color:#166534;border:1px solid #bbf7d0;border-radius:8px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body class="locked">
@@ -155,6 +159,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     </label>
     <button type="button" id="siteLockBtn">확인</button>
     <div class="site-lock-err" id="siteLockErr"></div>
+    <a href="index.html" class="site-lock-back">← 이전으로 (대표 화면)</a>
   </div>
 </div>
 
@@ -198,11 +203,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 
   <div class="legend-box">🟠 <b>이름이 갈색(주황색)으로 표시된 학생</b> = "관리필요" 사유가 있는 학생입니다.</div>
 
-  <div class="list-toggle-bar" id="listToggleBar">
-    <span class="list-toggle-title">📋 <span id="listToggleLabel">1학년 학생 명단</span></span>
-    <span class="list-toggle-btn" id="listToggleBtn">접기 <i>▲</i></span>
-  </div>
-
   <div id="studentListWrapper">
     <div class="search-row">
       <div class="filter-group">
@@ -213,13 +213,19 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
         <span class="filter-label">이름·번호 검색</span>
         <input type="text" id="searchInput" placeholder="🔍 이름 또는 번호 입력">
       </div>
+      <div class="filter-group">
+        <span class="filter-label">&nbsp;</span>
+        <div class="list-toggle-btn-box" id="listToggleBtn">
+          <span id="listToggleLabel">1학년 명단 접기</span> <span id="listToggleArrow">▲</span>
+        </div>
+      </div>
     </div>
 
     <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
   </div>
 
-  <div class="section-divider-title status" style="margin-top:22px;">
-    <i>➕</i> 요보호 학생 추가하기 (담임 선생님 작성)
+  <div class="section-divider-title add-section" style="margin-top:22px;">
+    ➕ 요보호 학생 추가하기 (담임 선생님 작성)
   </div>
 
   <div class="add-form-card" id="addFormCard">
@@ -237,7 +243,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
         <div class="add-field-label">반</div>
         <input type="number" id="addClass" placeholder="예: 3">
       </div>
-      <div style="grid-column:span 2;">
+      <div>
         <div class="add-field-label">이름 (목록에서 선택)</div>
         <select id="addName"><option value="">반을 먼저 선택하세요 ▾</option></select>
       </div>
@@ -274,7 +280,10 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       바쁘신 중에도 시간 내어 작성해주셔서 진심으로 감사합니다.<br>
       선생님의 관심 덕분에 학생이 더 건강하게 지낼 수 있어요. 🙏
     </div>
-    <button id="addAnotherBtn" type="button">학생 한 명 더 추가하기</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="addAnotherBtn" type="button">학생 한 명 더 추가하기</button>
+      <button id="backToListBtn" type="button" class="back-to-list-btn">← 학생 명단으로 돌아가기</button>
+    </div>
   </div>
 </main>
 
@@ -350,13 +359,14 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 /* ---------- 학생 요보호 데이터 ---------- */
 let ALL_DATA = {};      // { "1": [...], "2": [...], "3": [...] }
 let currentGrade = "1";
+let listCollapsed = false;
 
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function loadGrade(grade){
   currentGrade = grade;
   document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
-  document.getElementById('listToggleLabel').textContent = grade + '학년 학생 명단';
+  listCollapsed = false;
   const addGradeSel = document.getElementById('addGrade');
   if (addGradeSel) { addGradeSel.value = grade; addGradeSel.dispatchEvent(new Event('change')); }
 
@@ -388,7 +398,9 @@ function renderGrade(grade){
   buildClassFilter(students);
   renderStats(students);
   renderList(students);
-  document.getElementById('listToggleLabel').textContent = grade + '학년 학생 명단 (' + students.length + '명)';
+  document.getElementById('listToggleLabel').textContent = grade + '학년 명단 접기 (' + students.length + '명)';
+  document.getElementById('studentList').style.display = '';
+  document.getElementById('listToggleArrow').textContent = '▲';
 }
 
 function renderStats(students){
@@ -508,18 +520,30 @@ document.getElementById('classFilter').addEventListener('change', () => renderLi
 
 loadGrade('1');
 
-/* ---------- 학생명단 접기/펼치기 ---------- */
+/* ---------- 학생명단 접기/펼치기 (기본값: 펼침) ---------- */
 (function(){
-  const bar = document.getElementById('listToggleBar');
   const wrapper = document.getElementById('studentListWrapper');
   const btn = document.getElementById('listToggleBtn');
-  let collapsed = false;
-  bar.addEventListener('click', function(){
-    collapsed = !collapsed;
-    wrapper.style.display = collapsed ? 'none' : '';
-    btn.innerHTML = collapsed ? '펼치기 <i>▼</i>' : '접기 <i>▲</i>';
+  const arrow = document.getElementById('listToggleArrow');
+  btn.addEventListener('click', function(){
+    listCollapsed = !listCollapsed;
+    applyListToggleState(wrapper, arrow);
   });
 })();
+
+function applyListToggleState(wrapper, arrow){
+  const tableScroll = document.getElementById('studentList');
+  const searchOnlyRow = wrapper.querySelector('.search-row');
+  if (listCollapsed) {
+    tableScroll.style.display = 'none';
+    arrow.textContent = '▼';
+    document.getElementById('listToggleLabel').textContent = currentGrade + '학년 명단 펼치기';
+  } else {
+    tableScroll.style.display = '';
+    arrow.textContent = '▲';
+    document.getElementById('listToggleLabel').textContent = currentGrade + '학년 명단 접기';
+  }
+}
 
 /* ---------- 요보호 학생 추가하기 ---------- */
 (function(){
@@ -637,6 +661,13 @@ loadGrade('1');
     etcInput.style.display = 'none';
     etcInput.value = '';
     document.getElementById('addNote').value = '';
+  });
+
+  document.getElementById('backToListBtn').addEventListener('click', function(){
+    document.getElementById('addSuccessBox').style.display = 'none';
+    document.getElementById('addFormCard').style.display = '';
+    loadGrade(currentGrade);
+    document.getElementById('studentListWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 })();
 </script>
