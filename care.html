@@ -39,9 +39,10 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .intro-card{background:#eef3ff;border:none;}
 .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
 
-/* ---- 잠금화면 (1·2번 메뉴와 동일) ---- */
-.site-lock{position:fixed;inset:0;background:#1f3c88;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.site-lock-box{background:#fff;border-radius:16px;padding:32px 26px;max-width:340px;width:100%;text-align:center;}
+/* ---- 잠금화면: 제목바는 선명하게, 본문만 블러+오버레이 ---- */
+.content-area{position:relative;}
+.site-lock{position:absolute;inset:0;background:rgba(245,247,251,0.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+.site-lock-box{background:#fff;border-radius:16px;padding:32px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.12);}
 .site-lock-box .icon{font-size:34px;margin-bottom:10px;}
 .site-lock-box h2{font-size:17px;margin:0 0 6px;color:#1c2333;}
 .site-lock-box p{font-size:13px;color:#6b7280;margin:0 0 18px;}
@@ -50,7 +51,7 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .site-lock-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
 .site-lock-back{display:block;margin-top:16px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
 .site-lock-back:hover{color:#1f3c88;text-decoration:underline;}
-body.locked main,body.locked .sticky-header-wrapper{display:none;}
+body.locked main{filter:blur(6px);pointer-events:none;user-select:none;}
 
 /* ---- 학년 탭 ---- */
 .grade-tabs{display:flex;gap:10px;margin-bottom:16px;}
@@ -118,6 +119,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 /* ---- 학생명단 접기/펼치기 (검색줄 우측 박스형) ---- */
 .list-toggle-btn-box{border:2px solid #ef4444;background:#fef2f2;border-radius:10px;padding:9px 14px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#b91c1c;white-space:nowrap;user-select:none;}
 .list-toggle-btn-box:hover{background:#fee2e2;}
+.legend-box-inline{border:2px solid #b45309;background:#fff;border-radius:10px;padding:9px 14px;text-align:center;font-size:12.5px;font-weight:700;color:#b45309;white-space:nowrap;}
 
 /* ---- 요보호 학생 추가하기 제목바 (마젠타색으로 구분) ---- */
 .section-divider-title.add-section{color:#86198f;background:#fdf4ff;border-left:4px solid #c026d3;}
@@ -147,22 +149,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 </head>
 <body class="locked">
 
-<div class="site-lock" id="siteLock">
-  <div class="site-lock-box">
-    <div class="icon">🔒</div>
-    <h2>교직원 본인 확인</h2>
-    <p>비밀번호를 입력하면 학생 요보호 관리 화면을<br>확인할 수 있어요.</p>
-    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
-    <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
-      <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
-    </label>
-    <button type="button" id="siteLockBtn">확인</button>
-    <div class="site-lock-err" id="siteLockErr"></div>
-    <a href="index.html" class="site-lock-back">← 이전으로 (대표 화면)</a>
-  </div>
-</div>
-
 <div class="sticky-header-wrapper">
   <nav class="navbar">
     <div class="nav-left">
@@ -180,6 +166,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
   </section>
 </div>
 
+<div class="content-area">
 <main>
   <a href="index.html" class="back-btn" style="margin:14px 0 10px;display:inline-flex;">← 이전으로</a>
   <div class="page-title-row" style="margin:0 0 4px;display:flex;align-items:center;gap:10px;">
@@ -201,8 +188,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 
   <div class="stat-strip" id="statStrip"></div>
 
-  <div class="legend-box">🟠 <b>이름이 갈색(주황색)으로 표시된 학생</b> = "관리필요" 사유가 있는 학생입니다.</div>
-
   <div id="studentListWrapper">
     <div class="search-row">
       <div class="filter-group">
@@ -215,8 +200,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       </div>
       <div class="filter-group">
         <span class="filter-label">&nbsp;</span>
+        <div class="legend-box-inline">갈색=관리필요 학생</div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">&nbsp;</span>
         <div class="list-toggle-btn-box" id="listToggleBtn">
-          <span id="listToggleLabel">1학년 명단 접기</span> <span id="listToggleArrow">▲</span>
+          <span id="listToggleLabel">1학년 명단 접기</span> <span id="listToggleArrow">▼</span>
         </div>
       </div>
     </div>
@@ -227,6 +216,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
   <div class="section-divider-title add-section" style="margin-top:22px;">
     ➕ 요보호 학생 추가하기 (담임 선생님 작성)
   </div>
+
 
   <div class="add-form-card" id="addFormCard">
     <div class="add-step-title">1. 인적사항</div>
@@ -241,11 +231,24 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       </div>
       <div>
         <div class="add-field-label">반</div>
-        <input type="number" id="addClass" placeholder="예: 3">
+        <select id="addClass">
+          <option value="">반 선택 ▾</option>
+          <option value="1">1반</option>
+          <option value="2">2반</option>
+          <option value="3">3반</option>
+          <option value="4">4반</option>
+          <option value="5">5반</option>
+          <option value="6">6반</option>
+          <option value="7">7반</option>
+          <option value="8">8반</option>
+          <option value="9">9반</option>
+          <option value="10">10반</option>
+        </select>
       </div>
       <div>
-        <div class="add-field-label">이름 (목록에서 선택)</div>
-        <select id="addName"><option value="">반을 먼저 선택하세요 ▾</option></select>
+        <div class="add-field-label">이름 (입력하면 검색돼요)</div>
+        <input type="text" id="addName" list="addNameList" placeholder="반을 먼저 입력하세요" autocomplete="off">
+        <datalist id="addNameList"></datalist>
       </div>
       <div>
         <div class="add-field-label">번호 (자동 입력)</div>
@@ -286,6 +289,23 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     </div>
   </div>
 </main>
+
+<div class="site-lock" id="siteLock">
+  <div class="site-lock-box">
+    <div class="icon">🔒</div>
+    <h2>교직원 본인 확인</h2>
+    <p>비밀번호를 입력하면 위 내용을<br>확인할 수 있어요.</p>
+    <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
+    <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
+      <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
+    </label>
+    <button type="button" id="siteLockBtn">확인</button>
+    <div class="site-lock-err" id="siteLockErr"></div>
+    <a href="index.html" class="site-lock-back">← 이전으로 (대표 화면)</a>
+  </div>
+</div>
+</div>
 
 <script>
 /* ---------- 잠금화면 ---------- */
@@ -400,7 +420,7 @@ function renderGrade(grade){
   renderList(students);
   document.getElementById('listToggleLabel').textContent = grade + '학년 명단 접기 (' + students.length + '명)';
   document.getElementById('studentList').style.display = '';
-  document.getElementById('listToggleArrow').textContent = '▲';
+  document.getElementById('listToggleArrow').textContent = '▼';
 }
 
 function renderStats(students){
@@ -455,8 +475,8 @@ function renderList(students){
   const classFilter = document.getElementById('classFilter').value;
 
   let filtered = students;
-  if (classFilter) filtered = filtered.filter(s => String(s.classNum) === classFilter);
-  if (q) filtered = filtered.filter(s => s.name.includes(q) || String(s.number).includes(q));
+  if (classFilter) filtered = filtered.filter(s => String(s.classNum || '') === classFilter);
+  if (q) filtered = filtered.filter(s => String(s.name || '').includes(q) || String(s.number || '').includes(q));
 
   const listEl = document.getElementById('studentList');
   if (!filtered.length){
@@ -533,16 +553,14 @@ loadGrade('1');
 
 function applyListToggleState(wrapper, arrow){
   const tableScroll = document.getElementById('studentList');
-  const searchOnlyRow = wrapper.querySelector('.search-row');
   if (listCollapsed) {
     tableScroll.style.display = 'none';
-    arrow.textContent = '▼';
     document.getElementById('listToggleLabel').textContent = currentGrade + '학년 명단 펼치기';
   } else {
     tableScroll.style.display = '';
-    arrow.textContent = '▲';
     document.getElementById('listToggleLabel').textContent = currentGrade + '학년 명단 접기';
   }
+  arrow.textContent = '▼';
 }
 
 /* ---------- 요보호 학생 추가하기 ---------- */
@@ -550,10 +568,12 @@ function applyListToggleState(wrapper, arrow){
   const addGrade = document.getElementById('addGrade');
   const addClass = document.getElementById('addClass');
   const addName = document.getElementById('addName');
+  const addNameList = document.getElementById('addNameList');
   const addNumber = document.getElementById('addNumber');
   const etcInput = document.getElementById('etcInput');
   const addErr = document.getElementById('addErr');
   const submitBtn = document.getElementById('addSubmitBtn');
+  let nameToNumberMap = {};
 
   function updateHeadacheChipVisibility(){
     const chip = document.querySelector('.symptom-chip[data-sym="headache"]');
@@ -571,32 +591,42 @@ function applyListToggleState(wrapper, arrow){
   async function loadStudentNames(){
     const grade = addGrade.value;
     const classNum = addClass.value.trim();
-    addName.innerHTML = '<option value="">불러오는 중...</option>';
+    nameToNumberMap = {};
+    addName.value = '';
     addNumber.value = '';
+    addNameList.innerHTML = '';
     if (!classNum) {
-      addName.innerHTML = '<option value="">반을 먼저 입력하세요 ▾</option>';
+      addName.placeholder = '반을 먼저 입력하세요';
       return;
     }
+    addName.placeholder = '불러오는 중...';
     try {
       const res = await fetch('/api/care?action=students&grade=' + encodeURIComponent(grade) + '&classNum=' + encodeURIComponent(classNum));
       const data = await res.json();
       if (!data.success || !data.students || !data.students.length) {
-        addName.innerHTML = '<option value="">해당 반 학생을 찾지 못했어요 ▾</option>';
+        addName.placeholder = '해당 반 학생을 찾지 못했어요';
         return;
       }
-      addName.innerHTML = '<option value="">학생 이름을 선택하세요 ▾</option>' +
-        data.students.map(s => `<option value="${escHtml(s.name)}" data-number="${escHtml(s.number)}">${escHtml(s.name)} (${escHtml(s.number)}번)</option>`).join('');
+      data.students.forEach(s => { nameToNumberMap[s.name] = s.number; });
+      addNameList.innerHTML = data.students.map(s => `<option value="${escHtml(s.name)}">${escHtml(s.name)} (${escHtml(s.number)}번)</option>`).join('');
+      addName.placeholder = '이름을 입력하거나 선택하세요';
     } catch(e) {
-      addName.innerHTML = '<option value="">학생 목록을 불러오지 못했어요 ▾</option>';
+      addName.placeholder = '학생 목록을 불러오지 못했어요';
     }
   }
 
   addGrade.addEventListener('change', loadStudentNames);
   addClass.addEventListener('change', loadStudentNames);
-  addName.addEventListener('change', function(){
-    const opt = addName.options[addName.selectedIndex];
-    addNumber.value = opt && opt.dataset.number ? opt.dataset.number : '';
-  });
+  function syncNumberFromName(){
+    const typed = addName.value.trim();
+    if (nameToNumberMap[typed] !== undefined) {
+      addNumber.value = nameToNumberMap[typed];
+    } else {
+      addNumber.value = '';
+    }
+  }
+  addName.addEventListener('input', syncNumberFromName);
+  addName.addEventListener('change', syncNumberFromName);
 
   document.querySelectorAll('.symptom-chip').forEach(chip => {
     chip.addEventListener('click', function(){
@@ -655,7 +685,9 @@ function applyListToggleState(wrapper, arrow){
     document.getElementById('addSuccessBox').style.display = 'none';
     document.getElementById('addFormCard').style.display = '';
     addClass.value = '';
-    addName.innerHTML = '<option value="">반을 먼저 입력하세요 ▾</option>';
+    addName.value = '';
+    addNameList.innerHTML = '';
+    addName.placeholder = '반을 먼저 입력하세요';
     addNumber.value = '';
     document.querySelectorAll('.symptom-chip.selected').forEach(c => c.classList.remove('selected'));
     etcInput.style.display = 'none';
