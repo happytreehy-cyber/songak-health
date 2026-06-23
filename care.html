@@ -210,12 +210,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       <div class="filter-group">
         <span class="filter-label">&nbsp;</span>
         <div class="list-toggle-btn-box" id="listToggleBtn">
-          <span id="listToggleLabel">1학년 명단 접기</span> <span id="listToggleArrow">▼</span>
+          <span id="listToggleLabel">1학년 명단 펼치기</span> <span id="listToggleArrow">▼</span>
         </div>
       </div>
     </div>
 
-    <div class="table-scroll" id="studentList"><div class="loading-msg">불러오는 중...</div></div>
+    <div class="table-scroll" id="studentList" style="display:none;"><div class="loading-msg">불러오는 중...</div></div>
   </div>
   </div>
 
@@ -386,14 +386,14 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 /* ---------- 학생 요보호 데이터 ---------- */
 let ALL_DATA = {};      // { "1": [...], "2": [...], "3": [...] }
 let currentGrade = "1";
-let listCollapsed = false;
+let listCollapsed = true;
 
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-async function loadGrade(grade){
+async function loadGrade(grade, forceExpand){
   currentGrade = grade;
   document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
-  listCollapsed = false;
+  if (forceExpand) listCollapsed = false;
   const addGradeSel = document.getElementById('addGrade');
   if (addGradeSel) { addGradeSel.value = grade; addGradeSel.dispatchEvent(new Event('change')); }
 
@@ -541,7 +541,7 @@ function renderList(students){
 }
 
 document.querySelectorAll('.grade-tab').forEach(tab => {
-  tab.addEventListener('click', () => loadGrade(tab.dataset.grade));
+  tab.addEventListener('click', () => loadGrade(tab.dataset.grade, true));
 });
 document.getElementById('searchInput').addEventListener('input', () => renderList(ALL_DATA[currentGrade] || []));
 document.getElementById('classFilter').addEventListener('change', () => renderList(ALL_DATA[currentGrade] || []));
@@ -621,6 +621,7 @@ function applyListToggleState(wrapper, arrow){
       data.students.forEach(s => { nameToNumberMap[s.name] = s.number; });
       studentNameList = data.students;
       addName.placeholder = '이름을 입력해보세요 (예: 김)';
+      renderNameSuggestions();
     } catch(e) {
       addName.placeholder = '학생 목록을 불러오지 못했어요';
     }
@@ -631,12 +632,12 @@ function applyListToggleState(wrapper, arrow){
 
   function renderNameSuggestions(){
     const typed = addName.value.trim();
-    if (!typed || !studentNameList.length) {
+    if (!studentNameList.length) {
       addNameSuggest.classList.remove('show');
       addNameSuggest.innerHTML = '';
       return;
     }
-    const matched = studentNameList.filter(s => s.name.includes(typed));
+    const matched = typed ? studentNameList.filter(s => s.name.includes(typed)) : studentNameList;
     if (!matched.length) {
       addNameSuggest.classList.remove('show');
       addNameSuggest.innerHTML = '';
