@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보건소식 · 카드뉴스 - 송악고등학교 온라인 보건실</title>
+<meta name="color-scheme" content="light only">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root{--navy:#1f3c88;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f6f9; color: #333333; line-height: 1.5; }
+  a { text-decoration: none; color: inherit; }
+
+  .sticky-header-wrapper { position: sticky; top: 0; z-index: 1000; background-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .navbar { height: 46px; display:flex; justify-content:space-between; align-items:center; padding:0 30px; border-bottom:1px solid #f1f5f9; }
+  .nav-left { display:flex; align-items:center; gap:10px; }
+  .nav-logo-img { width:22px; height:22px; object-fit:contain; }
+  .nav-title-group { display:flex; align-items:baseline; gap:8px; }
+  .nav-main-title { font-size:16px; font-weight:700; color:#1e3a8a; }
+  .nav-sub-title { font-size:12px; color:#64748b; font-weight:400; }
+  .nav-back { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; color:#0369a1; font-weight:700; padding:5px 12px; background:#e0f2fe; border:1px solid #bae6fd; border-radius:7px; cursor:pointer; margin-bottom:8px; }
+  .nav-back-arrow { color:#ef4444; font-weight:900; }
+
+  .date-strip-bar { background:#fff; padding:4px 30px; display:flex; align-items:center; gap:15px; border-bottom:1px solid #e2e8f0; }
+  .date-badge-mini { font-family:'Poppins', sans-serif; font-size:20px; font-weight:700; color:#2563eb; }
+  .date-full-text { font-size:13px; font-weight:700; color:#1e293b; }
+  .calendar-strip { display:flex; gap:10px; font-size:12px; color:#94a3b8; background:#f8fafc; padding:2px 8px; border-radius:15px; }
+  .day-item { color:#94a3b8; }
+  .day-item.sun { color:#ef4444; }
+  .day-item.today { background-color:#2563eb; color:#fff; border-radius:50%; padding:0 5px; }
+
+  .page-wrap { max-width: 760px; margin: 18px auto; padding: 0 24px 50px; }
+  .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .page-title-row h1 { font-size:16px; font-weight:700; color:#1e293b; }
+
+  .section-block{ margin-top:40px; }
+  .section-block:first-of-type{ margin-top:10px; }
+  .section-divider-title { font-size:13.5px; font-weight:800; margin: 0 0 12px; padding:8px 13px; border-radius:6px; letter-spacing:0.3px; display:flex; justify-content:space-between; align-items:center; }
+  .section-divider-title.coop { color:#1e3a8a; background:#eff6ff; border-left:4px solid #2563eb; }
+  .section-divider-title.notice { color:#6d28d9; background:#f5f3ff; border-left:4px solid #a78bfa; }
+  .section-divider-title.news { color:#831843; background:#fdf2f8; border-left:4px solid #ec4899; }
+  .section-divider-title a { font-size:12px; color:#2563eb; font-weight:600; }
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:6px;}
+  .empty-msg{color:var(--muted);font-size:13px;padding:10px 2px;}
+
+  /* 담임 협조 요청 */
+  .coop-item{border-bottom:1px dashed #cbd5e1;padding:14px 4px;}
+  .coop-item:last-child{border-bottom:none;}
+  .coop-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .coop-item h3{font-size:14.5px;font-weight:700;color:#1e293b;margin-bottom:5px;}
+  .coop-item p{font-size:13px;color:#475569;line-height:1.6;margin-bottom:8px;white-space:pre-line;}
+  .coop-item .coop-date{font-size:11.5px;color:#94a3b8;}
+  .status-btn{font-size:12px;font-weight:700;border:none;border-radius:20px;padding:5px 13px 5px 9px;flex-shrink:0;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+  .status-btn.ongoing{background:#dbeafe;color:#2563eb;}
+  .status-btn.closed{background:#e5e7eb;color:#6b7280;}
+  .status-dot { width:11px; height:11px; border-radius:2px; flex-shrink:0; display:inline-block; transform:rotate(45deg); position:relative; box-shadow: inset -2px -2px 3px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.85), 0 0 4px 0 currentColor; }
+  .status-dot::after { content:''; position:absolute; top:1.5px; left:1.5px; width:3px; height:3px; background:rgba(255,255,255,0.95); border-radius:50%; filter:blur(0.3px); }
+  .status-dot.ongoing { background:linear-gradient(135deg, #93c5fd, #2563eb 60%, #1e3a8a); color:#3b82f6; }
+  .status-dot.closed { background:linear-gradient(135deg, #e2e8f0, #94a3b8 60%, #475569); color:#94a3b8; }
+  .coop-attach{display:flex;align-items:center;gap:10px;margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;}
+  .coop-attach img{width:46px;height:46px;border-radius:6px;border:1px solid #e2e8f0;flex-shrink:0;object-fit:cover;}
+  .coop-attach .attach-info{font-size:12px;color:#334155;}
+  .coop-attach .attach-info a{color:#2563eb;font-weight:700;}
+
+  /* 카드형 공통 (보건소식 / 카드뉴스) */
+  .card-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;}
+  .thumb-card{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff;width:140px;flex-shrink:0;cursor:pointer;}
+  .thumb-box{width:100%;height:140px;background:#eef1f7;display:flex;align-items:center;justify-content:center;font-size:30px;color:#94a3b8;position:relative;overflow:hidden;}
+  .thumb-box canvas, .thumb-box img{width:100%;height:100%;object-fit:cover;}
+  .thumb-box .pdf-badge{position:absolute;bottom:6px;right:6px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;}
+  .thumb-info{padding:8px 10px;}
+  .thumb-title{font-size:12.5px;font-weight:700;color:#1e293b;line-height:1.3;}
+  .thumb-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+  .thumb-status{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .thumb-status.ongoing{background:#dbeafe;color:#2563eb;}
+  .thumb-status.closed{background:#e5e7eb;color:#6b7280;}
+  .news-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--navy);background:#e7edfb;padding:2px 7px;border-radius:20px;margin-bottom:5px;}
+
+  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60;padding:16px;}
+  .pdf-modal.open{display:flex;}
+  .pdf-modal-inner{background:#fff;border-radius:12px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+  .pdf-modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);}
+  .pdf-modal-head button{border:none;background:none;font-size:20px;cursor:pointer;}
+  .pdf-modal-body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#f1f3f8;}
+  .pdf-modal-body img{max-width:100%;display:block;}
+  .pdf-modal-body iframe{width:100%;height:80vh;border:none;}
+</style>
+</head>
+<body>
+
+<div class="sticky-header-wrapper">
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="logo.png" alt="로고" class="nav-logo-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+      <div class="nav-title-group">
+        <span class="nav-main-title">송악고등학교 온라인 보건실</span>
+        <span class="nav-sub-title">교직원 공유용 보건업무 포털</span>
+      </div>
+    </div>
+  </nav>
+  <section class="date-strip-bar">
+    <div class="date-badge-mini" id="date-badge-mini"></div>
+    <span class="date-full-text" id="date-full-text"></span>
+    <div class="calendar-strip" id="calendar-strip"></div>
+  </section>
+</div>
+
+<div class="page-wrap">
+
+  <a class="nav-back" href="index.html"><span class="nav-back-arrow">←</span> 이전으로</a>
+  <div class="page-title-row"><h1>📰 보건소식 · 카드뉴스</h1></div>
+
+  <!-- 1. 담임 협조 요청 -->
+  <div class="section-block">
+    <div class="section-divider-title coop"><span>🤝 담임 협조 요청</span></div>
+    <div class="card"><div id="coopList"><div class="empty-msg">불러오는 중...</div></div></div>
+  </div>
+
+  <!-- 2. 이번주·이달의 보건소식 -->
+  <div class="section-block">
+    <div class="section-divider-title notice"><span>📢 이번주 · 이달의 보건소식</span></div>
+    <div class="card"><div id="noticeGrid" class="card-grid"><div class="empty-msg">불러오는 중...</div></div></div>
+  </div>
+
+  <!-- 3. 감염병 카드뉴스 -->
+  <div class="section-block">
+    <div class="section-divider-title news"><span>📰 감염병 카드뉴스 · 가정통신문</span></div>
+    <div class="card"><div id="newsGrid" class="card-grid"><div class="empty-msg">불러오는 중...</div></div></div>
+  </div>
+
+</div>
+
+<div class="pdf-modal" id="pdfModal">
+  <div class="pdf-modal-inner">
+    <div class="pdf-modal-head"><strong id="pdfModalTitle"></strong><button onclick="closePdf()">✕</button></div>
+    <div class="pdf-modal-body" id="pdfModalBody"></div>
+  </div>
+</div>
+
+<script>
+if (window['pdfjs-dist/build/pdf']) {
+  window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* ---------- 날짜 ---------- */
+var WK = ['일','월','화','수','목','금','토'];
+function pad(n){ return n<10?'0'+n:n; }
+function renderDate(){
+  var now=new Date(), y=now.getFullYear(), m=now.getMonth(), d=now.getDate(), w=now.getDay();
+  document.getElementById('date-badge-mini').textContent = pad(d);
+  document.getElementById('date-full-text').textContent = y+'년 '+(m+1)+'월 '+d+'일 '+WK[w]+'요일';
+  var cal=document.getElementById('calendar-strip'); cal.innerHTML='';
+  var sun=new Date(now); sun.setDate(d-w);
+  for(var i=0;i<7;i++){
+    var dd=new Date(sun); dd.setDate(sun.getDate()+i);
+    var span=document.createElement('span');
+    var cls='day-item';
+    if(dd.getDay()===0) cls+=' sun';
+    if(dd.getDate()===d && dd.getMonth()===m) cls+=' today';
+    span.className=cls; span.textContent=dd.getDate();
+    cal.appendChild(span);
+  }
+}
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------- PDF 썸네일 렌더링 ---------- */
+async function renderThumb(url, boxEl, isPdfHint){
+  var isPdf = isPdfHint || /\.pdf($|\?)/i.test(url);
+  var isImage = /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(url);
+  if(isImage){
+    boxEl.innerHTML = '<img src="'+url+'">';
+    return;
+  }
+  if(isPdf && window['pdfjs-dist/build/pdf']){
+    try{
+      var pdfjsLib = window['pdfjs-dist/build/pdf'];
+      var pdf = await pdfjsLib.getDocument(url).promise;
+      var page = await pdf.getPage(1);
+      var viewport = page.getViewport({ scale: 0.6 });
+      var canvas = document.createElement('canvas');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+      boxEl.innerHTML = '';
+      boxEl.appendChild(canvas);
+      var badge = document.createElement('span');
+      badge.className = 'pdf-badge'; badge.textContent = 'PDF';
+      boxEl.appendChild(badge);
+      return;
+    }catch(e){ /* 실패하면 아이콘으로 fallback */ }
+  }
+  boxEl.innerHTML = isPdf ? '📄<span class="pdf-badge">PDF</span>' : '📄';
+}
+
+function openFile(item){
+  var isImage = /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(item.url);
+  document.getElementById('pdfModalTitle').textContent = item.title;
+  document.getElementById('pdfModalBody').innerHTML = isImage ? ('<img src="'+item.url+'">') : ('<iframe src="'+item.url+'"></iframe>');
+  document.getElementById('pdfModal').classList.add('open');
+}
+function closePdf(){ document.getElementById('pdfModal').classList.remove('open'); document.getElementById('pdfModalBody').innerHTML=''; }
+
+/* ---------- 1. 담임 협조 요청 ---------- */
+function loadCoop(){
+  fetch('/api/board?type=coop')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var el = document.getElementById('coopList');
+      var items = data.items || [];
+      if(!items.length){ el.innerHTML = '<div class="empty-msg">등록된 협조 요청이 없습니다.</div>'; return; }
+      el.innerHTML = items.map(function(item){
+        var statusLabel = item.status==='closed' ? '마감' : '진행중';
+        var attachHtml = '';
+        if(item.attachValue){
+          if(item.attachType === 'qr'){
+            attachHtml = '<div class="coop-attach"><img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data='+encodeURIComponent(item.attachValue)+'" alt="QR"><div class="attach-info">📎 설문 QR / <a href="'+item.attachValue+'" target="_blank">바로가기</a></div></div>';
+          } else if(item.attachType === 'file'){
+            var isImg = /\.(jpg|jpeg|png|gif|webp)($|\?)/i.test(item.attachValue);
+            attachHtml = '<div class="coop-attach">' + (isImg ? '<img src="'+item.attachValue+'">' : '') + '<div class="attach-info">📎 <a href="'+item.attachValue+'" target="_blank">첨부파일 열기</a></div></div>';
+          } else {
+            attachHtml = '<div class="coop-attach"><div class="attach-info">🔗 <a href="'+item.attachValue+'" target="_blank">관련 링크 바로가기</a></div></div>';
+          }
+        }
+        return '<div class="coop-item"><div class="coop-row"><div style="flex:1;">'+
+          '<h3>'+escHtml(item.title)+'</h3>'+
+          (item.content ? '<p>'+escHtml(item.content)+'</p>' : '')+
+          '<div class="coop-date">'+escHtml(item.date)+'</div>'+
+          attachHtml+
+          '</div><span class="status-btn '+item.status+'"><span class="status-dot '+item.status+'"></span>'+statusLabel+'</span></div></div>';
+      }).join('');
+    })
+    .catch(function(){ document.getElementById('coopList').innerHTML = '<div class="empty-msg">협조 요청을 불러오지 못했습니다.</div>'; });
+}
+
+/* ---------- 2. 이번주·이달의 보건소식 ---------- */
+function loadNoticeCards(){
+  fetch('/api/board?type=notice')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var wrap = document.getElementById('noticeGrid');
+      var items = data.items || [];
+      window.noticeList = items;
+      if(!items.length){ wrap.innerHTML = '<div class="empty-msg">등록된 보건소식이 없습니다.</div>'; return; }
+      wrap.innerHTML = items.map(function(item, idx){
+        return '<div class="thumb-card" data-idx="'+idx+'" data-kind="notice"><div class="thumb-box" id="noticeThumb'+idx+'">⏳</div>'+
+          '<div class="thumb-info"><div class="thumb-title">'+escHtml(item.title)+'</div>'+
+          '<div class="thumb-sub">'+escHtml(item.date||item.deadline||'')+'</div>'+
+          '<span class="thumb-status '+item.status+'">'+(item.status==='closed'?'마감':'진행중')+'</span></div></div>';
+      }).join('');
+      items.forEach(function(item, idx){
+        if(item.url) renderThumb(item.url, document.getElementById('noticeThumb'+idx));
+        else document.getElementById('noticeThumb'+idx).innerHTML = '📄';
+      });
+      wrap.querySelectorAll('.thumb-card[data-kind="notice"]').forEach(function(card){
+        card.addEventListener('click', function(){
+          var item = window.noticeList[Number(card.dataset.idx)];
+          if(item.url) openFile(item);
+        });
+      });
+    })
+    .catch(function(){ document.getElementById('noticeGrid').innerHTML = '<div class="empty-msg">보건소식을 불러오지 못했습니다.</div>'; });
+}
+
+/* ---------- 3. 감염병 카드뉴스 ---------- */
+function loadNewsCards(){
+  fetch('/api/infection-report?action=newscards')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var wrap = document.getElementById('newsGrid');
+      var list = data.cards || [];
+      window.newsCardList = list;
+      if(!list.length){ wrap.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>'; return; }
+      wrap.innerHTML = list.map(function(item, idx){
+        return '<div class="thumb-card" data-idx="'+idx+'" data-kind="news"><div class="thumb-box" id="newsThumb'+idx+'">⏳</div>'+
+          '<div class="thumb-info">'+(item.tag?'<span class="news-tag">'+escHtml(item.tag)+'</span>':'')+
+          '<div class="thumb-title">'+escHtml(item.title)+'</div>'+
+          '<div class="thumb-sub">'+escHtml(item.date||'')+'</div></div></div>';
+      }).join('');
+      list.forEach(function(item, idx){ renderThumb(item.url, document.getElementById('newsThumb'+idx)); });
+      wrap.querySelectorAll('.thumb-card[data-kind="news"]').forEach(function(card){
+        card.addEventListener('click', function(){
+          openFile(window.newsCardList[Number(card.dataset.idx)]);
+        });
+      });
+    })
+    .catch(function(){ document.getElementById('newsGrid').innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>'; });
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  renderDate();
+  loadCoop();
+  loadNoticeCards();
+  loadNewsCards();
+});
+</script>
+
+</body>
+</html>
