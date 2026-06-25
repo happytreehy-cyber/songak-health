@@ -223,25 +223,6 @@
     </div>
   </div>
 
-  <!-- 카드뉴스 -->
-  <div class="section-divider-title news">📰 감염병 카드뉴스 · 가정통신문</div>
-  <div class="card locked-blur">
-    <div id="newsGrid"><div class="empty-msg">불러오는 중...</div></div>
-    <div class="admin-link" id="newsAdminOpenBtn" style="margin-top:10px;">관리자 업로드 →</div>
-    <div class="hidden" id="newsAdminPanel" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:8px;">📤 카드뉴스 업로드</div>
-      <input type="text" id="newsTitle" placeholder="제목 (예: 수두 예방 안내)" style="margin-bottom:8px;">
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input type="date" id="newsDate" style="flex:1;">
-        <input type="text" id="newsTag" placeholder="태그(선택, 예: 유행주의)" style="flex:1;">
-      </div>
-      <input type="file" id="newsFile" accept="image/*,application/pdf" style="margin-bottom:8px;">
-      <button type="button" class="submit-btn" id="newsUploadBtn" style="margin-top:0;">업로드</button>
-      <div class="result-msg" id="newsUploadMsg"></div>
-      <div id="newsAdminList" style="margin-top:14px;"></div>
-    </div>
-  </div>
-
   <!-- 물품신청 -->
   <div class="section-divider-title supply">😷 감염병예방 물품·소모품 신청</div>
   <div class="card locked-blur">
@@ -436,14 +417,6 @@
       <button type="submit" class="submit-btn" id="reportSubmitBtn">감염병 발생 보고하기</button>
       <div class="result-msg" id="reportResultMsg"></div>
     </form>
-  </div>
-</div>
-
-<!-- 카드뉴스/PDF 미리보기 모달 -->
-<div class="pdf-modal" id="pdfModal">
-  <div class="pdf-modal-inner">
-    <div class="pdf-modal-head"><strong id="pdfModalTitle"></strong><button onclick="closePdf()">✕</button></div>
-    <div class="pdf-modal-body" id="pdfModalBody"></div>
   </div>
 </div>
 
@@ -847,152 +820,6 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     msgEl.classList.add("err");
   }finally{
     btn.disabled = false; btn.textContent = "감염병 발생 보고하기";
-  }
-});
-
-/* ---------- 카드뉴스 (구글시트 + Blob URL 기반) ---------- */
-function loadNewsCards(){
-  fetch("/api/infection-report?action=newscards")
-    .then(r => r.json())
-    .then(data => {
-      const wrap = document.getElementById("newsGrid");
-      const list = data.cards || [];
-      window.newsCardList = list;
-      if(!list.length){
-        wrap.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>';
-        return;
-      }
-      wrap.innerHTML = list.map((item, idx) => {
-        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.url);
-        const thumb = isImage ? `<img src="${item.url}" alt="${item.title}">` : `📄`;
-        return `
-          <div class="news-card" data-idx="${idx}">
-            <div class="news-thumb">${thumb}</div>
-            <div class="news-info">
-              ${item.tag ? `<span class="news-tag">${item.tag}</span>` : ""}
-              <div class="news-title">${item.title}</div>
-              <div class="news-date">${item.date}</div>
-            </div>
-          </div>`;
-      }).join("");
-      wrap.querySelectorAll(".news-card").forEach(card => {
-        card.addEventListener("click", () => {
-          openCard(window.newsCardList[Number(card.dataset.idx)]);
-        });
-      });
-    })
-    .catch(() => { document.getElementById("newsGrid").innerHTML = '<div class="empty-msg">카드뉴스를 불러오지 못했습니다.</div>'; });
-}
-loadNewsCards();
-
-function openCard(item){
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.url);
-  document.getElementById("pdfModalTitle").textContent = item.title;
-  document.getElementById("pdfModalBody").innerHTML = isImage ? `<img src="${item.url}">` : `<iframe src="${item.url}"></iframe>`;
-  document.getElementById("pdfModal").classList.add("open");
-}
-function closePdf(){ document.getElementById("pdfModal").classList.remove("open"); document.getElementById("pdfModalBody").innerHTML = ""; }
-
-/* ---------- 카드뉴스 관리자 업로드 ---------- */
-document.getElementById("newsAdminOpenBtn").addEventListener("click", async () => {
-  const pw = await askAdminPw();
-  if(!pw) return;
-  document.getElementById("newsAdminPanel").classList.remove("hidden");
-  document.getElementById("newsAdminPanel").dataset.pw = pw;
-  renderNewsAdminList(pw);
-});
-
-async function renderNewsAdminList(pw){
-  const listEl = document.getElementById("newsAdminList");
-  listEl.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
-  try{
-    const res = await fetch("/api/infection-report?action=newscards");
-    const data = await res.json();
-    const list = data.cards || [];
-    if(!list.length){ listEl.innerHTML = '<div class="empty-msg">등록된 카드뉴스가 없습니다.</div>'; return; }
-    listEl.innerHTML = `<div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">등록된 카드뉴스 (삭제 가능)</div>` +
-      list.map(item => `
-        <div class="admin-item">
-          <div class="row"><strong>${item.title}</strong><span>${item.date}</span></div>
-          <button onclick="deleteNewsCard(${item.rowNum},'${pw}')" style="background:#dc2626;">삭제</button>
-        </div>
-      `).join("");
-  }catch(e){
-    listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>';
-  }
-}
-
-async function deleteNewsCard(rowNum, pw){
-  if(!confirm("이 카드뉴스를 삭제할까요?")) return;
-  try{
-    const res = await fetch("/api/infection-report", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ action:"deletenewscard", password: pw, rowNum })
-    });
-    const data = await res.json();
-    if(data.success){
-      loadNewsCards();
-      renderNewsAdminList(pw);
-    }else{
-      alert(data.message || "삭제 중 오류가 발생했습니다.");
-    }
-  }catch(e){
-    alert("서버 연결에 실패했습니다.");
-  }
-}
-
-document.getElementById("newsUploadBtn").addEventListener("click", async () => {
-  const pw = document.getElementById("newsAdminPanel").dataset.pw;
-  const title = document.getElementById("newsTitle").value.trim();
-  const date = document.getElementById("newsDate").value;
-  const tag = document.getElementById("newsTag").value.trim();
-  const fileInput = document.getElementById("newsFile");
-  const msgEl = document.getElementById("newsUploadMsg");
-  msgEl.textContent = ""; msgEl.className = "result-msg";
-
-  if(!title){ msgEl.textContent = "제목을 입력해주세요."; msgEl.classList.add("err"); return; }
-  if(!fileInput.files[0]){ msgEl.textContent = "파일을 선택해주세요."; msgEl.classList.add("err"); return; }
-
-  const file = fileInput.files[0];
-  const btn = document.getElementById("newsUploadBtn");
-  btn.disabled = true; btn.textContent = "업로드 중...";
-
-  try{
-    const uploadRes = await fetch("/api/upload", {
-      method: "POST",
-      headers: { "Content-Type": file.type || "application/octet-stream", "x-filename": encodeURIComponent(file.name) },
-      body: file
-    });
-    const uploadData = await uploadRes.json();
-    if(!uploadData.success){
-      msgEl.textContent = "파일 업로드 실패: " + (uploadData.message || "");
-      msgEl.classList.add("err");
-      return;
-    }
-
-    const addRes = await fetch("/api/infection-report", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ action:"addnewscard", password: pw, title, date, tag, url: uploadData.url })
-    });
-    const addData = await addRes.json();
-    if(addData.success){
-      msgEl.textContent = "카드뉴스가 등록되었습니다!";
-      msgEl.classList.add("ok");
-      document.getElementById("newsTitle").value = "";
-      document.getElementById("newsDate").value = "";
-      document.getElementById("newsTag").value = "";
-      fileInput.value = "";
-      loadNewsCards();
-      renderNewsAdminList(pw);
-    }else{
-      msgEl.textContent = addData.message || "등록 중 오류가 발생했습니다.";
-      msgEl.classList.add("err");
-    }
-  }catch(e){
-    msgEl.textContent = "서버 연결에 실패했습니다.";
-    msgEl.classList.add("err");
-  }finally{
-    btn.disabled = false; btn.textContent = "업로드";
   }
 });
 
