@@ -1,6 +1,7 @@
 const { google } = require('googleapis');
 
 module.exports = async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
