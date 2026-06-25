@@ -142,6 +142,7 @@ async function handleStatus(req, res) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET") {
       return await handleStatus(req, res);
