@@ -38,7 +38,7 @@
         .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
         .page-title-row h1 { font-size:16px; font-weight:700; color:#1e293b; }
 
-        .today-task-section { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:12px; }
+
         .section-divider-title { font-size:13.5px; font-weight:800; margin: 4px 0 8px; padding:7px 12px; border-radius:6px; letter-spacing:0.3px; }
         .section-divider-title.notice { color:#9d174d; background:#fdf2f8; border-left:4px solid #ec4899; }
         .section-divider-title.visit { color:#1e3a8a; background:#eff6ff; border-left:4px solid #2563eb; }
@@ -185,16 +185,6 @@
         <a class="nav-back" href="index.html"><span class="nav-back-arrow">←</span> 이전으로</a>
         <div class="page-title-row"><h1>📅 오늘의 보건실</h1></div>
 
-        <div class="section-divider-title notice" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>📢 이번주 보건소식</span>
-            <a href="upload.html" target="_blank" style="font-size:12px; color:#2563eb; font-weight:600;">📎 파일 업로드</a>
-        </div>
-        <div class="today-task-section">
-            <div id="today-task-list"><div class="today-task-empty">불러오는 중...</div></div>
-        </div>
-
-        <div class="section-gap-divider"></div>
-
         <div class="section-divider-title visit">🏥 보건 이용 현황</div>
 
         <div class="reveal-wrap">
@@ -338,33 +328,8 @@
 <script>
 var SMILE_URL = 'https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ';
 
-var TODAY_TASKS = [];
-
-function loadNotices() {
-    fetch('/api/notices')
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            if (!data.success) return;
-            TODAY_TASKS = data.notices.map(function (n) {
-                var extra = '';
-                if (n.link) {
-                    extra += '<a href="' + n.link + '" target="_blank">🔗 바로가기 / 다운로드</a>';
-                    if (/^https?:\/\//.test(n.link)) {
-                        extra += '<br><img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(n.link) + '" alt="QR코드">';
-                    }
-                }
-                return { title: n.title, status: n.status, content: escHtml(n.content).replace(/\n/g, '<br>'), extra: extra, period: n.period || '' };
-            });
-            renderTodayTasks();
-        })
-        .catch(function () {
-            document.getElementById('today-task-list').innerHTML = '<div class="today-task-empty">공지사항을 불러오지 못했습니다.</div>';
-        });
-}
-
 window.addEventListener('DOMContentLoaded', function () {
     renderDate();
-    loadNotices();
     bindEvents();
 
     var UNLOCK_KEY = 'songakStaffUnlocked';
@@ -449,81 +414,6 @@ function handleGateAuth() {
 
     loadSymptomStats();
     loadVisitStatus();
-}
-
-function getNoticeUrgency(task) {
-    if (task.status === 'closed') return 'closed';
-    var text = task.period || '';
-    var m = text.match(/(\d{1,2})\s*월/);
-    if (!m) return 'ongoing';
-    var month = parseInt(m[1], 10);
-    var dayMatch = text.match(/(\d{1,2})\s*일/);
-    var day;
-    if (dayMatch) {
-        day = parseInt(dayMatch[1], 10);
-    } else if (/말/.test(text)) {
-        day = 28;
-    } else {
-        return 'ongoing';
-    }
-    var now = new Date();
-    var year = now.getFullYear();
-    var target = new Date(year, month - 1, day);
-    if (target < now && (month < now.getMonth() + 1 - 6)) target = new Date(year + 1, month - 1, day);
-    var diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-    if (diffDays <= 7) return 'urgent';
-    return 'ongoing';
-}
-
-var NOTICE_PAGE = 0;
-var NOTICE_PAGE_SIZE = 3;
-
-function renderTodayTasks() {
-    var el = document.getElementById('today-task-list');
-    el.innerHTML = '';
-    if (!TODAY_TASKS.length) { el.innerHTML = '<div class="today-task-empty">등록된 공지가 없습니다.</div>'; return; }
-
-    var sorted = TODAY_TASKS.slice().sort(function (a, b) {
-        var aClosed = a.status === 'closed' ? 1 : 0;
-        var bClosed = b.status === 'closed' ? 1 : 0;
-        return aClosed - bClosed;
-    });
-
-    var totalPages = Math.ceil(sorted.length / NOTICE_PAGE_SIZE) || 1;
-    if (NOTICE_PAGE >= totalPages) NOTICE_PAGE = totalPages - 1;
-    var start = NOTICE_PAGE * NOTICE_PAGE_SIZE;
-    var pageItems = sorted.slice(start, start + NOTICE_PAGE_SIZE);
-
-    pageItems.forEach(function (task, i) {
-        var item = document.createElement('div');
-        item.className = 'today-task-item' + (task.status === 'closed' ? ' closed' : '');
-        var urgency = getNoticeUrgency(task);
-        var btnLabel = urgency === 'closed' ? '마감' : (urgency === 'urgent' ? '임박' : '진행중');
-        item.innerHTML =
-            '<div class="today-task-row">' +
-                '<span class="today-task-num">' + (start + i + 1) + '.</span>' +
-                '<span class="today-task-title">' + escHtml(task.title) + '</span>' +
-                '<span class="today-task-content">' + (task.content || '내용 없음') + '</span>' +
-                (task.period ? '<span class="today-task-period">📅 ' + escHtml(task.period) + '</span>' : '') +
-                '<span class="status-btn ' + urgency + '"><span class="status-dot ' + urgency + '"></span>' + btnLabel + '</span>' +
-            '</div>' +
-            (task.extra ? '<div class="today-task-extra">' + task.extra + '</div>' : '');
-        el.appendChild(item);
-    });
-
-    if (totalPages > 1) {
-        var pager = document.createElement('div');
-        pager.className = 'today-task-pager';
-        pager.innerHTML =
-            '<button id="notice-prev" ' + (NOTICE_PAGE === 0 ? 'disabled' : '') + '>‹ 이전</button>' +
-            '<span>' + (NOTICE_PAGE + 1) + ' / ' + totalPages + '</span>' +
-            '<button id="notice-next" ' + (NOTICE_PAGE === totalPages - 1 ? 'disabled' : '') + '>다음 ›</button>';
-        el.appendChild(pager);
-        var prevBtn = document.getElementById('notice-prev');
-        var nextBtn = document.getElementById('notice-next');
-        if (prevBtn) prevBtn.addEventListener('click', function () { if (NOTICE_PAGE > 0) { NOTICE_PAGE--; renderTodayTasks(); } });
-        if (nextBtn) nextBtn.addEventListener('click', function () { if (NOTICE_PAGE < totalPages - 1) { NOTICE_PAGE++; renderTodayTasks(); } });
-    }
 }
 
 var symptomChartInstance = null;
