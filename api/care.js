@@ -221,6 +221,7 @@ async function handleAddStudent(req, res) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET" && req.query.action === "students") {
       return await handleGetStudents(req, res);
