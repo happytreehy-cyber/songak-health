@@ -353,6 +353,7 @@ async function handleDeleteNewsCard(req, res) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET") {
       if (req.query.action === "students") return await handleStudents(req, res);
