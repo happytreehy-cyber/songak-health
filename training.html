@@ -31,19 +31,19 @@
     align-items: center;
     gap: 10px;
   }
-  .brand-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #E6F1FB;
+  .brand-icon-img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+  .brand-text {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+    align-items: baseline;
+    gap: 8px;
   }
   .brand-text p { margin: 0; }
-  .brand-text .name { font-size: 15px; font-weight: 600; }
-  .brand-text .sub { font-size: 11px; color: #888; }
+  .brand-text .name { font-size: 16px; font-weight: 700; color: #1e3a8a; }
+  .brand-text .sub { font-size: 12px; color: #64748b; font-weight: 400; }
   nav.menu {
     display: flex;
     align-items: center;
@@ -124,10 +124,22 @@
     margin: 0 0 10px;
   }
   .section-title {
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 700 !important;
-    color: #0C447C !important;
-    margin: 0 0 4px;
+    margin: 0 0 6px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    display: block;
+  }
+  .section-title.blue {
+    color: #1e3a8a !important;
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+  }
+  .section-title.pink {
+    color: #6d28d9 !important;
+    background: #f5f3ff;
+    border-left: 4px solid #a78bfa;
   }
   .section-comment {
     font-size: 12px;
@@ -264,20 +276,12 @@
 
   <header class="topbar">
     <div class="brand">
-      <div class="brand-icon">🏫</div>
+      <img src="logo.png" alt="로고" class="brand-icon-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
       <div class="brand-text">
         <p class="name">송악고등학교 온라인 보건실</p>
         <p class="sub">교직원 공용 보건업무 포털</p>
       </div>
     </div>
-    <nav class="menu">
-      <span>오늘의 보건실</span>
-      <span>제출·업로드 센터</span>
-      <span class="active">교직원 연수안내</span>
-      <span>교육 자료실</span>
-      <span>담임 협조 요청</span>
-    </nav>
-    <button class="admin-btn">관리자 로그인</button>
   </header>
 
   <div class="datebar">
@@ -294,7 +298,7 @@
     <a href="index.html">← 이전으로</a>
   </div>
 
-  <p class="section-title">🩺 보건관련 필수 이수연수</p>
+  <p class="section-title blue">🩺 보건관련 필수 이수연수</p>
   <p class="section-comment">※ 관리자 모드에서 연수 항목을 추가·수정할 수 있습니다.</p>
 
   <div class="carousel-wrap">
@@ -343,7 +347,7 @@
     <button class="carousel-arrow" id="carouselNext" aria-label="다음 연수 보기">›</button>
   </div>
 
-  <p class="section-title">📝 연수 이수 기록 (실시간 입력)</p>
+  <p class="section-title pink">✅ 연수 이수 기록 (실시간 입력)</p>
   <p class="section-comment">※ 이 구글시트는 다른 부서와 공통으로 사용 중인 시트입니다. 본인 연수 이수 내용은 이곳에 기록해 주세요.</p>
 
   <div class="sheet-block">
