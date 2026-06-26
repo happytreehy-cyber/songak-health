@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -43,9 +43,9 @@
         .nav-title-group { display: flex; align-items: baseline; gap: 8px; }
         .nav-main-title { font-size: 16px; font-weight: 700; color: #1e3a8a; }
         .nav-sub-title { font-size: 12px; color: #64748b; font-weight: 400; }
-        
+
         .nav-right-actions { display: flex; align-items: center; gap: 10px; }
-        
+
         .btn-admin-auth {
             background-color: #ffffff;
             color: #475569;
@@ -96,8 +96,8 @@
         }
 
         .intro-card {
-            background-color: #edf7ff; 
-            border: 1px solid #cee7fe; 
+            background-color: #edf7ff;
+            border: 1px solid #cee7fe;
             border-radius: 16px;
             padding: 30px 40px;
             position: relative;
@@ -112,7 +112,7 @@
         .main-title { font-size: 28px; font-weight: 700; color: #1e3a8a; margin-bottom: 8px; }
         .sub-title { font-size: 15px; color: #475569; margin-bottom: 20px; }
         .school-emb-decor { position: absolute; top: 30px; right: 40px; width: 75px; height: 75px; object-fit: contain; }
-        
+
         .notice-container { display: flex; gap: 15px; width: 100%; }
         .notice-box {
             background-color: #ffffff; border-radius: 8px; padding: 12px 20px;
@@ -141,19 +141,19 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .menu-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.06); border-color: #cbd5e1; }
-        
+
         .card-top { display: flex; align-items: center; gap: 10px; }
         .menu-num { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700; color: #1e3a8a; }
-        .menu-icon-cute { font-size: 24px; } 
-        
-        .icon-01 { color: #3b82f6; } 
-        .icon-02 { color: #10b981; } 
-        .icon-03 { color: #f59e0b; } 
-        .icon-04 { color: #ec4899; } 
-        .icon-05 { color: #8b5cf6; } 
-        .icon-06 { color: #06b6d4; } 
-        .icon-07 { color: #6366f1; } 
-        .icon-08 { color: #f43f5e; } 
+        .menu-icon-cute { font-size: 24px; }
+
+        .icon-01 { color: #3b82f6; }
+        .icon-02 { color: #10b981; }
+        .icon-03 { color: #f59e0b; }
+        .icon-04 { color: #ec4899; }
+        .icon-05 { color: #8b5cf6; }
+        .icon-06 { color: #06b6d4; }
+        .icon-07 { color: #6366f1; }
+        .icon-08 { color: #f43f5e; }
 
         .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
         .menu-name { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: block; }
@@ -161,11 +161,11 @@
         .arrow-icon { font-size: 14px; color: #cbd5e1; }
 
         .site-footer {
-            background-color: #1e3a8a; 
+            background-color: #1e3a8a;
             color: #ffffff;
             padding: 25px;
             text-align: center;
-            margin-top: auto; 
+            margin-top: auto;
         }
         .footer-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
         .footer-subtitle { font-size: 12px; color: #93c5fd; opacity: 0.9; }
@@ -177,92 +177,6 @@
             .date-strip-bar { flex-direction: column; align-items: flex-start; }
             .school-emb-decor { display: none; }
         }
-
-        /* ===== 모달(팝업) 스타일 ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal-box {
-            background: #ffffff;
-            border-radius: 18px;
-            width: 100%;
-            max-width: 640px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-        }
-        .modal-box-head {
-            padding: 20px 26px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            background: #ffffff;
-            border-radius: 18px 18px 0 0;
-        }
-        .modal-box-title { font-size: 18px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 8px; }
-        .modal-box-close { background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer; }
-        .modal-box-body { padding: 22px 26px 26px; }
-
-        .today-task-section { margin-bottom: 22px; }
-        .today-task-heading { font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 10px; display:flex; align-items:center; justify-content:space-between; }
-        .today-task-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid #f1f5f9; font-size:13.5px; color:#334155; align-items:flex-start; }
-        .today-task-item:last-child{ border-bottom:none; }
-        .today-task-dot { width:7px; height:7px; border-radius:50%; margin-top:5px; flex-shrink:0; background:#3b82f6; }
-        .today-task-empty { font-size:13px; color:#94a3b8; padding:8px 0; }
-
-        .smile-section-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; }
-        .smile-section-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #e2e8f0; }
-        .smile-section-title { font-size:13px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px; }
-        .smile-open-link { font-size:12px; color:#2563eb; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px; }
-        .smile-frame-box { height:280px; position:relative; background:#fff; }
-        .smile-frame-box iframe { width:100%; height:100%; border:none; }
-        .smile-fallback { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:#f8fafc; text-align:center; padding:0 20px; }
-        .smile-fallback.show { display:flex; }
-        .smile-fallback-btn { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; }
-        .skeleton-line { background:linear-gradient(90deg,#eef1f6 25%,#e2e7ee 50%,#eef1f6 75%); background-size:200% 100%; animation:sk 1.3s infinite; border-radius:6px; height:13px; margin-bottom:7px; }
-        @keyframes sk { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-        .modal-box-wide { max-width: 920px; }
-        .health-grid-2x2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-        @media (max-width: 720px) { .health-grid-2x2 { grid-template-columns: 1fr; } }
-
-        .grid-cell { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; min-height: 260px; }
-        .cell-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #e2e8f0; font-size:13px; font-weight:700; color:#1e293b; }
-        .cell-link { font-size:11.5px; color:#2563eb; font-weight:600; cursor:pointer; }
-        .cell-body { padding: 12px 14px; flex:1; overflow-y:auto; }
-
-        .mini-rank-list { display:flex; flex-direction:column; gap:5px; }
-        .mini-rank-item { display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:#334155; padding:5px 8px; background:#fff; border:1px solid #eef1f6; border-radius:7px; }
-        .mini-rank-item .rk-name { font-weight:600; }
-        .mini-rank-item .rk-count { color:#2563eb; font-weight:700; }
-        .mini-rank-empty { font-size:12.5px; color:#94a3b8; padding:8px 0; }
-
-        .lock-form { padding:14px; display:flex; flex-direction:column; gap:8px; }
-        .lock-row { display:flex; gap:8px; }
-        .lock-row select, .lock-form input { flex:1; padding:7px 9px; border:1px solid #cbd5e1; border-radius:7px; font-size:12.5px; font-family:inherit; }
-        .lock-form button { background:#2563eb; color:#fff; border:none; border-radius:7px; padding:8px 0; font-size:12.5px; font-weight:700; cursor:pointer; }
-        .lock-form button:hover { background:#1d4ed8; }
-        .lock-error { font-size:11.5px; color:#ef4444; min-height:14px; }
-
-        .lookup-result, .rank-result { padding: 0 14px 14px; }
-        .rank-sub-title { font-size:12px; font-weight:700; color:#64748b; margin:10px 0 6px; }
-        .lookup-row { display:flex; justify-content:space-between; font-size:12.5px; padding:6px 8px; border-bottom:1px solid #f1f5f9; }
-        .lookup-empty { font-size:12.5px; color:#94a3b8; padding:10px 0; text-align:center; }
     </style>
 </head>
 <body>
@@ -299,7 +213,7 @@
             <h1 class="main-title">송악고등학교 온라인 보건실</h1>
             <p class="sub-title">보건 안내 확인부터 업무 관련 자료 제출까지 한 곳에서 간편하게 처리하는 행정 지원 포털입니다.</p>
             <img src="logo.png" alt="송악고" class="school-emb-decor" onerror="this.style.display='none'">
-            
+
             <div class="notice-container">
                 <div class="notice-box"><i class="fa-solid fa-user-shield"></i><span>학생 개인정보 및 민감정보는 앱 화면에 직접 표시하지 않습니다.</span></div>
                 <div class="notice-box"><i class="fa-solid fa-file-shield"></i><span>제출 자료는 보건실 확인용으로만 처리되며 외부 공유되지 않습니다.</span></div>
@@ -335,7 +249,7 @@
                     <i class="fa-solid fa-chevron-right arrow-icon"></i>
                 </div>
             </a>
-            <a href="#" class="menu-card">
+            <a href="training.html" target="_blank" class="menu-card">
                 <div class="card-top"><span class="menu-num">05</span><i class="fa-solid fa-graduation-cap menu-icon-cute icon-05"></i></div>
                 <div class="card-bottom">
                     <div class="text-group"><span class="menu-name">보건교육 연수실</span><span class="menu-desc">교직원 의무 연수자료 아카이브</span></div>
