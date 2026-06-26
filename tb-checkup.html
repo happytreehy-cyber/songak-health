@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결핵검진 관리 | 송악고등학교 온라인 보건실</title>
+<link rel="stylesheet" href="style.css">
+<script>
+  // ⬇⬇ 구글 시트 연동: 배포한 웹앱 URL을 여기에 붙여넣으세요. 자세한 방법은 "구글시트_연동_설정방법.md" 참고
+  const GAS_URL = "여기에_복사한_웹앱_URL_붙여넣기";
+</script>
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',sans-serif; background:#f5f6f8; color:#222; }
+
+  /* ===== 한 줄 헤더 ===== */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:14px;
+    padding:12px 22px;
+    background:#fff;
+    border-bottom:1px solid #eaeaea;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-icon-img{ width:34px; height:34px; border-radius:8px; }
+  .brand-text{ display:flex; align-items:baseline; gap:8px; white-space:nowrap; }
+  .brand-text .name{ margin:0; font-weight:800; font-size:.98rem; }
+  .brand-text .sub{ margin:0; font-size:.74rem; color:#8d8d8d; }
+
+  .date-inline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .day-num{ font-size:1.15rem; font-weight:800; color:#1f3d8f; }
+  .day-full{ font-size:.82rem; color:#555; white-space:nowrap; }
+  .day-strip{ display:flex; gap:8px; font-size:.82rem; color:#bbb; }
+  .day-strip .today{
+    color:#fff; background:#1f3d8f; font-weight:800;
+    border-radius:50%; width:22px; height:22px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .back-link{ font-size:.82rem; color:#777; text-decoration:none; white-space:nowrap; }
+  .back-link:hover{ color:#1f3d8f; }
+
+  @media (max-width:760px){
+    .topbar{ justify-content:flex-start; }
+    .date-inline{ order:3; width:100%; }
+  }
+
+  /* ===== 본문 ===== */
+  .wrap{ max-width:1040px; margin:0 auto; padding:22px 20px 60px; }
+
+  .section-title{ display:flex; align-items:baseline; gap:8px; margin:0 0 12px; }
+  .section-title h2{ font-size:1.08rem; margin:0; }
+  .section-title .sub-label{ font-size:.76rem; color:#999; }
+
+  /* 1. 검사안내 */
+  .guide-card{
+    background:#fff; border-radius:14px; padding:20px 22px; margin-bottom:26px;
+    border:1px solid #e8e8e8;
+  }
+  .guide-card .law-row{ display:flex; gap:20px; flex-wrap:wrap; font-size:.82rem; color:#555; margin-bottom:12px; }
+  .guide-card .law-row b{ color:#1f3d8f; }
+  .guide-card ul{ margin:8px 0 12px 18px; padding:0; font-size:.85rem; color:#444; line-height:1.7; }
+  .guide-card .deadline-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .deadline-pill{
+    background:#eef1ff; color:#3450c9; font-size:.78rem; font-weight:600;
+    padding:6px 12px; border-radius:999px;
+  }
+  .guide-card .note-row{
+    background:#fff7e0; color:#8a6300; font-size:.8rem; border-radius:8px; padding:9px 12px; margin-top:12px; line-height:1.5;
+  }
+
+  /* 2. 검사기록 표 */
+  .table-card{
+    background:#fff; border-radius:14px; padding:18px 18px 8px; margin-bottom:26px;
+    border:1px solid #e8e8e8; overflow-x:auto;
+  }
+  table.roster{ width:100%; border-collapse:collapse; font-size:.8rem; min-width:920px; }
+  table.roster th, table.roster td{ border:1px solid #ececec; padding:8px 8px; text-align:center; white-space:nowrap; }
+  table.roster thead th{ background:#1f3d8f; color:#fff; font-weight:700; }
+  table.roster td.name-col{ font-weight:600; }
+  table.roster td.dept-col{ color:#555; }
+  .status-tag{ display:inline-block; font-size:.74rem; font-weight:700; padding:2px 9px; border-radius:999px; }
+  .status-done{ background:#e3f4dd; color:#2e7d32; }
+  .status-wait{ background:#fff4d6; color:#9a6b00; }
+  .status-confirm{ background:#e3e8ff; color:#3450c9; }
+  .status-none{ background:#f1f1f1; color:#888; }
+  .table-loading, .table-empty{ text-align:center; padding:20px; color:#999; font-size:.85rem; }
+  .table-meta{ display:flex; justify-content:space-between; align-items:center; padding:10px 4px 14px; font-size:.76rem; color:#999; }
+  .refresh-btn{ border:1px solid #ddd; background:#fff; border-radius:8px; padding:5px 12px; font-size:.76rem; cursor:pointer; color:#555; }
+  .refresh-btn:hover{ background:#f3f3f3; }
+
+  /* 3. 제출센터 */
+  .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:720px){ .card-grid{ grid-template-columns:1fr; } }
+  .submit-tile{ background:#fff; border:1px solid #e8e8e8; border-radius:14px; padding:20px 22px 22px; display:flex; flex-direction:column; }
+  .tag{ display:inline-block; font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px; width:fit-content; }
+  .tag-receiving{ background:#ffe4e4; color:#c23c3c; }
+  .tag-confirm{ background:#e3e8ff; color:#3450c9; }
+  .submit-tile h2{ font-size:1.08rem; margin:0 0 6px; line-height:1.35; }
+  .submit-tile .desc{ font-size:.83rem; color:#777; margin:0 0 14px; line-height:1.5; }
+  .meta-box{ background:#f7f7f8; border-radius:10px; padding:10px 12px; font-size:.8rem; margin-bottom:12px; }
+  .meta-box div{ display:flex; gap:10px; padding:3px 0; }
+  .meta-box span.k{ color:#888; width:46px; flex-shrink:0; }
+  .hint-box{ background:#eaf5e3; color:#3a6b1f; font-size:.78rem; border-radius:8px; padding:9px 12px; margin-bottom:14px; line-height:1.5; }
+  .tile-btn{ margin-top:auto; background:#1f3d8f; color:#fff; border:none; border-radius:9px; padding:11px; font-size:.9rem; font-weight:700; cursor:pointer; }
+  .tile-btn:hover{ background:#16307a; }
+
+  /* 모달 */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(20,20,30,.45); display:none; align-items:center; justify-content:center; z-index:999; padding:16px; }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{ background:#fff; border-radius:16px; width:100%; max-width:440px; max-height:88vh; overflow-y:auto; padding:24px 26px 26px; position:relative; }
+  .modal-box h3{ margin:0 0 18px; font-size:1.08rem; display:flex; align-items:center; gap:8px; }
+  .modal-close{ position:absolute; top:18px; right:18px; background:none; border:none; font-size:1.2rem; cursor:pointer; color:#999; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:.85rem; font-weight:600; margin-bottom:6px; }
+  .field label .req{ color:#e0455a; }
+  .field input[type="text"], .field input[type="date"], .field select{ width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:9px; font-size:.88rem; }
+  .drop-zone{ border:1.5px dashed #ccc; border-radius:10px; text-align:center; padding:24px 12px; cursor:pointer; color:#888; font-size:.84rem; margin-bottom:8px; }
+  .drop-zone.has-file{ border-color:#1f3d8f; color:#1f3d8f; background:#f3f5ff; }
+  .drop-zone small{ display:block; color:#aaa; margin-top:4px; }
+  .file-note{ font-size:.76rem; color:#888; margin:6px 0 0; }
+  .submit-btn{ width:100%; background:#1f3d8f; color:#fff; border:none; padding:13px; border-radius:10px; font-size:.92rem; font-weight:700; cursor:pointer; margin-top:6px; }
+  .submit-btn:disabled{ background:#aab4d6; cursor:not-allowed; }
+  .submit-btn:hover:not(:disabled){ background:#16307a; }
+  .status-msg{ font-size:.8rem; margin-top:10px; text-align:center; }
+  .status-msg.ok{ color:#2e7d32; }
+  .status-msg.err{ color:#c23c3c; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="logo.png" alt="로고" class="brand-icon-img" onerror="this.src='https://placehold.co/40x40/ebfa32/549926?text=S'">
+    <div class="brand-text">
+      <p class="name">송악고등학교 온라인 보건실</p>
+      <p class="sub">교직원 공유용 보건업무 포털</p>
+    </div>
+  </div>
+
+  <div class="date-inline">
+    <span class="day-num">26</span>
+    <span class="day-full">2026년 6월 26일 금요일</span>
+    <span class="day-strip">
+      <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span class="today">26</span><span>27</span>
+    </span>
+  </div>
+
+  <a class="back-link" href="index.html">← 이전으로</a>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. 교직원 검사안내 -->
+  <section>
+    <div class="section-title"><h2>📌 교직원 검사안내</h2><span class="sub-label">2026년 전체 교직원 검사실시</span></div>
+    <div class="guide-card">
+      <div class="law-row">
+        <span><b>결핵검진대상</b> 유치원 및 각급학교 교직원 및 종사자 (결핵예방법 제11조)</span>
+      </div>
+      <ul>
+        <li><b>결핵검진(흉부 X-ray)</b> : 매년 실시</li>
+        <li><b>잠복결핵감염검진(혈액검사)</b> : 소속된 기간(다른 기관·학교 등으로 소속을 변경하여 근무한 기간 포함) 중 1회 실시</li>
+        <li>신규채용자는 채용일로부터 1개월 이내에 최초 결핵검진 및 잠복결핵검진을 실시해야 함</li>
+        <li>휴직·파견 등으로 6개월 이상 업무에 종사하지 않다가 복귀한 경우, 복귀일로부터 1개월 이내에 결핵검진을 다시 실시해야 함</li>
+      </ul>
+      <div class="deadline-row">
+        <span class="deadline-pill">1학기 조사실시 : 26.8.30까지 입력</span>
+        <span class="deadline-pill">2학기 조사실시 : 26.12.31까지 입력</span>
+      </div>
+      <div class="note-row">채용검진 시 흉부 X-ray를 이미 촬영하신 경우, 결과지 전체를 다시 내실 필요 없이 아래 "채용검진 대체 인정 확인요청"만 눌러주시면 됩니다.</div>
+    </div>
+  </section>
+
+  <!-- 2. 교직원 검사기록 (실시간) -->
+  <section>
+    <div class="section-title"><h2>📊 교직원 검사기록</h2><span class="sub-label">구글 시트와 실시간 연동</span></div>
+    <div class="table-card">
+      <div id="rosterTableWrap">
+        <div class="table-loading">검사기록을 불러오는 중입니다...</div>
+      </div>
+      <div class="table-meta">
+        <span id="lastSync">-</span>
+        <button class="refresh-btn" onclick="loadRoster()">↻ 새로고침</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 제출·업로드 센터 -->
+  <section>
+    <div class="section-title"><h2>📤 제출·업로드 센터</h2><span class="sub-label">제출 즉시 위 표에 반영됩니다</span></div>
+    <div class="card-grid">
+
+      <div class="submit-tile">
+        <span class="tag tag-receiving">접수 중</span>
+        <h2>결핵검진<br>확인증 제출</h2>
+        <p class="desc">개별적으로 결핵검진 또는 흉부 X-ray 검진을 완료하신 교직원은 확인 가능한 자료를 제출해주세요.</p>
+        <div class="meta-box">
+          <div><span class="k">대상</span><span>개별 검진 완료 교직원</span></div>
+          <div><span class="k">자료</span><span>결핵검진 확인증 또는 흉부 X-ray 확인 자료</span></div>
+          <div><span class="k">마감</span><span>11월 30일까지</span></div>
+        </div>
+        <button class="tile-btn" onclick="openModal('modal-tb')">확인증 업로드하기</button>
+      </div>
+
+      <div class="submit-tile">
+        <span class="tag tag-confirm">확인 요청</span>
+        <h2>채용검진 대체 인정<br>확인 요청</h2>
+        <p class="desc">채용검진 서류를 이미 행정실에 제출하신 경우, 보건실 앱에 결과지를 다시 업로드하지 않으셔도 됩니다.</p>
+        <div class="meta-box">
+          <div><span class="k">대상</span><span>채용검진으로 결핵검진 대체 인정 확인이 필요한 교직원</span></div>
+          <div><span class="k">자료</span><span>파일 제출 없음</span></div>
+          <div><span class="k">마감</span><span>11월 30일까지</span></div>
+        </div>
+        <div class="hint-box">보건실에서는 흉부 X-ray 검진일자 확인만 필요합니다.<br>채용검진 결과지 전체는 받지 않습니다.</div>
+        <button class="tile-btn" onclick="openModal('modal-hire')">확인 요청하기</button>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- 모달: 결핵검진 확인증 제출 -->
+<div class="modal-overlay" id="modal-tb">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-tb')">✕</button>
+    <h3>🫁 결핵검진 확인증 제출</h3>
+    <form onsubmit="return handleSubmit(event, 'modal-tb')">
+      <input type="hidden" name="type" value="결핵검진">
+      <div class="field">
+        <label>성명 <span class="req">*</span></label>
+        <input type="text" name="name" placeholder="홍길동" required>
+      </div>
+      <div class="field">
+        <label>소속/부서 <span class="req">*</span></label>
+        <select name="dept" required>
+          <option value="">선택해주세요</option>
+          <option>교무부</option><option>학생안전부</option><option>교육과정부</option>
+          <option>진로부</option><option>창의인성부</option><option>건강지원부</option>
+          <option>1학년부</option><option>2학년부</option><option>3학년부</option><option>기타</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>검진일자 <span class="req">*</span></label>
+        <input type="date" name="date" required>
+      </div>
+      <div class="field">
+        <label>확인증 파일 업로드 <span class="req">*</span></label>
+        <div class="hint-box">결핵검진 확인증 또는 흉부 X-ray 검진 확인 자료를 업로드해주세요.<br>확인 필요 항목: 성명, 검진일자, 검진 항목</div>
+        <div class="drop-zone" id="drop-tb" onclick="document.getElementById('file-tb').click()">
+          📁 파일을 여기에 드래그하거나 클릭해서 선택
+          <small>PDF · JPG · PNG / 최대 10MB</small>
+        </div>
+        <input type="file" id="file-tb" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" required onchange="markFile('drop-tb', this)">
+      </div>
+      <button class="submit-btn" type="submit">제출하기</button>
+      <div class="status-msg" id="status-tb"></div>
+    </form>
+  </div>
+</div>
+
+<!-- 모달: 채용검진 대체 인정 확인 요청 -->
+<div class="modal-overlay" id="modal-hire">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-hire')">✕</button>
+    <h3>📋 채용검진 대체 인정 확인 요청</h3>
+    <form onsubmit="return handleSubmit(event, 'modal-hire')">
+      <input type="hidden" name="type" value="채용검진대체">
+      <div class="field">
+        <label>성명 <span class="req">*</span></label>
+        <input type="text" name="name" placeholder="홍길동" required>
+      </div>
+      <div class="field">
+        <label>소속/부서 <span class="req">*</span></label>
+        <select name="dept" required>
+          <option value="">선택해주세요</option>
+          <option>교무부</option><option>학생안전부</option><option>교육과정부</option>
+          <option>진로부</option><option>창의인성부</option><option>건강지원부</option>
+          <option>1학년부</option><option>2학년부</option><option>3학년부</option><option>기타</option>
+        </select>
+      </div>
+      <div class="hint-box">파일 제출 없이 확인 요청만 접수됩니다.<br>보건실에서 채용검진 시 실시한 흉부 X-ray 검진일자만 확인합니다.</div>
+      <button class="submit-btn" type="submit">확인 요청하기</button>
+      <div class="status-msg" id="status-hire"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal(id){ document.getElementById(id).classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); });
+  });
+
+  function markFile(dropId, input){
+    const dz = document.getElementById(dropId);
+    if(input.files.length){
+      dz.classList.add('has-file');
+      dz.innerHTML = '✅ ' + input.files[0].name + '<small>다른 파일을 선택하려면 다시 클릭</small>';
+    }
+  }
+
+  function fileToBase64(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function statusTag(value){
+    if(!value) return '<span class="status-tag status-none">미제출</span>';
+    if(value === '완료') return '<span class="status-tag status-done">완료</span>';
+    if(String(value).includes('확인요청')) return '<span class="status-tag status-confirm">'+value+'</span>';
+    return '<span class="status-tag status-wait">'+value+'</span>';
+  }
+
+  async function loadRoster(){
+    const wrap = document.getElementById('rosterTableWrap');
+    const lastSync = document.getElementById('lastSync');
+    if(GAS_URL.includes('여기에')){
+      wrap.innerHTML = '<div class="table-empty">⚠ 구글 시트 연동 주소(GAS_URL)가 아직 설정되지 않았습니다. 설정 가이드를 참고해주세요.</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="table-loading">검사기록을 불러오는 중입니다...</div>';
+    try{
+      const res = await fetch(GAS_URL + '?action=list&sheet=결핵검진명부');
+      const data = await res.json();
+      if(data.result !== 'success'){
+        wrap.innerHTML = '<div class="table-empty">불러오기 실패: '+ (data.message||'') +'</div>';
+        return;
+      }
+      if(!data.rows.length){
+        wrap.innerHTML = '<div class="table-empty">아직 등록된 명부가 없습니다. 구글 시트의 "결핵검진명부" 탭에 연번/소속/성명을 먼저 채워주세요.</div>';
+        return;
+      }
+      let html = '<table class="roster"><thead><tr>'+
+        '<th>연번</th><th>소속</th><th>성명</th><th>출생연도구분</th><th>2026년도검진</th>'+
+        '<th>잠복결핵 검진일자</th><th>잠복결핵 검진기관</th>'+
+        '<th>결핵검사 검진일자</th><th>결핵검사 검진기관</th><th>상태</th>'+
+        '</tr></thead><tbody>';
+      data.rows.forEach(r=>{
+        html += '<tr>'+
+          '<td>'+(r['연번']||'')+'</td>'+
+          '<td class="dept-col">'+(r['소속']||'')+'</td>'+
+          '<td class="name-col">'+(r['성명']||'')+'</td>'+
+          '<td>'+(r['출생연도구분(홀수,짝수)']||'')+'</td>'+
+          '<td>'+(r['2026년도검진']||'')+'</td>'+
+          '<td>'+(r['잠복결핵_검진일자']||'')+'</td>'+
+          '<td>'+(r['잠복결핵_검진기관']||'')+'</td>'+
+          '<td>'+(r['결핵검사_검진일자']||'')+'</td>'+
+          '<td>'+(r['결핵검사_검진기관']||'')+'</td>'+
+          '<td>'+statusTag(r['상태'])+'</td>'+
+        '</tr>';
+      });
+      html += '</tbody></table>';
+      wrap.innerHTML = html;
+      lastSync.textContent = '마지막 동기화: ' + new Date().toLocaleTimeString('ko-KR');
+    } catch(err){
+      wrap.innerHTML = '<div class="table-empty">네트워크 오류로 불러오지 못했습니다.</div>';
+    }
+  }
+
+  async function handleSubmit(e, modalId){
+    e.preventDefault();
+    const form = e.target;
+    const statusId = 'status-' + modalId.split('-')[1];
+    const statusEl = document.getElementById(statusId);
+    const btn = form.querySelector('.submit-btn');
+    statusEl.textContent = '';
+    statusEl.className = 'status-msg';
+
+    if(GAS_URL.includes('여기에')){
+      statusEl.textContent = '⚠ 아직 구글 시트 연동 주소(GAS_URL)가 설정되지 않았습니다.';
+      statusEl.className = 'status-msg err';
+      return false;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '제출 중...';
+
+    try{
+      const formData = new FormData(form);
+      const payload = {};
+      formData.forEach((v,k)=>{ if(k!=='file') payload[k]=v; });
+
+      const fileInput = form.querySelector('input[type="file"]');
+      if(fileInput && fileInput.files.length){
+        const file = fileInput.files[0];
+        payload.fileBase64 = await fileToBase64(file);
+        payload.fileName = file.name;
+        payload.fileType = file.type;
+      }
+
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if(result.result === 'success'){
+        statusEl.textContent = '제출이 완료되었습니다. 구글 시트에 실시간으로 기록되었습니다.';
+        statusEl.className = 'status-msg ok';
+        form.reset();
+        document.querySelectorAll('.drop-zone').forEach(dz=>dz.classList.remove('has-file'));
+        loadRoster();
+        setTimeout(()=>{ document.getElementById(modalId).classList.remove('open'); statusEl.textContent=''; }, 1500);
+      } else {
+        statusEl.textContent = '제출 중 오류가 발생했습니다: ' + (result.message || '알 수 없는 오류');
+        statusEl.className = 'status-msg err';
+      }
+    } catch(err){
+      statusEl.textContent = '네트워크 오류로 제출하지 못했습니다. 다시 시도해주세요.';
+      statusEl.className = 'status-msg err';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '제출하기';
+    }
+    return false;
+  }
+
+  loadRoster();
+</script>
+
+</body>
+</html>
