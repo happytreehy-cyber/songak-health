@@ -82,6 +82,10 @@
   .table-meta{ display:flex; justify-content:space-between; align-items:center; padding:10px 4px 14px; font-size:.76rem; color:#999; }
   .refresh-btn{ border:1px solid #ddd; background:#fff; border-radius:8px; padding:5px 12px; font-size:.76rem; cursor:pointer; color:#555; }
   .refresh-btn:hover{ background:#f3f3f3; }
+  .edit-btn{ border:1px solid #1f3d8f; background:#fff; color:#1f3d8f; border-radius:8px; padding:4px 10px; font-size:.74rem; cursor:pointer; font-weight:600; }
+  .edit-btn:hover{ background:#eef1ff; }
+  .save-btn{ border:none; background:#1f3d8f; color:#fff; border-radius:8px; padding:4px 10px; font-size:.74rem; cursor:pointer; font-weight:600; }
+  .ed input{ width:100%; min-width:90px; font-size:.78rem; padding:4px 6px; border:1px solid #cdd; border-radius:6px; }
 
   .card-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:720px){ .card-grid{ grid-template-columns:1fr; } }
@@ -332,6 +336,62 @@
     return '<span class="status-tag status-wait">'+value+'</span>';
   }
 
+  function toggleEditRow(btn){
+    const tr = btn.closest('tr');
+    const cells = tr.querySelectorAll('.ed');
+    cells.forEach(td=>{
+      const field = td.dataset.field;
+      const current = td.dataset.raw !== undefined ? td.dataset.raw : td.textContent.trim();
+      td.dataset.raw = current;
+      if(field === '상태'){
+        td.innerHTML = '<select>'+
+          '<option value=""'+(current===''?' selected':'')+'>미제출</option>'+
+          '<option value="완료"'+(current==='완료'?' selected':'')+'>완료</option>'+
+          '<option value="확인요청(채용검진대체)"'+(current==='확인요청(채용검진대체)'?' selected':'')+'>확인요청(채용검진대체)</option>'+
+        '</select>';
+      } else {
+        td.innerHTML = '<input type="text" value="'+current.replace(/"/g,'&quot;')+'">';
+      }
+    });
+    btn.textContent = '💾 저장';
+    btn.classList.remove('edit-btn');
+    btn.classList.add('save-btn');
+    btn.setAttribute('onclick', 'saveEditRow(this)');
+  }
+
+  async function saveEditRow(btn){
+    const tr = btn.closest('tr');
+    const name = tr.dataset.name;
+    const payload = { type: '관리자수정', name: name };
+    tr.querySelectorAll('.ed').forEach(td=>{
+      const field = td.dataset.field;
+      const input = td.querySelector('input, select');
+      payload[field] = input ? input.value : '';
+    });
+
+    btn.disabled = true;
+    btn.textContent = '저장 중...';
+    try{
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if(result.result === 'success'){
+        loadRoster();
+      } else {
+        alert('저장 실패: ' + (result.message || '알 수 없는 오류'));
+        btn.disabled = false;
+        btn.textContent = '💾 저장';
+      }
+    } catch(err){
+      alert('네트워크 오류로 저장하지 못했습니다.');
+      btn.disabled = false;
+      btn.textContent = '💾 저장';
+    }
+  }
+
   async function loadRoster(){
     const wrap = document.getElementById('rosterTableWrap');
     const lastSync = document.getElementById('lastSync');
@@ -354,20 +414,22 @@
       let html = '<table class="roster"><thead><tr>'+
         '<th>연번</th><th>소속</th><th>성명</th><th>출생연도구분</th><th>2026년도검진</th>'+
         '<th>잠복결핵 검진일자</th><th>잠복결핵 검진기관</th>'+
-        '<th>결핵검사 검진일자</th><th>결핵검사 검진기관</th><th>상태</th>'+
+        '<th>결핵검사 검진일자</th><th>결핵검사 검진기관</th><th>상태</th><th>관리</th>'+
         '</tr></thead><tbody>';
       data.rows.forEach(r=>{
-        html += '<tr>'+
+        const name = (r['성명']||'').toString().replace(/"/g,'&quot;');
+        html += '<tr data-name="'+name+'">'+
           '<td>'+(r['연번']||'')+'</td>'+
           '<td>'+(r['소속']||'')+'</td>'+
           '<td>'+(r['성명']||'')+'</td>'+
           '<td>'+(r['출생연도구분']||'')+'</td>'+
           '<td>'+(r['2026년도검진']||'')+'</td>'+
-          '<td>'+(r['잠복결핵_검진일자']||'')+'</td>'+
-          '<td>'+(r['잠복결핵_검진기관']||'')+'</td>'+
-          '<td>'+(r['결핵검사_검진일자']||'')+'</td>'+
-          '<td>'+(r['결핵검사_검진기관']||'')+'</td>'+
-          '<td>'+statusTag(r['상태'])+'</td>'+
+          '<td class="ed" data-field="잠복결핵_검진일자">'+(r['잠복결핵_검진일자']||'')+'</td>'+
+          '<td class="ed" data-field="잠복결핵_검진기관">'+(r['잠복결핵_검진기관']||'')+'</td>'+
+          '<td class="ed" data-field="결핵검사_검진일자">'+(r['결핵검사_검진일자']||'')+'</td>'+
+          '<td class="ed" data-field="결핵검사_검진기관">'+(r['결핵검사_검진기관']||'')+'</td>'+
+          '<td class="ed" data-field="상태" data-raw="'+(r['상태']||'').toString().replace(/"/g,'&quot;')+'">'+statusTag(r['상태'])+'</td>'+
+          '<td><button class="edit-btn" onclick="toggleEditRow(this)">✏️ 수정</button></td>'+
         '</tr>';
       });
       html += '</tbody></table>';
