@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>연수 안내 - 송악고등학교 온라인 보건실</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #F5F6F8;
+    color: #1A1A1A;
+  }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+  header.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E3E5E8;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #E6F1FB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .brand-text p { margin: 0; }
+  .brand-text .name { font-size: 15px; font-weight: 600; }
+  .brand-text .sub { font-size: 11px; color: #888; }
+  nav.menu {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 13px;
+    color: #555;
+  }
+  nav.menu span { cursor: pointer; }
+  nav.menu span.active { color: #185FA5; font-weight: 600; }
+  .admin-btn {
+    background: #0C447C;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .datebar {
+    background: #fff;
+    border: 1px solid #E3E5E8;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  .datebar-main {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .datebar-main .day-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #185FA5;
+  }
+  .datebar-main .day-full {
+    font-size: 14px;
+    color: #333;
+  }
+  .day-strip {
+    display: flex;
+    gap: 14px;
+    font-size: 13px;
+    color: #C8473A;
+  }
+  .day-strip span.today {
+    background: #185FA5;
+    color: #fff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .subbar {
+    margin-bottom: 18px;
+  }
+  .subbar a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #0C447C;
+    font-weight: 600;
+    text-decoration: none;
+    background: #E6F1FB;
+    border: 1px solid #B5D4F4;
+    border-radius: 20px;
+    padding: 7px 16px;
+  }
+  .subbar a:hover { background: #D2E6FA; }
+  .section-label {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 10px;
+  }
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0C447C;
+    margin: 0 0 4px;
+  }
+  .section-comment {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 12px;
+  }
+  .carousel-wrap {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .cards {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .cards::-webkit-scrollbar { display: none; }
+  .cards .card {
+    flex: 0 0 calc((100% - 28px) / 3);
+    min-width: 220px;
+  }
+  @media (max-width: 700px) {
+    .cards .card { flex: 0 0 80%; }
+    nav.menu { display: none; }
+  }
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #B5D4F4;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    color: #185FA5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .carousel-arrow:hover { background: #E6F1FB; }
+  .card {
+    background: #fff;
+    border: 1px solid #E3E5E8;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card .thumb {
+    height: 84px;
+    background: #F1F2F4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #AAA;
+    font-size: 13px;
+  }
+  .card .body { padding: 14px; }
+  .card .tag {
+    display: inline-block;
+    font-size: 11px;
+    background: #F1F2F4;
+    color: #666;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .card .title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .card .period {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 8px;
+  }
+  .card .resource {
+    font-size: 12px;
+    color: #185FA5;
+    margin: 0 0 10px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .card .resource i { margin-right: 4px; }
+  .card button.go {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #CCC;
+    border-radius: 6px;
+    padding: 8px 0;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .card button.go:hover { background: #F5F6F8; }
+
+  .sheet-block {
+    background: #fff;
+    border: 1px solid #E3E5E8;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .sheet-header {
+    background: #F8F9FA;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #555;
+    border-bottom: 1px solid #E3E5E8;
+  }
+  .sheet-header a {
+    font-size: 12px;
+    color: #185FA5;
+    text-decoration: none;
+  }
+  .sheet-frame-wrap {
+    height: 480px;
+  }
+  .sheet-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🏫</div>
+      <div class="brand-text">
+        <p class="name">송악고등학교 온라인 보건실</p>
+        <p class="sub">교직원 공용 보건업무 포털</p>
+      </div>
+    </div>
+    <nav class="menu">
+      <span>오늘의 보건실</span>
+      <span>제출·업로드 센터</span>
+      <span class="active">교직원 연수안내</span>
+      <span>교육 자료실</span>
+      <span>담임 협조 요청</span>
+    </nav>
+    <button class="admin-btn">관리자 로그인</button>
+  </header>
+
+  <div class="datebar">
+    <div class="datebar-main">
+      <span class="day-num">26</span>
+      <span class="day-full">2026년 6월 26일 금요일</span>
+    </div>
+    <div class="day-strip">
+      <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span class="today">26</span><span>27</span>
+    </div>
+  </div>
+
+  <div class="subbar">
+    <a href="#">← 이전으로</a>
+  </div>
+
+  <p class="section-title">🩺 보건관련 필수 이수연수</p>
+  <p class="section-comment">※ 관리자 모드에서 연수 항목을 추가·수정할 수 있습니다.</p>
+
+  <div class="carousel-wrap">
+    <div class="cards" id="courseCards">
+      <div class="card">
+        <div class="thumb">test</div>
+        <div class="body">
+          <span class="tag">test</span>
+          <p class="title">test</p>
+          <p class="period">test</p>
+          <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
+          <button class="go">이어보기</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="thumb">test</div>
+        <div class="body">
+          <span class="tag">test</span>
+          <p class="title">test</p>
+          <p class="period">test</p>
+          <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
+          <button class="go">이어보기</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="thumb">test</div>
+        <div class="body">
+          <span class="tag">test</span>
+          <p class="title">test</p>
+          <p class="period">test</p>
+          <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
+          <button class="go">이어보기</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="thumb">test</div>
+        <div class="body">
+          <span class="tag">test</span>
+          <p class="title">test</p>
+          <p class="period">test</p>
+          <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
+          <button class="go">이어보기</button>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-arrow" id="carouselNext" aria-label="다음 연수 보기">›</button>
+  </div>
+
+  <p class="section-title">📝 연수 이수 기록 (실시간 입력)</p>
+  <p class="section-comment">※ 이 구글시트는 다른 부서와 공통으로 사용 중인 시트입니다. 본인 연수 이수 내용은 이곳에 기록해 주세요.</p>
+
+  <div class="sheet-block">
+    <div class="sheet-header">
+      <span>연수 이수 기록 시트</span>
+      <a href="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=546997992#gid=546997992" target="_blank">새 창에서 열기 ↗</a>
+    </div>
+    <div class="sheet-frame-wrap">
+      <iframe src="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=546997992&rm=minimal&widget=true&headers=false"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('carouselNext').addEventListener('click', function () {
+    var track = document.getElementById('courseCards');
+    track.scrollBy({ left: 240, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
