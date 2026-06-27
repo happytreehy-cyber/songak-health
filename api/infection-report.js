@@ -157,14 +157,15 @@ async function handleList(req, res) {
   } catch (e) { rows = []; }
 
   const today = new Date();
-  const list = rows.map(r => ({
-    submittedAt: r[0], grade: r[1], classNum: r[2], studentNumber: r[3],
-    studentName: r[4], disease: r[5], diagnosisDate: r[6],
-    exclusionStart: r[6], exclusionEnd: r[7], memo: r[8] || "", status: r[9] || "접수"
-  })).filter(item => {
-    if (!item.exclusionEnd) return false;
-    const end = new Date(item.exclusionEnd);
-    return !isNaN(end) && end >= today;
+  const list = rows.map((r, i) => {
+    const end = r[7] ? new Date(r[7]) : null;
+    return {
+      rowNum: i,
+      submittedAt: r[0], grade: r[1], classNum: r[2], studentNumber: r[3],
+      studentName: r[4], disease: r[5], diagnosisDate: r[6],
+      exclusionStart: r[6], exclusionEnd: r[7] || "", memo: r[8] || "", status: r[9] || "접수",
+      ongoing: !!(end && !isNaN(end) && end >= today)
+    };
   }).reverse();
 
   res.status(200).json({ success: true, list });
