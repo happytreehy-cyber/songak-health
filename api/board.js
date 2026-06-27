@@ -3,10 +3,10 @@
 const { google } = require("googleapis");
 
 const NOTICE_TAB = "보건소식카드";
-const NOTICE_HEADER = ["제목", "날짜", "마감기한", "상태", "링크"];
+const NOTICE_HEADER = ["제목", "내용", "날짜", "마감기한", "상태", "첨부유형", "첨부값"];
 
 const COOP_TAB = "담임협조요청";
-const COOP_HEADER = ["제목", "내용", "등록일", "마감상태", "첨부유형", "첨부값"];
+const COOP_HEADER = ["제목", "내용", "등록일", "마감기한", "마감상태", "첨부유형", "첨부값"];
 
 // 결핵검진 페이지(tb-checkup.html)의 "교직원 검사안내" 공지사항 게시판 전용 탭입니다.
 // 메뉴4의 "공지사항"/"보건소식카드"/"담임협조요청" 탭과는 별도로 분리했습니다.
@@ -75,23 +75,25 @@ async function deleteRow(sheets, sheetId, tabName, rowNum) {
 async function handleListNotice(req, res) {
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const rows = await getTabRows(sheets, sheetId, NOTICE_TAB, "E");
+  const rows = await getTabRows(sheets, sheetId, NOTICE_TAB, "G");
   const items = rows
     .filter(r => r[0])
     .map((r, i) => ({
       rowNum: i,
       title: r[0] || "",
-      date: r[1] || "",
-      deadline: r[2] || "",
-      status: (r[3] || "진행중").trim() === "마감" ? "closed" : "ongoing",
-      url: r[4] || ""
+      content: r[1] || "",
+      date: r[2] || "",
+      deadline: r[3] || "",
+      status: (r[4] || "진행중").trim() === "마감" ? "closed" : "ongoing",
+      attachType: r[5] || "",
+      attachValue: r[6] || ""
     }));
   res.status(200).json({ success: true, items });
 }
 
 async function handleAddNotice(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
-  const { title, date, deadline, status, url } = req.body;
+  const { title, content, date, deadline, status, attachType, attachValue } = req.body;
   if (!title) { res.status(400).json({ success: false, message: "제목을 입력해주세요." }); return; }
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -99,21 +101,21 @@ async function handleAddNotice(req, res) {
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId, range: `${NOTICE_TAB}!A1`,
     valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [[title, date || "", deadline || "", status === "closed" ? "마감" : "진행중", url || ""]] }
+    requestBody: { values: [[title, content || "", date || "", deadline || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "등록되었습니다." });
 }
 
 async function handleEditNotice(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
-  const { rowNum, title, date, deadline, status, url } = req.body;
+  const { rowNum, title, content, date, deadline, status, attachType, attachValue } = req.body;
   if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
   const sheetRowNumber = Number(rowNum) + 2;
   await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${NOTICE_TAB}!A${sheetRowNumber}:E${sheetRowNumber}`,
-    valueInputOption: "RAW", requestBody: { values: [[title, date || "", deadline || "", status === "closed" ? "마감" : "진행중", url || ""]] }
+    spreadsheetId: sheetId, range: `${NOTICE_TAB}!A${sheetRowNumber}:G${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, content || "", date || "", deadline || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "수정되었습니다." });
 }
@@ -126,7 +128,7 @@ async function handleUpdateNoticeStatus(req, res) {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   const sheetRowNumber = Number(rowNum) + 2;
   await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${NOTICE_TAB}!D${sheetRowNumber}`,
+    spreadsheetId: sheetId, range: `${NOTICE_TAB}!E${sheetRowNumber}`,
     valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
   });
   res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
@@ -147,7 +149,7 @@ async function handleDeleteNotice(req, res) {
 async function handleListCoop(req, res) {
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const rows = await getTabRows(sheets, sheetId, COOP_TAB, "F");
+  const rows = await getTabRows(sheets, sheetId, COOP_TAB, "G");
   const items = rows
     .filter(r => r[0])
     .map((r, i) => ({
@@ -155,16 +157,17 @@ async function handleListCoop(req, res) {
       title: r[0] || "",
       content: r[1] || "",
       date: r[2] || "",
-      status: (r[3] || "진행중").trim() === "마감" ? "closed" : "ongoing",
-      attachType: r[4] || "",
-      attachValue: r[5] || ""
+      deadline: r[3] || "",
+      status: (r[4] || "진행중").trim() === "마감" ? "closed" : "ongoing",
+      attachType: r[5] || "",
+      attachValue: r[6] || ""
     }));
   res.status(200).json({ success: true, items });
 }
 
 async function handleAddCoop(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
-  const { title, content, date, status, attachType, attachValue } = req.body;
+  const { title, content, date, deadline, status, attachType, attachValue } = req.body;
   if (!title) { res.status(400).json({ success: false, message: "제목을 입력해주세요." }); return; }
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -172,21 +175,21 @@ async function handleAddCoop(req, res) {
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId, range: `${COOP_TAB}!A1`,
     valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
+    requestBody: { values: [[title, content || "", date || "", deadline || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "등록되었습니다." });
 }
 
 async function handleEditCoop(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
-  const { rowNum, title, content, date, status, attachType, attachValue } = req.body;
+  const { rowNum, title, content, date, deadline, status, attachType, attachValue } = req.body;
   if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
   const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
   const sheetId = process.env.GOOGLE_SHEET_ID;
   const sheetRowNumber = Number(rowNum) + 2;
   await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${COOP_TAB}!A${sheetRowNumber}:F${sheetRowNumber}`,
-    valueInputOption: "RAW", requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
+    spreadsheetId: sheetId, range: `${COOP_TAB}!A${sheetRowNumber}:G${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, content || "", date || "", deadline || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "수정되었습니다." });
 }
@@ -199,7 +202,7 @@ async function handleUpdateCoopStatus(req, res) {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   const sheetRowNumber = Number(rowNum) + 2;
   await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${COOP_TAB}!D${sheetRowNumber}`,
+    spreadsheetId: sheetId, range: `${COOP_TAB}!E${sheetRowNumber}`,
     valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
   });
   res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
