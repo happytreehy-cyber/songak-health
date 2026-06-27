@@ -7,8 +7,7 @@ const NOTICE_TAB = "보건소식카드";
 const NOTICE_HEADER = ["제목", "날짜", "마감기한", "상태", "링크", "내용", "첨부유형"];
 
 const COOP_TAB = "담임협조요청";
-// 기존 칸(제목,내용,등록일,마감상태,첨부유형,첨부값)은 그대로 두고, 새 칸(마감기한)은 맨 뒤에 추가했습니다.
-const COOP_HEADER = ["제목", "내용", "등록일", "마감상태", "첨부유형", "첨부값", "마감기한"];
+const COOP_HEADER = ["제목", "내용", "등록일", "마감기한", "마감상태", "첨부유형", "첨부값"];
 
 // 결핵검진 페이지(tb-checkup.html)의 "교직원 검사안내" 공지사항 게시판 전용 탭입니다.
 // 메뉴4의 "공지사항"/"보건소식카드"/"담임협조요청" 탭과는 별도로 분리했습니다.
@@ -159,10 +158,10 @@ async function handleListCoop(req, res) {
       title: r[0] || "",
       content: r[1] || "",
       date: r[2] || "",
-      status: (r[3] || "진행중").trim() === "마감" ? "closed" : "ongoing",
-      attachType: r[4] || "",
-      attachValue: r[5] || "",
-      deadline: r[6] || ""
+      deadline: r[3] || "",
+      status: (r[4] || "진행중").trim() === "마감" ? "closed" : "ongoing",
+      attachType: r[5] || "",
+      attachValue: r[6] || ""
     }));
   res.status(200).json({ success: true, items });
 }
@@ -177,7 +176,7 @@ async function handleAddCoop(req, res) {
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId, range: `${COOP_TAB}!A1`,
     valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || "", deadline || ""]] }
+    requestBody: { values: [[title, content || "", date || "", deadline || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "등록되었습니다." });
 }
@@ -204,7 +203,7 @@ async function handleUpdateCoopStatus(req, res) {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   const sheetRowNumber = Number(rowNum) + 2;
   await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${COOP_TAB}!D${sheetRowNumber}`,
+    spreadsheetId: sheetId, range: `${COOP_TAB}!E${sheetRowNumber}`,
     valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
   });
   res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
