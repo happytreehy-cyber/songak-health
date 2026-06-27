@@ -1,604 +1,297 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>관리자 - 송악고등학교 온라인 보건실</title>
-<meta name="color-scheme" content="light only">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root{--navy:#1e3a8a;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
-  a{text-decoration:none;color:inherit;}
-  button{font-family:inherit;cursor:pointer;}
-  input,textarea,select{font-family:inherit;}
+// /api/board.js
+// 담임 협조 요청(coop) + 보건소식 카드(notice)를 관리하는 통합 API
+const { google } = require("googleapis");
 
-  /* 로그인 게이트 */
-  #loginGate{position:fixed;inset:0;background:#f5f7fb;display:flex;align-items:center;justify-content:center;z-index:100;}
-  .login-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;width:100%;max-width:340px;text-align:center;}
-  .login-box h2{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;}
-  .login-box p{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
-  .login-box input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;margin-bottom:10px;}
-  .login-box button{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;}
-  .login-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
+const NOTICE_TAB = "보건소식카드";
+const NOTICE_HEADER = ["제목", "날짜", "마감기한", "상태", "링크"];
 
-  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
-  .topbar .brand{font-size:15px;font-weight:700;color:var(--navy);}
-  .topbar .brand span{font-size:11.5px;color:var(--muted);font-weight:400;margin-left:6px;}
-  .logout-btn{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:6px 12px;background:#fff;}
+const COOP_TAB = "담임협조요청";
+const COOP_HEADER = ["제목", "내용", "등록일", "마감상태", "첨부유형", "첨부값"];
 
-  .layout{display:flex;min-height:calc(100vh - 53px);}
-  .sidebar{width:230px;background:#fff;border-right:1px solid var(--border);padding:22px 18px;flex-shrink:0;}
-  .sidebar-label{font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:4px;}
-  .sidebar-title{font-size:17px;font-weight:800;color:#1e293b;margin-bottom:4px;}
-  .sidebar-desc{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:20px;}
-  .nav-item{display:block;width:100%;text-align:left;font-size:13.5px;font-weight:600;color:#475569;padding:10px 12px;border-radius:9px;margin-bottom:6px;border:none;background:none;}
-  .nav-item.active{background:var(--navy);color:#fff;}
-  .nav-item.exit{margin-top:16px;border:1px solid var(--border);text-align:center;color:#334155;background:#fff;}
+// 결핵검진 페이지(tb-checkup.html)의 "교직원 검사안내" 공지사항 게시판 전용 탭입니다.
+// 메뉴4의 "공지사항"/"보건소식카드"/"담임협조요청" 탭과는 별도로 분리했습니다.
+const CHECKUP_TAB = "결핵검진_공지사항";
+const CHECKUP_HEADER = ["제출일시", "제목", "대상", "내용", "일시", "링크", "파일링크", "상태"];
 
-  .main{flex:1;padding:28px 32px;max-width:760px;}
-  .panel{display:none;}
-  .panel.active{display:block;}
-  .panel-tag{font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:6px;}
-  .panel-title{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:6px;}
-  .panel-desc{font-size:13px;color:var(--muted);margin-bottom:20px;}
-
-  .form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
-  .form-card h4{font-size:13.5px;font-weight:700;margin-bottom:12px;}
-  .form-row{display:flex;gap:8px;margin-bottom:8px;}
-  .form-row > *{flex:1;}
-  input[type=text],input[type=date],input[type=file],textarea,select{width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:13px;margin-bottom:8px;}
-  textarea{resize:vertical;min-height:60px;}
-  .submit-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;}
-  .submit-btn:disabled{opacity:.6;}
-  .result-msg{margin-top:8px;font-size:12.5px;text-align:center;}
-  .result-msg.ok{color:#16803c;}
-  .result-msg.err{color:#dc2626;}
-
-  .list-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
-  .list-card h4{font-size:13.5px;font-weight:700;margin-bottom:10px;}
-  .list-item{border-bottom:1px solid #f1f5f9;padding:12px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-  .list-item:last-child{border-bottom:none;}
-  .li-main strong{font-size:13.5px;}
-  .li-main .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
-  .li-actions{display:flex;gap:6px;flex-shrink:0;}
-  .li-actions button{font-size:11.5px;border:none;border-radius:7px;padding:6px 10px;font-weight:700;}
-  .btn-toggle{background:#dbeafe;color:#1e3a8a;}
-  .btn-del{background:#fee2e2;color:#b91c1c;}
-  .empty-msg{font-size:12.5px;color:var(--muted);}
-
-  .tile-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}
-  .tile{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
-  .tile .t-label{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
-  .tile .t-value{font-size:22px;font-weight:800;color:#1e293b;}
-</style>
-</head>
-<body>
-
-<div id="loginGate">
-  <div class="login-box">
-    <h2>🔒 관리자 로그인</h2>
-    <p>송악고등학교 온라인 보건실 관리자 모드입니다.</p>
-    <input type="password" id="loginPw" placeholder="관리자 비밀번호">
-    <button id="loginBtn">로그인</button>
-    <div class="login-err" id="loginErr"></div>
-  </div>
-</div>
-
-<div id="adminApp" style="display:none;">
-  <div class="topbar">
-    <div class="brand">송악고등학교 온라인 보건실 <span>관리자 모드</span></div>
-    <button class="logout-btn" id="logoutBtn">🔒 로그아웃</button>
-  </div>
-
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-label">ADMIN CONSOLE</div>
-      <div class="sidebar-title">온라인 보건실 관리자</div>
-      <div class="sidebar-desc">교직원 공개 화면과 분리된 통합 관리 영역입니다.</div>
-
-      <button class="nav-item active" data-panel="home">관리자 홈</button>
-      <button class="nav-item" data-panel="coop">🙏 담임 협조 요청 관리</button>
-      <button class="nav-item" data-panel="notice">🏥 이번주·이달의 보건소식 관리</button>
-      <button class="nav-item" data-panel="news">🦠 감염병 카드뉴스 관리</button>
-      <button class="nav-item" data-panel="checkup">🫁 검사안내 게시판 관리</button>
-
-      <a class="nav-item exit" href="menu4.html" target="_blank">← 공개 포털로 이동</a>
-    </aside>
-
-    <main class="main">
-
-      <!-- 관리자 홈 -->
-      <section class="panel active" id="panel-home">
-        <div class="panel-tag">ADMIN DASHBOARD</div>
-        <div class="panel-title">관리자 홈</div>
-        <div class="panel-desc">비밀번호 1회 입력으로 모든 항목을 이 화면에서 관리합니다.</div>
-        <div class="tile-row">
-          <div class="tile"><div class="t-label">담임 협조 요청</div><div class="t-value" id="tileCoop">-</div></div>
-          <div class="tile"><div class="t-label">이번주·이달의 보건소식</div><div class="t-value" id="tileNotice">-</div></div>
-          <div class="tile"><div class="t-label">카드뉴스 등록</div><div class="t-value" id="tileNews">-</div></div>
-          <div class="tile"><div class="t-label">검사안내 게시판</div><div class="t-value" id="tileCheckup">-</div></div>
-        </div>
-      </section>
-
-      <!-- 담임 협조 요청 관리 -->
-      <section class="panel" id="panel-coop">
-        <div class="panel-tag">COOPERATION</div>
-        <div class="panel-title">🙏 담임 협조 요청 관리</div>
-        <div class="panel-desc">문진표 회수, 가정통신문 배부 등 담임 선생님께 요청할 항목을 등록·관리합니다.</div>
-
-        <div class="form-card">
-          <h4>📝 새 협조 요청 등록</h4>
-          <input type="text" id="coopTitle" placeholder="제목 (예: 1학년 문진표 회수 요청)">
-          <textarea id="coopContent" placeholder="내용 (예: 6월 20일까지 회수하여 보건실에 제출해주세요)"></textarea>
-          <div class="form-row">
-            <input type="date" id="coopDate">
-            <select id="coopAttachType">
-              <option value="">첨부 없음</option>
-              <option value="link">구글폼/일반 링크</option>
-              <option value="qr">설문 QR (링크 입력시 자동생성)</option>
-              <option value="file">파일 업로드</option>
-            </select>
-          </div>
-          <input type="text" id="coopAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
-          <input type="file" id="coopAttachFile" style="display:none;">
-          <button class="submit-btn" id="coopAddBtn">등록</button>
-          <div class="result-msg" id="coopAddMsg"></div>
-        </div>
-
-        <div class="list-card">
-          <h4>등록된 협조 요청</h4>
-          <div id="coopAdminList"><div class="empty-msg">불러오는 중...</div></div>
-        </div>
-      </section>
-
-      <!-- 보건소식 관리 -->
-      <section class="panel" id="panel-notice">
-        <div class="panel-tag">HEALTH NOTICE</div>
-        <div class="panel-title">🏥 이번주·이달의 보건소식 관리</div>
-        <div class="panel-desc">PDF나 이미지 형태의 보건소식을 등록·관리합니다.</div>
-
-        <div class="form-card">
-          <h4>📝 새 보건소식 등록</h4>
-          <input type="text" id="noticeTitle" placeholder="제목 (예: 여름철 식중독 예방 안내)">
-          <div class="form-row">
-            <input type="date" id="noticeDate">
-            <input type="text" id="noticeDeadline" placeholder="마감 기한 (선택, 예: 7월 1일)">
-          </div>
-          <input type="file" id="noticeFile" accept="image/*,application/pdf">
-          <button class="submit-btn" id="noticeAddBtn">등록</button>
-          <div class="result-msg" id="noticeAddMsg"></div>
-        </div>
-
-        <div class="list-card">
-          <h4>등록된 보건소식</h4>
-          <div id="noticeAdminList"><div class="empty-msg">불러오는 중...</div></div>
-        </div>
-      </section>
-
-      <!-- 카드뉴스 관리 -->
-      <section class="panel" id="panel-news">
-        <div class="panel-tag">CARD NEWS</div>
-        <div class="panel-title">🦠 감염병 카드뉴스 관리</div>
-        <div class="panel-desc">감염병 예방 카드뉴스, 가정통신문을 등록·관리합니다.</div>
-
-        <div class="form-card">
-          <h4>📝 새 카드뉴스 등록</h4>
-          <input type="text" id="newsTitle" placeholder="제목 (예: 수두 예방 안내)">
-          <div class="form-row">
-            <input type="date" id="newsDate">
-            <input type="text" id="newsTag" placeholder="태그 (선택, 예: 유행주의)">
-          </div>
-          <input type="file" id="newsFile" accept="image/*,application/pdf">
-          <button class="submit-btn" id="newsAddBtn">등록</button>
-          <div class="result-msg" id="newsAddMsg"></div>
-        </div>
-
-        <div class="list-card">
-          <h4>등록된 카드뉴스</h4>
-          <div id="newsAdminList"><div class="empty-msg">불러오는 중...</div></div>
-        </div>
-      </section>
-
-      <!-- 검사안내 게시판 관리 (tb-checkup.html과 시트 공유) -->
-      <section class="panel" id="panel-checkup">
-        <div class="panel-tag">CHECKUP NOTICE</div>
-        <div class="panel-title">🫁 검사안내 게시판 관리</div>
-        <div class="panel-desc">결핵검진 페이지(교직원 검사안내)의 공지사항 게시판입니다. 여기서 작성하면 tb-checkup.html 화면에도 바로 표시됩니다.</div>
-
-        <div class="form-card">
-          <h4>📝 새 글 작성</h4>
-          <input type="text" id="checkupTitle" placeholder="제목 (예: 7월 결핵검진 안내)">
-          <input type="text" id="checkupTarget" placeholder="대상 (예: 전체 교직원 / 신규 채용 교직원)">
-          <textarea id="checkupContent" placeholder="내용"></textarea>
-          <div class="form-row">
-            <input type="text" id="checkupDatetime" placeholder="일시 (예: 2026.07.10(금) 14:00)">
-            <input type="text" id="checkupLink" placeholder="링크 (https://...)">
-          </div>
-          <input type="file" id="checkupFile" accept="image/*,application/pdf">
-          <select id="checkupStatus" style="margin-top:10px;">
-            <option value="ongoing">진행중</option>
-            <option value="closed">마감</option>
-          </select>
-          <button class="submit-btn" id="checkupAddBtn">등록</button>
-          <div class="result-msg" id="checkupAddMsg"></div>
-        </div>
-
-        <div class="list-card">
-          <h4>등록된 게시글</h4>
-          <div id="checkupAdminList"><div class="empty-msg">불러오는 중...</div></div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-</div>
-
-<script>
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-/* ---------- 로그인 ---------- */
-function getPw(){ return sessionStorage.getItem('songakAdminPw') || ''; }
-function setPw(pw){ sessionStorage.setItem('songakAdminPw', pw); }
-function clearPw(){ sessionStorage.removeItem('songakAdminPw'); }
-
-async function tryLogin(pw){
-  const res = await fetch('/api/board?type=coop', { method:'GET' }); // 더미: 실제 인증은 checkpw로
-  const r = await fetch('/api/board', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'checkpw', password: pw }) });
-  return await r.json();
+function getSheetsClient(scopes) {
+  return google.sheets({
+    version: "v4",
+    auth: new google.auth.JWT(
+      process.env.GOOGLE_CLIENT_EMAIL,
+      null,
+      (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
+      scopes
+    )
+  });
 }
 
-document.getElementById('loginBtn').addEventListener('click', doLogin);
-document.getElementById('loginPw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+function checkPw(req) {
+  const pw = (req.body && req.body.password) || (req.query && req.query.password);
+  return !!pw && pw === process.env.ADMIN_PASSWORD;
+}
 
-async function doLogin(){
-  const pw = document.getElementById('loginPw').value;
-  const errEl = document.getElementById('loginErr');
-  if(!pw){ errEl.textContent = '비밀번호를 입력해주세요.'; return; }
-  errEl.textContent = '확인 중...';
-  try{
-    const data = await tryLogin(pw);
-    if(data.success){
-      setPw(pw);
-      enterAdmin();
-    }else{
-      errEl.textContent = data.message || '비밀번호가 올바르지 않습니다.';
+async function ensureTab(sheets, sheetId, tabName, header) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const exists = meta.data.sheets.some(s => s.properties.title === tabName);
+  if (!exists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: tabName } } }] }
+    });
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId, range: `${tabName}!A1`,
+      valueInputOption: "RAW", requestBody: { values: [header] }
+    });
+  }
+}
+
+async function getTabRows(sheets, sheetId, tabName, lastCol) {
+  try {
+    const result = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId, range: `${tabName}!A2:${lastCol}`
+    });
+    return result.data.values || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function deleteRow(sheets, sheetId, tabName, rowNum) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const tab = meta.data.sheets.find(s => s.properties.title === tabName);
+  if (!tab) return false;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    requestBody: { requests: [{
+      deleteDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber } }
+    }] }
+  });
+  return true;
+}
+
+/* ---------------- 보건소식 카드 ---------------- */
+
+async function handleListNotice(req, res) {
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const rows = await getTabRows(sheets, sheetId, NOTICE_TAB, "E");
+  const items = rows
+    .filter(r => r[0])
+    .map((r, i) => ({
+      rowNum: i,
+      title: r[0] || "",
+      date: r[1] || "",
+      deadline: r[2] || "",
+      status: (r[3] || "진행중").trim() === "마감" ? "closed" : "ongoing",
+      url: r[4] || ""
+    }));
+  res.status(200).json({ success: true, items });
+}
+
+async function handleAddNotice(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { title, date, deadline, status, url } = req.body;
+  if (!title) { res.status(400).json({ success: false, message: "제목을 입력해주세요." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  await ensureTab(sheets, sheetId, NOTICE_TAB, NOTICE_HEADER);
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId, range: `${NOTICE_TAB}!A1`,
+    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+    requestBody: { values: [[title, date || "", deadline || "", status === "closed" ? "마감" : "진행중", url || ""]] }
+  });
+  res.status(200).json({ success: true, message: "등록되었습니다." });
+}
+
+async function handleUpdateNoticeStatus(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, status } = req.body;
+  if (rowNum === undefined || !status) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${NOTICE_TAB}!D${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
+  });
+  res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
+}
+
+async function handleDeleteNotice(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum } = req.body;
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const ok = await deleteRow(sheets, sheetId, NOTICE_TAB, rowNum);
+  if (!ok) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
+}
+
+/* ---------------- 담임 협조 요청 ---------------- */
+
+async function handleListCoop(req, res) {
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const rows = await getTabRows(sheets, sheetId, COOP_TAB, "F");
+  const items = rows
+    .filter(r => r[0])
+    .map((r, i) => ({
+      rowNum: i,
+      title: r[0] || "",
+      content: r[1] || "",
+      date: r[2] || "",
+      status: (r[3] || "진행중").trim() === "마감" ? "closed" : "ongoing",
+      attachType: r[4] || "",
+      attachValue: r[5] || ""
+    }));
+  res.status(200).json({ success: true, items });
+}
+
+async function handleAddCoop(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { title, content, date, status, attachType, attachValue } = req.body;
+  if (!title) { res.status(400).json({ success: false, message: "제목을 입력해주세요." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  await ensureTab(sheets, sheetId, COOP_TAB, COOP_HEADER);
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId, range: `${COOP_TAB}!A1`,
+    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+    requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
+  });
+  res.status(200).json({ success: true, message: "등록되었습니다." });
+}
+
+async function handleUpdateCoopStatus(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, status } = req.body;
+  if (rowNum === undefined || !status) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${COOP_TAB}!D${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
+  });
+  res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
+}
+
+async function handleDeleteCoop(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum } = req.body;
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const ok = await deleteRow(sheets, sheetId, COOP_TAB, rowNum);
+  if (!ok) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
+}
+
+/* ---------------- 검사안내 게시판 (tb-checkup.html과 시트 공유) ---------------- */
+
+async function handleListCheckup(req, res) {
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const rows = await getTabRows(sheets, sheetId, CHECKUP_TAB, "H");
+  const items = rows
+    .filter(r => r[1]) // 제목(2번째 칸)이 있는 줄만
+    .map((r, i) => ({
+      rowNum: i,
+      submittedAt: r[0] || "",
+      title: r[1] || "",
+      target: r[2] || "",
+      content: r[3] || "",
+      datetime: r[4] || "",
+      link: r[5] || "",
+      fileUrl: r[6] || "",
+      status: (r[7] || "진행중").trim() === "마감" ? "closed" : "ongoing"
+    }));
+  res.status(200).json({ success: true, items });
+}
+
+async function handleAddCheckup(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { title, target, content, datetime, link, status, fileUrl } = req.body;
+  if (!title || !content) { res.status(400).json({ success: false, message: "제목과 내용을 입력해주세요." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  await ensureTab(sheets, sheetId, CHECKUP_TAB, CHECKUP_HEADER);
+  const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId, range: `${CHECKUP_TAB}!A1`,
+    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+    requestBody: { values: [[now, title, target || "", content, datetime || "", link || "", fileUrl || "", status === "closed" ? "마감" : "진행중"]] }
+  });
+  res.status(200).json({ success: true, message: "등록되었습니다." });
+}
+
+async function handleUpdateCheckupStatus(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, status } = req.body;
+  if (rowNum === undefined || !status) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${CHECKUP_TAB}!H${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[status === "closed" ? "마감" : "진행중"]] }
+  });
+  res.status(200).json({ success: true, message: "상태가 변경되었습니다." });
+}
+
+async function handleDeleteCheckup(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum } = req.body;
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const ok = await deleteRow(sheets, sheetId, CHECKUP_TAB, rowNum);
+  if (!ok) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
+}
+
+/* ---------------- 관리자 비밀번호 단순 확인 (통합 로그인용) ---------------- */
+async function handleCheckAdminPw(req, res) {
+  const { password } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(200).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  res.status(200).json({ success: true });
+}
+
+module.exports = async (req, res) => {
+  try {
+    const type = req.query.type;
+    if (req.method === "GET") {
+      if (type === "notice") return await handleListNotice(req, res);
+      if (type === "coop") return await handleListCoop(req, res);
+      if (type === "checkup") return await handleListCheckup(req, res);
+      res.status(400).json({ success: false, message: "type 파라미터가 필요합니다. (notice, coop 또는 checkup)" });
+      return;
     }
-  }catch(e){
-    errEl.textContent = '서버 연결에 실패했습니다.';
-  }
-}
-
-function enterAdmin(){
-  document.getElementById('loginGate').style.display = 'none';
-  document.getElementById('adminApp').style.display = 'block';
-  loadAll();
-}
-
-document.getElementById('logoutBtn').addEventListener('click', function(){
-  clearPw();
-  location.reload();
-});
-
-/* 자동 로그인 (세션에 비번 남아있으면) */
-window.addEventListener('DOMContentLoaded', async function(){
-  const cached = getPw();
-  if(cached){
-    try{
-      const data = await tryLogin(cached);
-      if(data.success){ enterAdmin(); return; }
-    }catch(e){}
-  }
-});
-
-/* ---------- 사이드바 패널 전환 ---------- */
-document.querySelectorAll('.nav-item[data-panel]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    document.querySelectorAll('.nav-item[data-panel]').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
-    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
-  });
-});
-
-/* ---------- 공통: 파일 업로드 ---------- */
-async function uploadFile(file){
-  const res = await fetch('/api/upload', {
-    method:'POST',
-    headers:{ 'Content-Type': file.type || 'application/octet-stream', 'x-filename': encodeURIComponent(file.name) },
-    body: file
-  });
-  return await res.json();
-}
-
-/* ---------- 담임 협조 요청 관리 ---------- */
-document.getElementById('coopAttachType').addEventListener('change', function(){
-  const v = this.value;
-  document.getElementById('coopAttachLink').style.display = (v==='link'||v==='qr') ? 'block' : 'none';
-  document.getElementById('coopAttachFile').style.display = (v==='file') ? 'block' : 'none';
-});
-
-async function loadCoopAdmin(){
-  const listEl = document.getElementById('coopAdminList');
-  try{
-    const res = await fetch('/api/board?type=coop');
-    const data = await res.json();
-    const items = data.items || [];
-    document.getElementById('tileCoop').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
-    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
-    listEl.innerHTML = items.map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
-        '<div class="sub">'+escHtml(item.date)+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
-        '<div class="li-actions">'+
-        '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
-        '<button class="btn-del" onclick="deleteCoop('+item.rowNum+')">삭제</button>'+
-        '</div></div>';
-    }).join('');
-  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
-}
-
-async function toggleCoopStatus(rowNum, curStatus){
-  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
-  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
-  loadCoopAdmin();
-}
-async function deleteCoop(rowNum){
-  if(!confirm('삭제하시겠습니까?')) return;
-  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
-  loadCoopAdmin();
-}
-
-document.getElementById('coopAddBtn').addEventListener('click', async function(){
-  const btn = this;
-  const msgEl = document.getElementById('coopAddMsg');
-  msgEl.textContent=''; msgEl.className='result-msg';
-  const title = document.getElementById('coopTitle').value.trim();
-  const content = document.getElementById('coopContent').value.trim();
-  const date = document.getElementById('coopDate').value;
-  const attachType = document.getElementById('coopAttachType').value;
-  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
-
-  btn.disabled = true; btn.textContent = '등록 중...';
-  try{
-    let attachValue = '';
-    if(attachType==='link' || attachType==='qr'){
-      attachValue = document.getElementById('coopAttachLink').value.trim();
-    } else if(attachType==='file'){
-      const f = document.getElementById('coopAttachFile').files[0];
-      if(f){
-        const up = await uploadFile(f);
-        if(up.success) attachValue = up.url;
+    if (req.method === "POST") {
+      const action = req.body.action;
+      if (action === "checkpw") return await handleCheckAdminPw(req, res);
+      if (type === "notice") {
+        if (action === "add") return await handleAddNotice(req, res);
+        if (action === "updatestatus") return await handleUpdateNoticeStatus(req, res);
+        if (action === "delete") return await handleDeleteNotice(req, res);
       }
+      if (type === "coop") {
+        if (action === "add") return await handleAddCoop(req, res);
+        if (action === "updatestatus") return await handleUpdateCoopStatus(req, res);
+        if (action === "delete") return await handleDeleteCoop(req, res);
+      }
+      if (type === "checkup") {
+        if (action === "add") return await handleAddCheckup(req, res);
+        if (action === "updatestatus") return await handleUpdateCheckupStatus(req, res);
+        if (action === "delete") return await handleDeleteCheckup(req, res);
+      }
+      res.status(400).json({ success: false, message: "알 수 없는 요청입니다." });
+      return;
     }
-    const res = await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, status:'ongoing', attachType, attachValue }) });
-    const data = await res.json();
-    if(data.success){
-      msgEl.textContent='등록되었습니다!'; msgEl.classList.add('ok');
-      document.getElementById('coopTitle').value='';
-      document.getElementById('coopContent').value='';
-      document.getElementById('coopDate').value='';
-      document.getElementById('coopAttachType').value='';
-      document.getElementById('coopAttachLink').value='';
-      document.getElementById('coopAttachLink').style.display='none';
-      document.getElementById('coopAttachFile').value='';
-      document.getElementById('coopAttachFile').style.display='none';
-      loadCoopAdmin();
-    }else{
-      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
-    }
-  }catch(e){
-    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
-  }finally{
-    btn.disabled=false; btn.textContent='등록';
+    res.status(405).json({ success: false, message: "허용되지 않는 메서드입니다." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.toString() });
   }
-});
-
-/* ---------- 보건소식 관리 ---------- */
-async function loadNoticeAdmin(){
-  const listEl = document.getElementById('noticeAdminList');
-  try{
-    const res = await fetch('/api/board?type=notice');
-    const data = await res.json();
-    const items = data.items || [];
-    document.getElementById('tileNotice').textContent = items.length + '건';
-    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
-    listEl.innerHTML = items.map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
-        '<div class="sub">'+escHtml(item.date)+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
-        '<div class="li-actions">'+
-        '<button class="btn-toggle" onclick="toggleNoticeStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
-        '<button class="btn-del" onclick="deleteNotice('+item.rowNum+')">삭제</button>'+
-        '</div></div>';
-    }).join('');
-  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
-}
-async function toggleNoticeStatus(rowNum, curStatus){
-  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
-  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
-  loadNoticeAdmin();
-}
-async function deleteNotice(rowNum){
-  if(!confirm('삭제하시겠습니까?')) return;
-  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
-  loadNoticeAdmin();
-}
-document.getElementById('noticeAddBtn').addEventListener('click', async function(){
-  const btn = this;
-  const msgEl = document.getElementById('noticeAddMsg');
-  msgEl.textContent=''; msgEl.className='result-msg';
-  const title = document.getElementById('noticeTitle').value.trim();
-  const date = document.getElementById('noticeDate').value;
-  const deadline = document.getElementById('noticeDeadline').value.trim();
-  const fileInput = document.getElementById('noticeFile');
-  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
-  if(!fileInput.files[0]){ msgEl.textContent='파일을 선택해주세요.'; msgEl.classList.add('err'); return; }
-
-  btn.disabled=true; btn.textContent='등록 중...';
-  try{
-    const up = await uploadFile(fileInput.files[0]);
-    if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); return; }
-    const res = await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, date, deadline, status:'ongoing', url:up.url }) });
-    const data = await res.json();
-    if(data.success){
-      msgEl.textContent='등록되었습니다!'; msgEl.classList.add('ok');
-      document.getElementById('noticeTitle').value='';
-      document.getElementById('noticeDate').value='';
-      document.getElementById('noticeDeadline').value='';
-      fileInput.value='';
-      loadNoticeAdmin();
-    }else{
-      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
-    }
-  }catch(e){
-    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
-  }finally{
-    btn.disabled=false; btn.textContent='등록';
-  }
-});
-
-/* ---------- 카드뉴스 관리 ---------- */
-async function loadNewsAdmin(){
-  const listEl = document.getElementById('newsAdminList');
-  try{
-    const res = await fetch('/api/infection-report?action=newscards');
-    const data = await res.json();
-    const items = data.cards || [];
-    document.getElementById('tileNews').textContent = items.length + '건';
-    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
-    listEl.innerHTML = items.map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
-        '<div class="sub">'+escHtml(item.date)+(item.tag?' · '+escHtml(item.tag):'')+'</div></div>'+
-        '<div class="li-actions"><button class="btn-del" onclick="deleteNews('+item.rowNum+')">삭제</button></div></div>';
-    }).join('');
-  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
-}
-async function deleteNews(rowNum){
-  if(!confirm('삭제하시겠습니까?')) return;
-  await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'deletenewscard', password:getPw(), rowNum }) });
-  loadNewsAdmin();
-}
-document.getElementById('newsAddBtn').addEventListener('click', async function(){
-  const btn = this;
-  const msgEl = document.getElementById('newsAddMsg');
-  msgEl.textContent=''; msgEl.className='result-msg';
-  const title = document.getElementById('newsTitle').value.trim();
-  const date = document.getElementById('newsDate').value;
-  const tag = document.getElementById('newsTag').value.trim();
-  const fileInput = document.getElementById('newsFile');
-  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
-  if(!fileInput.files[0]){ msgEl.textContent='파일을 선택해주세요.'; msgEl.classList.add('err'); return; }
-
-  btn.disabled=true; btn.textContent='등록 중...';
-  try{
-    const up = await uploadFile(fileInput.files[0]);
-    if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); return; }
-    const res = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'addnewscard', password:getPw(), title, date, tag, url:up.url }) });
-    const data = await res.json();
-    if(data.success){
-      msgEl.textContent='등록되었습니다!'; msgEl.classList.add('ok');
-      document.getElementById('newsTitle').value='';
-      document.getElementById('newsDate').value='';
-      document.getElementById('newsTag').value='';
-      fileInput.value='';
-      loadNewsAdmin();
-    }else{
-      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
-    }
-  }catch(e){
-    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
-  }finally{
-    btn.disabled=false; btn.textContent='등록';
-  }
-});
-
-function loadAll(){
-  loadCoopAdmin();
-  loadNoticeAdmin();
-  loadNewsAdmin();
-  loadCheckupAdmin();
-}
-
-/* ---------- 검사안내 게시판 관리 ---------- */
-async function loadCheckupAdmin(){
-  const listEl = document.getElementById('checkupAdminList');
-  try{
-    const res = await fetch('/api/board?type=checkup');
-    const data = await res.json();
-    const items = data.items || [];
-    document.getElementById('tileCheckup').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
-    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
-    listEl.innerHTML = items.slice().reverse().map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
-        '<div class="sub">'+escHtml(item.target||'-')+(item.datetime?(' · '+escHtml(item.datetime)):'')+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
-        '<div class="li-actions">'+
-        '<button class="btn-toggle" onclick="toggleCheckupStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
-        '<button class="btn-del" onclick="deleteCheckup('+item.rowNum+')">삭제</button>'+
-        '</div></div>';
-    }).join('');
-  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
-}
-
-async function toggleCheckupStatus(rowNum, curStatus){
-  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
-  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
-  loadCheckupAdmin();
-}
-async function deleteCheckup(rowNum){
-  if(!confirm('삭제하시겠습니까?')) return;
-  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
-  loadCheckupAdmin();
-}
-
-document.getElementById('checkupAddBtn').addEventListener('click', async function(){
-  const btn = this;
-  const msgEl = document.getElementById('checkupAddMsg');
-  msgEl.textContent=''; msgEl.className='result-msg';
-  const title = document.getElementById('checkupTitle').value.trim();
-  const target = document.getElementById('checkupTarget').value.trim();
-  const content = document.getElementById('checkupContent').value.trim();
-  const datetime = document.getElementById('checkupDatetime').value.trim();
-  const link = document.getElementById('checkupLink').value.trim();
-  const status = document.getElementById('checkupStatus').value;
-  const fileInput = document.getElementById('checkupFile');
-  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
-  if(!content){ msgEl.textContent='내용을 입력해주세요.'; msgEl.classList.add('err'); return; }
-
-  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
-  try{
-    let fileUrl = '';
-    if(fileInput.files[0]){
-      const up = await uploadFile(fileInput.files[0]);
-      if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
-      fileUrl = up.url;
-    }
-    const res = await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, target, content, datetime, link, status, fileUrl }) });
-    const data = await res.json();
-    if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
-      document.getElementById('checkupTitle').value='';
-      document.getElementById('checkupTarget').value='';
-      document.getElementById('checkupContent').value='';
-      document.getElementById('checkupDatetime').value='';
-      document.getElementById('checkupLink').value='';
-      document.getElementById('checkupStatus').value='ongoing';
-      fileInput.value='';
-      loadCheckupAdmin();
-    }else{
-      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
-    }
-  }catch(e){
-    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
-  }finally{
-    btn.disabled=false; btn.textContent='등록';
-  }
-});
-
-</script>
-
-</body>
-</html>
+};
