@@ -356,6 +356,28 @@ function statusDiamond(status){
   if(status === 'closed') return '<span style="color:#dc2626;font-weight:700;">◆ 마감</span>';
   return '<span style="color:#2563eb;font-weight:700;">◆ 진행중</span>';
 }
+// 진행중(파랑)/마감임박(빨강, 마감기한 3일 이내)/종료(회색) 3단계 판정
+function getStatusTier(item){
+  if(item.status === 'closed') return 'ended';
+  if(item.deadline){
+    const d = new Date(item.deadline);
+    if(!isNaN(d)){
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diffDays = Math.ceil((d - today) / 86400000);
+      if(diffDays < 0) return 'ended';
+      if(diffDays <= 3) return 'soon';
+    }
+  }
+  return 'ongoing';
+}
+function tierDiamond(tier){
+  if(tier==='ended') return '<span style="color:#6b7280;font-weight:700;">◆ 종료</span>';
+  if(tier==='soon') return '<span style="color:#dc2626;font-weight:700;">◆ 마감임박</span>';
+  return '<span style="color:#2563eb;font-weight:700;">◆ 진행중</span>';
+}
+function tierFadeStyle(tier){
+  return tier==='ended' ? ' style="opacity:.45;filter:grayscale(70%);"' : '';
+}
 
 /* ---------- 로그인 ---------- */
 function getPw(){ return sessionStorage.getItem('songakAdminPw') || ''; }
@@ -447,8 +469,9 @@ async function loadCoopAdmin(){
     document.getElementById('tileCoop').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
-        '<div class="sub">'+escHtml(item.date)+'</div></div>'+
+      const tier = getStatusTier(item);
+      return '<div class="list-item"'+tierFadeStyle(tier)+'><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+tierDiamond(tier)+
+        '<div class="sub">'+escHtml(item.date)+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div></div>'+
         '<div class="li-actions">'+
         '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
         '<button class="btn-toggle" onclick=\'editCoop('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
@@ -538,7 +561,8 @@ async function loadNoticeAdmin(){
     document.getElementById('tileNotice').textContent = items.length + '건';
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.map(function(item){
-      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
+      const tier = getStatusTier(item);
+      return '<div class="list-item"'+tierFadeStyle(tier)+'><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+tierDiamond(tier)+
         '<div class="sub">'+escHtml(item.date)+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div>'+
         (item.content ? '<div class="sub">'+escHtml(item.content)+'</div>' : '') +
         '</div>'+
