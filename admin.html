@@ -103,6 +103,9 @@
       <button class="nav-item" data-panel="notice">🏥 이번주·이달의 보건소식 관리</button>
       <button class="nav-item" data-panel="news">🦠 감염병 카드뉴스 관리</button>
       <button class="nav-item" data-panel="checkup">🫁 검사안내 게시판 관리</button>
+      <button class="nav-item" data-panel="receipts">📋 접수 현황</button>
+      <button class="nav-item" data-panel="infectionAdmin">🦠 감염병 보고 관리</button>
+      <button class="nav-item" data-panel="careAdmin">💗 요보호 학생 추가</button>
 
       <a class="nav-item exit" href="menu4.html" target="_blank">← 공개 포털로 이동</a>
     </aside>
@@ -119,6 +122,8 @@
           <div class="tile"><div class="t-label">이번주·이달의 보건소식</div><div class="t-value" id="tileNotice">-</div></div>
           <div class="tile"><div class="t-label">카드뉴스 등록</div><div class="t-value" id="tileNews">-</div></div>
           <div class="tile"><div class="t-label">검사안내 게시판</div><div class="t-value" id="tileCheckup">-</div></div>
+          <div class="tile"><div class="t-label">현재 등교중지 인원</div><div class="t-value" id="tileInfectionOngoing">-</div></div>
+          <div class="tile"><div class="t-label">결핵검진 미완료</div><div class="t-value" id="tileTbPending">-</div></div>
         </div>
       </section>
 
@@ -231,6 +236,81 @@
         </div>
       </section>
 
+      <!-- 접수 현황 -->
+      <section class="panel" id="panel-receipts">
+        <div class="panel-tag">RECEIPTS OVERVIEW</div>
+        <div class="panel-title">📋 접수 현황</div>
+        <div class="panel-desc">교직원 검진·감염병 보고 등 실제 접수 데이터를 한눈에 모아 보는 화면입니다.</div>
+
+        <div class="tile-row">
+          <div class="tile"><div class="t-label">결핵검진 완료</div><div class="t-value" id="rcTbDone">-</div></div>
+          <div class="tile"><div class="t-label">결핵검진 예정</div><div class="t-value" id="rcTbPlanned">-</div></div>
+          <div class="tile"><div class="t-label">채용검진 대체 확인요청</div><div class="t-value" id="rcHire">-</div></div>
+          <div class="tile"><div class="t-label">감염병 누적 보고</div><div class="t-value" id="rcInfectionTotal">-</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>🫁 교직원 결핵검진 명부 현황</h4>
+          <div id="rcTbList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>📎 제출된 확인증 파일 보기</h4>
+          <div id="rcFileList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>🧴 감염병예방 물품·소모품 신청 내역</h4>
+          <div id="rcSupplyList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 감염병 보고 관리 -->
+      <section class="panel" id="panel-infectionAdmin">
+        <div class="panel-tag">INFECTION CASE MANAGEMENT</div>
+        <div class="panel-title">🦠 감염병 보고 관리</div>
+        <div class="panel-desc">담임 선생님이 제출한 감염병 발생 보고 중, 현재 등교중지가 진행 중인 사례 목록입니다.</div>
+        <div id="infectionAdminList"><div class="empty-msg">불러오는 중...</div></div>
+      </section>
+
+      <!-- 요보호 학생 추가 -->
+      <section class="panel" id="panel-careAdmin">
+        <div class="panel-tag">CARE STUDENT</div>
+        <div class="panel-title">💗 요보호 학생 추가</div>
+        <div class="panel-desc">건강 취약 학생을 학년별 요보호 명단에 추가합니다. (학생 요보호 관리 화면과 같은 시트에 기록됩니다)</div>
+
+        <div class="form-card">
+          <h4>📝 요보호 학생 등록</h4>
+          <div class="form-row">
+            <select id="careGrade">
+              <option value="">학년 선택</option>
+              <option value="1">1학년</option>
+              <option value="2">2학년</option>
+              <option value="3">3학년</option>
+            </select>
+            <input type="text" id="careClassNum" placeholder="반 (예: 3)">
+          </div>
+          <div class="form-row">
+            <input type="text" id="careNumber" placeholder="번호">
+            <input type="text" id="careName" placeholder="이름">
+          </div>
+          <h4 style="margin-top:14px;">해당 증상 선택</h4>
+          <div class="form-row" style="flex-wrap:wrap;gap:8px;">
+            <label><input type="checkbox" id="symFemale"> 여성질환</label>
+            <label><input type="checkbox" id="symHeadache"> 두통</label>
+            <label><input type="checkbox" id="symRhinitis"> 비염</label>
+            <label><input type="checkbox" id="symAtopy"> 아토피</label>
+            <label><input type="checkbox" id="symAsthma"> 천식</label>
+            <label><input type="checkbox" id="symAllergy"> 알레르기</label>
+            <label><input type="checkbox" id="symEtc"> 기타</label>
+          </div>
+          <input type="text" id="careEtcText" placeholder="기타 증상 직접 입력 (선택)" style="margin-top:8px;">
+          <textarea id="careNote" placeholder="교내활동시 확인이 필요한 부분 (예: 체육활동 - 천식 있어 격한 활동 자제 필요)"></textarea>
+          <button class="submit-btn" id="careAddBtn">등록</button>
+          <div class="result-msg" id="careAddMsg"></div>
+        </div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -332,10 +412,20 @@ async function loadCoopAdmin(){
         '<div class="sub">'+escHtml(item.date)+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
         '<div class="li-actions">'+
         '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editCoop('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
         '<button class="btn-del" onclick="deleteCoop('+item.rowNum+')">삭제</button>'+
         '</div></div>';
     }).join('');
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editCoop(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const content = prompt('내용', item.content||''); if(content===null) return;
+  const date = prompt('등록일', item.date||''); if(date===null) return;
+  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
+  loadCoopAdmin();
 }
 
 async function toggleCoopStatus(rowNum, curStatus){
@@ -409,10 +499,21 @@ async function loadNoticeAdmin(){
         '<div class="sub">'+escHtml(item.date)+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
         '<div class="li-actions">'+
         '<button class="btn-toggle" onclick="toggleNoticeStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editNotice('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
         '<button class="btn-del" onclick="deleteNotice('+item.rowNum+')">삭제</button>'+
         '</div></div>';
     }).join('');
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editNotice(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const date = prompt('날짜', item.date||''); if(date===null) return;
+  const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
+  const url = prompt('링크/파일', item.url||''); if(url===null) return;
+  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, date, deadline, status:item.status, url }) });
+  loadNoticeAdmin();
 }
 async function toggleNoticeStatus(rowNum, curStatus){
   const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
@@ -471,9 +572,21 @@ async function loadNewsAdmin(){
     listEl.innerHTML = items.map(function(item){
       return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
         '<div class="sub">'+escHtml(item.date)+(item.tag?' · '+escHtml(item.tag):'')+'</div></div>'+
-        '<div class="li-actions"><button class="btn-del" onclick="deleteNews('+item.rowNum+')">삭제</button></div></div>';
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick=\'editNews('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteNews('+item.rowNum+')">삭제</button></div></div>';
     }).join('');
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editNews(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const date = prompt('날짜', item.date||''); if(date===null) return;
+  const tag = prompt('태그', item.tag||''); if(tag===null) return;
+  const url = prompt('파일 URL (그대로 둬도 됩니다)', item.url||''); if(url===null) return;
+  await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'editnewscard', password:getPw(), rowNum, title, date, tag, url }) });
+  loadNewsAdmin();
 }
 async function deleteNews(rowNum){
   if(!confirm('삭제하시겠습니까?')) return;
@@ -520,6 +633,8 @@ function loadAll(){
   loadNoticeAdmin();
   loadNewsAdmin();
   loadCheckupAdmin();
+  loadReceipts();
+  loadInfectionAdmin();
 }
 
 /* ---------- 검사안내 게시판 관리 ---------- */
@@ -536,10 +651,22 @@ async function loadCheckupAdmin(){
         '<div class="sub">'+escHtml(item.target||'-')+(item.datetime?(' · '+escHtml(item.datetime)):'')+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
         '<div class="li-actions">'+
         '<button class="btn-toggle" onclick="toggleCheckupStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editCheckup('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
         '<button class="btn-del" onclick="deleteCheckup('+item.rowNum+')">삭제</button>'+
         '</div></div>';
     }).join('');
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editCheckup(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const target = prompt('대상', item.target||''); if(target===null) return;
+  const content = prompt('내용', item.content||''); if(content===null) return;
+  const datetime = prompt('일시', item.datetime||''); if(datetime===null) return;
+  const link = prompt('링크', item.link||''); if(link===null) return;
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, target, content, datetime, link, status:item.status, fileUrl:item.fileUrl }) });
+  loadCheckupAdmin();
 }
 
 async function toggleCheckupStatus(rowNum, curStatus){
@@ -597,7 +724,140 @@ document.getElementById('checkupAddBtn').addEventListener('click', async functio
     btn.disabled=false; btn.textContent='등록';
   }
 });
+/* ---------- 접수 현황 (실제 데이터 연동) ---------- */
+const TB_GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
 
+async function loadReceipts(){
+  const listEl = document.getElementById('rcTbList');
+  try{
+    const res = await fetch(TB_GAS_URL);
+    const data = await res.json();
+    const rows = data.rows || [];
+    const done = rows.filter(r => r['상태'] === '완료').length;
+    const planned = rows.filter(r => String(r['상태']||'').indexOf('예정') === 0).length;
+    const hire = rows.filter(r => String(r['상태']||'').indexOf('확인요청') !== -1).length;
+    document.getElementById('rcTbDone').textContent = done + '명';
+    document.getElementById('rcTbPlanned').textContent = planned + '명';
+    document.getElementById('rcHire').textContent = hire + '건';
+    document.getElementById('tileTbPending').textContent = (rows.length - done) + '명';
+
+    if(!rows.length){ listEl.innerHTML = '<div class="empty-msg">명부 데이터가 없습니다.</div>'; }
+    else{
+      listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:12.5px;">' +
+        '<tr style="background:#f1f5f9;"><th style="padding:6px;text-align:left;">소속</th><th style="padding:6px;text-align:left;">성명</th><th style="padding:6px;text-align:left;">상태</th></tr>' +
+        rows.map(r => '<tr><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['소속'])+'</td><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['성명'])+'</td><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['상태']||'미제출')+'</td></tr>').join('') +
+        '</table>';
+    }
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">결핵검진 명부를 불러오지 못했습니다.</div>'; }
+
+  try{
+    const res2 = await fetch('/api/infection-report');
+    const data2 = await res2.json();
+    if(data2.success){
+      document.getElementById('rcInfectionTotal').textContent = (data2.summary.totalCases||0) + '건';
+      document.getElementById('tileInfectionOngoing').textContent = (data2.summary.currentlyExcluded||0) + '명';
+    }
+  }catch(e){}
+
+  // 📎 제출된 확인증 파일 보기 (결핵검진 명부의 파일링크 칸)
+  const fileListEl = document.getElementById('rcFileList');
+  try{
+    const res3 = await fetch(TB_GAS_URL);
+    const data3 = await res3.json();
+    const filed = (data3.rows||[]).filter(r => r['파일링크']);
+    if(!filed.length){ fileListEl.innerHTML = '<div class="empty-msg">아직 제출된 확인증 파일이 없습니다.</div>'; }
+    else{
+      fileListEl.innerHTML = filed.map(r =>
+        '<div class="list-item"><div class="li-main"><strong>'+escHtml(r['성명'])+'</strong>'+
+        '<div class="sub">'+escHtml(r['소속']||'')+' · '+escHtml(r['상태']||'')+'</div></div>'+
+        '<div class="li-actions"><a class="btn-toggle" href="'+r['파일링크']+'" target="_blank" style="text-decoration:none;display:inline-block;">파일 열기</a></div></div>'
+      ).join('');
+    }
+  }catch(e){ fileListEl.innerHTML = '<div class="empty-msg">파일 목록을 불러오지 못했습니다.</div>'; }
+
+  // 🧴 물품신청 내역
+  const supplyListEl = document.getElementById('rcSupplyList');
+  try{
+    const res4 = await fetch('/api/infection-supply', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data4 = await res4.json();
+    if(!data4.success){ supplyListEl.innerHTML = '<div class="empty-msg">'+(data4.message||'불러오기 실패')+'</div>'; }
+    else{
+      const list = data4.list || [];
+      if(!list.length){ supplyListEl.innerHTML = '<div class="empty-msg">신청 내역이 없습니다.</div>'; }
+      else{
+        supplyListEl.innerHTML = list.map(item =>
+          '<div class="list-item"><div class="li-main"><strong>신청번호 '+escHtml(item.id)+' · '+escHtml(item.grade)+' '+escHtml(item.classNum)+'</strong>'+
+          '<div class="sub">KF94 '+item.kf94+' · 새부리형 '+item.beak+' · 소독티슈 '+item.tissues+' · 손소독제 '+item.sanitizer+'</div>'+
+          '<div class="sub">신청자: '+escHtml(item.applicantName)+' · '+escHtml(item.submittedAt)+' · 상태: '+escHtml(item.status)+'</div></div></div>'
+        ).join('');
+      }
+    }
+  }catch(e){ supplyListEl.innerHTML = '<div class="empty-msg">물품신청 목록을 불러오지 못했습니다.</div>'; }
+}
+
+/* ---------- 감염병 보고 관리 (실제 데이터 연동) ---------- */
+async function loadInfectionAdmin(){
+  const listEl = document.getElementById('infectionAdminList');
+  try{
+    const res = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data = await res.json();
+    if(!data.success){ listEl.innerHTML = '<div class="empty-msg">'+(data.message||'불러오기 실패')+'</div>'; return; }
+    const list = data.list || [];
+    if(!list.length){ listEl.innerHTML = '<div class="empty-msg">현재 등교중지 중인 사례가 없습니다.</div>'; return; }
+    listEl.innerHTML = list.map(function(item, i){
+      return '<div class="list-item"><div class="li-main">'+
+        '<strong>'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentName)+'</strong>'+
+        '<div class="sub">'+escHtml(item.disease)+' · 진단일 '+escHtml(item.diagnosisDate)+' · 등교중지종료 '+escHtml(item.exclusionEnd)+'</div>'+
+        (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
+}
+
+/* ---------- 요보호 학생 추가 (실제 데이터 연동) ---------- */
+document.getElementById('careAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('careAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+
+  const grade = document.getElementById('careGrade').value;
+  const classNum = document.getElementById('careClassNum').value.trim();
+  const number = document.getElementById('careNumber').value.trim();
+  const name = document.getElementById('careName').value.trim();
+  if(!grade || !classNum || !number || !name){
+    msgEl.textContent = '학년·반·번호·이름을 모두 입력해주세요.'; msgEl.classList.add('err'); return;
+  }
+
+  const symptoms = {
+    female: document.getElementById('symFemale').checked,
+    headache: document.getElementById('symHeadache').checked,
+    rhinitis: document.getElementById('symRhinitis').checked,
+    atopy: document.getElementById('symAtopy').checked,
+    asthma: document.getElementById('symAsthma').checked,
+    allergy: document.getElementById('symAllergy').checked,
+    etc: document.getElementById('symEtc').checked
+  };
+  const etcText = document.getElementById('careEtcText').value.trim();
+  const note = document.getElementById('careNote').value.trim();
+
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
+  try{
+    const res = await fetch('/api/care', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ grade, classNum, number, name, symptoms, etcText, note }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent = '✅ 등록되었습니다.'; msgEl.classList.add('ok');
+      ['careGrade','careClassNum','careNumber','careName','careEtcText','careNote'].forEach(id => document.getElementById(id).value = '');
+      ['symFemale','symHeadache','symRhinitis','symAtopy','symAsthma','symAllergy','symEtc'].forEach(id => document.getElementById(id).checked = false);
+    } else {
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent = '서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled = false; btn.textContent = '등록';
+  }
+});
 </script>
 
 </body>
