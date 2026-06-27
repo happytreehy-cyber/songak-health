@@ -168,17 +168,15 @@
   </section>
 
   <section>
-    <div class="section-title"><h2>📊 교직원 검사기록</h2><span class="sub-label">구글 시트 "교직원건강검사" 탭과 실시간 연동</span>
-      <a href="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=1043130740#gid=1043130740" target="_blank" style="margin-left:auto;font-size:.78rem;color:#1f3d8f;font-weight:600;text-decoration:underline;">📄 구글시트에서 직접 보기 ↗</a>
-    </div>
+    <div class="section-title"><h2>📊 교직원 검사기록 (실시간 입력)</h2></div>
     <div class="table-card">
-      <div id="rosterTableWrap">
-        <div class="table-loading">검사기록을 불러오는 중입니다...</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <strong style="font-size:.88rem;color:#1f3d8f;">교직원건강검사 기록 시트</strong>
+        <a href="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=1043130740#gid=1043130740" target="_blank" style="font-size:.78rem;color:#1f3d8f;font-weight:600;text-decoration:underline;">새 창에서 열기 ↗</a>
       </div>
-      <div class="table-meta">
-        <span id="lastSync">-</span>
-        <button class="refresh-btn" onclick="loadRoster()">↻ 새로고침</button>
-      </div>
+      <p style="font-size:.78rem;color:#888;margin:0 0 10px;">※ 이 구글시트는 보건업무에서 공통으로 사용 중인 시트입니다. 본인 검진 기록을 이 화면에서 바로 입력해주세요.</p>
+      <iframe src="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?usp=sharing&rm=minimal&gid=1043130740"
+              style="width:100%; height:560px; border:1px solid #eee; border-radius:8px;" loading="lazy"></iframe>
     </div>
   </section>
 
@@ -189,19 +187,20 @@
 
       <div class="submit-tile">
         <span class="tag tag-receiving">접수 중</span>
-        <h2>결핵검진<br>확인증 제출</h2>
+        <h2><span style="color:#1f3d8f;">재직중</span> 결핵검진 확인증제출(X-ray)</h2>
         <p class="desc">개별적으로 결핵검진 또는 흉부 X-ray 검진을 완료하신 교직원은 확인 가능한 자료를 제출해주세요.</p>
         <div class="meta-box">
           <div><span class="k">대상</span><span>개별 검진 완료 교직원</span></div>
           <div><span class="k">자료</span><span>결핵검진 확인증 또는 흉부 X-ray 확인 자료</span></div>
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
         </div>
+        <div class="hint-box">보건실에서는 흉부 X-ray 검진일자, 검진기관명만 필요합니다.<br>결과지 전체는 받지 않습니다.</div>
         <button class="tile-btn" onclick="openModal('modal-tb')">확인증 업로드하기</button>
       </div>
 
       <div class="submit-tile">
         <span class="tag tag-confirm">확인 요청</span>
-        <h2>채용검진 대체 인정<br>확인 요청</h2>
+        <h2><span style="color:#e0455a;">신규</span> 채용검진 대체인정 확인요청(X-ray, 혈액)</h2>
         <p class="desc">채용검진 서류를 이미 행정실에 제출하신 경우, 보건실 앱에 결과지를 다시 업로드하지 않으셔도 됩니다.</p>
         <div class="meta-box">
           <div><span class="k">대상</span><span>채용검진으로 결핵검진 대체 인정 확인이 필요한 교직원</span></div>
@@ -329,117 +328,6 @@
     });
   }
 
-  function statusTag(value){
-    if(!value) return '<span class="status-tag status-none">미제출</span>';
-    if(value === '완료') return '<span class="status-tag status-done">완료</span>';
-    if(String(value).includes('확인요청')) return '<span class="status-tag status-confirm">'+value+'</span>';
-    return '<span class="status-tag status-wait">'+value+'</span>';
-  }
-
-  function toggleEditRow(btn){
-    const tr = btn.closest('tr');
-    const cells = tr.querySelectorAll('.ed');
-    cells.forEach(td=>{
-      const field = td.dataset.field;
-      const current = td.dataset.raw !== undefined ? td.dataset.raw : td.textContent.trim();
-      td.dataset.raw = current;
-      if(field === '상태'){
-        td.innerHTML = '<select>'+
-          '<option value=""'+(current===''?' selected':'')+'>미제출</option>'+
-          '<option value="완료"'+(current==='완료'?' selected':'')+'>완료</option>'+
-          '<option value="확인요청(채용검진대체)"'+(current==='확인요청(채용검진대체)'?' selected':'')+'>확인요청(채용검진대체)</option>'+
-        '</select>';
-      } else {
-        td.innerHTML = '<input type="text" value="'+current.replace(/"/g,'&quot;')+'">';
-      }
-    });
-    btn.textContent = '💾 저장';
-    btn.classList.remove('edit-btn');
-    btn.classList.add('save-btn');
-    btn.setAttribute('onclick', 'saveEditRow(this)');
-  }
-
-  async function saveEditRow(btn){
-    const tr = btn.closest('tr');
-    const name = tr.dataset.name;
-    const payload = { type: '관리자수정', name: name };
-    tr.querySelectorAll('.ed').forEach(td=>{
-      const field = td.dataset.field;
-      const input = td.querySelector('input, select');
-      payload[field] = input ? input.value : '';
-    });
-
-    btn.disabled = true;
-    btn.textContent = '저장 중...';
-    try{
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: {'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify(payload)
-      });
-      const result = await res.json();
-      if(result.result === 'success'){
-        loadRoster();
-      } else {
-        alert('저장 실패: ' + (result.message || '알 수 없는 오류'));
-        btn.disabled = false;
-        btn.textContent = '💾 저장';
-      }
-    } catch(err){
-      alert('네트워크 오류로 저장하지 못했습니다.');
-      btn.disabled = false;
-      btn.textContent = '💾 저장';
-    }
-  }
-
-  async function loadRoster(){
-    const wrap = document.getElementById('rosterTableWrap');
-    const lastSync = document.getElementById('lastSync');
-    if(GAS_URL.includes('여기에')){
-      wrap.innerHTML = '<div class="table-empty">⚠ 구글 시트 연동 주소(GAS_URL)가 아직 설정되지 않았습니다.</div>';
-      return;
-    }
-    wrap.innerHTML = '<div class="table-loading">검사기록을 불러오는 중입니다...</div>';
-    try{
-      const res = await fetch(GAS_URL);
-      const data = await res.json();
-      if(data.result !== 'success'){
-        wrap.innerHTML = '<div class="table-empty">불러오기 실패: '+ (data.message||'') +'</div>';
-        return;
-      }
-      if(!data.rows.length){
-        wrap.innerHTML = '<div class="table-empty">아직 명부에 등록된 사람이 없습니다.</div>';
-        return;
-      }
-      let html = '<table class="roster"><thead><tr>'+
-        '<th>연번</th><th>소속</th><th>성명</th><th>출생연도구분</th><th>2026년도검진</th>'+
-        '<th>잠복결핵 검진일자</th><th>잠복결핵 검진기관</th>'+
-        '<th>결핵검사 검진일자</th><th>결핵검사 검진기관</th><th>상태</th><th>관리</th>'+
-        '</tr></thead><tbody>';
-      data.rows.forEach(r=>{
-        const name = (r['성명']||'').toString().replace(/"/g,'&quot;');
-        html += '<tr data-name="'+name+'">'+
-          '<td>'+(r['연번']||'')+'</td>'+
-          '<td>'+(r['소속']||'')+'</td>'+
-          '<td>'+(r['성명']||'')+'</td>'+
-          '<td>'+(r['출생연도구분']||'')+'</td>'+
-          '<td>'+(r['2026년도검진']||'')+'</td>'+
-          '<td class="ed" data-field="잠복결핵_검진일자">'+(r['잠복결핵_검진일자']||'')+'</td>'+
-          '<td class="ed" data-field="잠복결핵_검진기관">'+(r['잠복결핵_검진기관']||'')+'</td>'+
-          '<td class="ed" data-field="결핵검사_검진일자">'+(r['결핵검사_검진일자']||'')+'</td>'+
-          '<td class="ed" data-field="결핵검사_검진기관">'+(r['결핵검사_검진기관']||'')+'</td>'+
-          '<td class="ed" data-field="상태" data-raw="'+(r['상태']||'').toString().replace(/"/g,'&quot;')+'">'+statusTag(r['상태'])+'</td>'+
-          '<td><button class="edit-btn" onclick="toggleEditRow(this)">✏️ 수정</button></td>'+
-        '</tr>';
-      });
-      html += '</tbody></table>';
-      wrap.innerHTML = html;
-      lastSync.textContent = '마지막 동기화: ' + new Date().toLocaleTimeString('ko-KR');
-    } catch(err){
-      wrap.innerHTML = '<div class="table-empty">네트워크 오류로 불러오지 못했습니다.</div>';
-    }
-  }
-
   async function handleSubmit(e, modalId){
     e.preventDefault();
     const form = e.target;
@@ -483,7 +371,6 @@
         statusEl.className = 'status-msg ok';
         form.reset();
         document.querySelectorAll('.drop-zone').forEach(dz=>dz.classList.remove('has-file'));
-        loadRoster();
         setTimeout(()=>{ document.getElementById(modalId).classList.remove('open'); statusEl.textContent=''; }, 1500);
       } else {
         statusEl.textContent = '제출 중 오류가 발생했습니다: ' + (result.message || '알 수 없는 오류');
@@ -498,8 +385,6 @@
     }
     return false;
   }
-
-  loadRoster();
 </script>
 
 </body>
