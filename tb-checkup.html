@@ -186,12 +186,12 @@
         <h2><span style="color:#1f3d8f;">재직중</span> 결핵검진 확인증제출(X-ray)</h2>
         <p class="desc"><span style="color:#e0455a;font-weight:700;">개별적으로 건강검진 예정</span>이시거나 개별건강검진중 흉부 X-ray를 <span style="color:#e0455a;font-weight:700;">완료</span>하신 교직원은 확인 가능한 자료를 제출해주세요.</p>
         <div class="meta-box">
-          <div><span class="k">대상</span><span>개별검진 예정 또는 완료 교직원</span></div>
+          <div><span class="k">대상</span><span>학교검진, 개별검진예정 또는 완료 교직원</span></div>
           <div><span class="k">자료</span><span>결핵검진(흉부 X-ray)</span></div>
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
         </div>
         <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">흉부 X-ray 검사소견, 검진일자, 검진기관명만 필요합니다.</span> 다른 검사항목 결과지 전체는 받지 않습니다. 🙅</div>
-        <div style="display:flex; gap:8px; margin-top:auto;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:auto;">
           <button class="tile-btn" style="flex:1 1 0; min-width:0; background:#fff; color:#1f3d8f; border:1px solid #1f3d8f;" onclick="openTbModal('scheduled')">📅 개별건강검진<br>예정입니다</button>
           <button class="tile-btn" style="flex:1 1 0; min-width:0;" onclick="openTbModal('upload')">📁 확인증 업로드하기</button>
         </div>
@@ -207,7 +207,7 @@
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
         </div>
         <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">흉부 X-ray, 혈액잠복검사결과 검사소견, 검진일자, 검진기관명만 필요합니다.</span> 다른 검사항목 결과지 전체는 받지 않습니다. 🙅</div>
-        <div style="display:flex; gap:8px; margin-top:auto;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:auto;">
           <button class="tile-btn" style="flex:1 1 0; min-width:0; background:#fff; color:#1f3d8f; border:1px solid #1f3d8f;" onclick="openHireModal('confirm')">✅ 행정실에 이미<br>제출했습니다</button>
           <button class="tile-btn" style="flex:1 1 0; min-width:0;" onclick="openHireModal('upload')">📁 확인증 업로드하기</button>
         </div>
@@ -245,14 +245,14 @@
       <div class="field" id="tb-target-field" style="display:none;">
         <label>대상자 구분 <span class="req">*</span></label>
         <div style="display:flex; gap:16px; font-size:.95rem;">
-          <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="radio" name="target" value="학교검진예정" style="width:auto;"> 학교검진예정</label>
-          <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="radio" name="target" value="개별검진예정" style="width:auto;"> 개별검진예정</label>
+          <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="radio" name="target" value="학교검진예정" style="width:auto;" onchange="onTbTargetChange(this)"> 학교검진예정</label>
+          <label style="display:flex; align-items:center; gap:6px; font-weight:400;"><input type="radio" name="target" value="개별검진예정" style="width:auto;" onchange="onTbTargetChange(this)"> 개별검진예정</label>
         </div>
-        <p style="font-size:.78rem;color:#888;margin-top:6px;">※ 학교 단체검진 대상자는 개별로 검진을 따로 받으실 필요가 없습니다. 개별검진 대상자만 꼭 등록해주세요.</p>
+        <p style="font-size:.78rem;color:#888;margin-top:6px;">※ 학교 단체검진 대상자는 검진예정일자를 적지 않아도 등록됩니다. 개별검진 대상자는 검진예정일자를 꼭 적어주세요.</p>
       </div>
       <div class="field" id="tb-date-field">
         <label id="tb-date-label">검진일자 <span class="req">*</span></label>
-        <input type="date" name="date" required>
+        <input type="date" name="date" id="tb-date-input" required>
       </div>
       <div id="tb-confirm-hint" class="hint-box" style="display:none;">아직 검진 전이시면 예정 등록만 해두세요.<br>검진을 받으신 후 다시 들어와서 "확인증 업로드하기"로 자료를 제출해주세요.</div>
       <div id="tb-file-section" class="field">
@@ -280,9 +280,9 @@
         <label>성명 <span class="req">*</span></label>
         <input type="text" name="name" placeholder="홍길동" required>
       </div>
-      <div class="field">
+      <div class="field" id="hire-dept-field" style="display:none;">
         <label>소속/부서 <span class="req">*</span></label>
-        <select name="dept" required>
+        <select name="dept" id="hire-dept-select">
           <option value="">선택해주세요</option>
           <option>교무부</option><option>학생안전부</option><option>교육과정부</option>
           <option>진로부</option><option>창의인성부</option><option>건강지원부</option>
@@ -290,7 +290,7 @@
         </select>
       </div>
 
-      <div id="hire-confirm-hint" class="hint-box">파일 제출 없이 확인 요청만 접수됩니다.<br>보건실에서 채용검진 시 실시한 흉부 X-ray 검진일자만 확인합니다.</div>
+      <div id="hire-confirm-hint" class="hint-box">행정실에 제출한 서류는 보건실에서 직접 행정실에 확인합니다.<br>보건교사가 직접 확인하기 어려운 경우, 해당 서류만 캡처해서 보내주시면 감사하겠습니다.</div>
 
       <div id="hire-file-section" class="field" style="display:none;">
         <label>확인증 파일 업로드 <span class="req">*</span></label>
@@ -336,6 +336,18 @@
   function openModal(id){ document.getElementById(id).classList.add('open'); }
   function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
+  function onTbTargetChange(radio){
+    const dateInput = document.getElementById('tb-date-input');
+    const dateLabel = document.getElementById('tb-date-label');
+    if(radio.value === '학교검진예정'){
+      dateInput.required = false;
+      dateLabel.innerHTML = '검진예정일자 (작성하지 않아도 됩니다)';
+    } else {
+      dateInput.required = true;
+      dateLabel.innerHTML = '검진 예정일자 (대략적인 시기) <span class="req">*</span>';
+    }
+  }
+
   function openTbModal(mode){
     const fileSection = document.getElementById('tb-file-section');
     const confirmHint = document.getElementById('tb-confirm-hint');
@@ -355,7 +367,8 @@
       title.textContent = '📅 개별 건강검진 예정 등록';
       dateLabel.innerHTML = '검진 예정일자 (대략적인 시기) <span class="req">*</span>';
       targetField.style.display = 'block';
-      targetRadios.forEach(r => r.required = true);
+      targetRadios.forEach(r => { r.required = true; r.checked = false; });
+      document.getElementById('tb-date-input').required = true;
     } else {
       fileSection.style.display = 'block';
       confirmHint.style.display = 'none';
@@ -375,16 +388,22 @@
     const confirmHint = document.getElementById('hire-confirm-hint');
     const fileInput = document.getElementById('file-hire');
     const submitBtn = document.getElementById('hire-submit-btn');
+    const deptField = document.getElementById('hire-dept-field');
+    const deptSelect = document.getElementById('hire-dept-select');
     if(mode === 'upload'){
       fileSection.style.display = 'block';
       confirmHint.style.display = 'none';
       fileInput.required = true;
       submitBtn.textContent = '업로드하기';
+      deptField.style.display = 'block';
+      deptSelect.required = true;
     } else {
       fileSection.style.display = 'none';
       confirmHint.style.display = 'block';
       fileInput.required = false;
       submitBtn.textContent = '확인 요청하기';
+      deptField.style.display = 'none';
+      deptSelect.required = false;
     }
     openModal('modal-hire');
   }
@@ -433,7 +452,7 @@
     }
 
     btn.disabled = true;
-    btn.textContent = '제출 중...';
+    btn.textContent = '⏳ 잠시만 기다려주세요...';
 
     try{
       const formData = new FormData(form);
