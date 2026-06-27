@@ -188,7 +188,7 @@
 
       <div class="submit-tile">
         <span class="tag tag-receiving">접수 중</span>
-        <h2><span style="color:#1f3d8f;">재직중</span> 결핵검진 확인증제출(X-ray)</h2>
+        <h2><span style="color:#1f3d8f;">재직중</span> 결핵검진 확인증 제출(X-ray)</h2>
         <p class="desc"><span style="color:#e0455a;font-weight:700;">개별적으로 건강검진 예정</span>이시거나 개별건강검진중 흉부 X-ray를 <span style="color:#e0455a;font-weight:700;">완료</span>하신 교직원은 확인 가능한 자료를 제출해주시기 바랍니다.</p>
         <div class="meta-box">
           <div><span class="k">대상</span><span>학교검진, 개별검진예정 또는 완료 교직원</span></div>
@@ -205,7 +205,7 @@
 
       <div class="submit-tile">
         <span class="tag tag-receiving">접수 중</span>
-        <h2><span style="color:#e0455a;">신규</span> 채용검진 대체인정 확인요청(X-ray, 혈액)</h2>
+        <h2><span style="color:#e0455a;">신규</span> 채용검진 대체인정 확인증 제출(X-ray, 혈액)</h2>
         <p class="desc">채용검진 서류를 이미 행정실에 제출하신 경우, 보건실 앱에 결과지를 다시 업로드하지 않으셔도 됩니다.</p>
         <div class="meta-box">
           <div><span class="k">대상</span><span>결핵검진 대체인정확인이 필요한 교직원</span></div>
@@ -333,7 +333,7 @@
 <div class="modal-overlay" id="modal-hire">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-hire')">✕</button>
-    <h3>🫁 채용검진 대체 인정 확인 요청</h3>
+    <h3>🫁 채용검진 대체 인정 확인증 제출</h3>
     <form onsubmit="return handleSubmit(event, 'modal-hire')">
       <input type="hidden" name="type" value="채용검진대체">
       <div class="field">
@@ -357,7 +357,7 @@
         <input type="file" id="file-hire" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="markFile('drop-hire', this)">
       </div>
 
-      <button class="submit-btn" type="submit" id="hire-submit-btn">확인 요청하기</button>
+      <button class="submit-btn" type="submit" id="hire-submit-btn">확인증 제출하기</button>
       <div class="status-msg" id="status-hire"></div>
     </form>
   </div>
@@ -589,7 +589,7 @@
       fileSection.style.display = 'none';
       confirmHint.style.display = 'block';
       fileInput.required = false;
-      submitBtn.textContent = '확인 요청하기';
+      submitBtn.textContent = '확인증 제출하기';
     }
     openModal('modal-hire');
   }
