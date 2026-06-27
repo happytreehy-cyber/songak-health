@@ -24,7 +24,7 @@
   .day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
   .back-row{padding:8px 20px;border-bottom:1px solid #e2e8f0;}
   .back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:#0369a1;font-weight:700;padding:5px 12px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;text-decoration:none;white-space:nowrap;}
-  main{max-width:780px;margin:0 auto;padding:20px 16px 60px;}
+  main{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
   .section-title{font-size:19px;font-weight:700;margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
   .section-divider-title{font-size:13.5px;font-weight:800;margin:30px 20px 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;position:relative;z-index:210;}
   .section-divider-title.status{color:#1e3a8a;background:#eff6ff;border-left:5px solid #2563eb;font-size:18px;font-weight:900;padding:12px 14px;}
@@ -629,10 +629,10 @@ function renderCharts(){
     <div class="chart-block">
       <div class="chart-title">📋 전체 발생 사례 <span style="font-size:11px;font-weight:400;color:var(--muted);">(칸 더블클릭시 수정가능)</span></div>
       <div class="case-table" id="caseTableBody"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted);">
-        <button type="button" class="qty-btn" id="casePrevBtn">‹</button>
-        <span id="casePageLabel"></span>
-        <button type="button" class="qty-btn" id="caseNextBtn" style="color:#dc2626;font-weight:700;">→</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:14px;color:var(--muted);">
+        <button type="button" class="qty-btn" id="casePrevBtn" style="color:#2563eb;font-weight:700;font-size:16px;">‹</button>
+        <span id="casePageLabel" style="font-size:14px;font-weight:700;"></span>
+        <button type="button" class="qty-btn" id="caseNextBtn" style="color:#dc2626;font-weight:700;font-size:16px;">→</button>
       </div>
     </div>` : "" }
   `;
@@ -644,6 +644,7 @@ function renderCharts(){
     if(window.casePage === 0){
       body.innerHTML = caseHeader + (ongoingCases.length ? ongoingCases.map(caseRowHtml).join("") : '<div class="empty-chart">현재 진행 중인 사례가 없습니다.</div>');
       label.textContent = `진행중 (${ongoingCases.length}) · 종료사례 보려면 오른쪽 화살표 클릭`;
+      label.style.color = '#2563eb';
     }else{
       const pageIdx = window.casePage - 1;
       const start = pageIdx * PAGE_SIZE;
@@ -651,6 +652,7 @@ function renderCharts(){
       body.innerHTML = caseHeader + (pageItems.length ? pageItems.map(caseRowHtml).join("") : '<div class="empty-chart">종료된 사례가 없습니다.</div>');
       const totalPages = Math.max(1, Math.ceil(endedCases.length / PAGE_SIZE));
       label.textContent = `종료사례 ${pageIdx+1}/${totalPages}페이지`;
+      label.style.color = '#dc2626';
     }
   }
   renderCasePage();
@@ -896,7 +898,7 @@ document.getElementById("supplyForm").addEventListener("submit", async (e) => {
     if(data.success){
       const isOffice = selectedGrade.indexOf("학년") === -1;
       const idHint = isOffice ? "(부서 번호예요)" : "(학년+반 번호예요)";
-      resultMsg.innerHTML = `신청이 접수되었습니다.<br>신청번호: <strong>${data.id}</strong> ${idHint}<br><span style="font-size:11px;color:var(--muted);">🕒 ${data.submittedAt}</span><br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
+      resultMsg.innerHTML = `<strong style="color:#2e7d32;font-size:14px;">✅ 신청이 접수되었습니다.</strong><br>신청번호: <strong style="color:#1f3d8f;font-size:15px;">${data.id}</strong> ${idHint}<br><span style="font-size:11px;color:var(--muted);">🕒 ${data.submittedAt}</span><br><span style="font-size:12.5px;color:var(--muted);">📌 아래 '내 신청 조회'에서 신청번호를 입력하면 진행 상황을 확인할 수 있습니다.</span>`;
       resultMsg.classList.add("ok");
       qty.kf94=0; qty.beak=0; qty.tissues=0; qty.sanitizer=0;
       document.getElementById("qty-kf94").textContent=0;
@@ -940,7 +942,7 @@ document.getElementById("lookupBtn").addEventListener("click", async () => {
     const d = data.data;
     let statusArea;
     if(d.status === "접수"){
-      statusArea = `<div style="margin-top:10px;color:var(--muted);font-size:13px;">⏳ 아직 확인 전입니다. 보건실에서 확인 후 안내드릴게요.</div>`;
+      statusArea = `<div style="margin-top:10px;color:#b8860b;font-size:13.5px;font-weight:700;background:#fff7e0;padding:8px 12px;border-radius:8px;">⏳ 아직 확인 전입니다. 보건실에서 확인 후 안내드릴게요.</div>`;
     }else{
       statusArea = `<button type="button" class="lookup-btn" style="margin-top:10px;" onclick="this.outerHTML='<div class=&quot;ack-note&quot;>접수확인함 ✅<br>학급에서 필요한 물품은 학생 편에 전달하겠습니다. 보건실로 학생 보내주세요~</div>'">접수확인</button>`;
     }
