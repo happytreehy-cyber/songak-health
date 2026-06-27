@@ -60,7 +60,14 @@
   .section-title h2{ font-size:1.08rem; margin:0; }
   .section-title .sub-label{ font-size:.76rem; color:#999; }
 
-  .guide-card{ background:#fff; border-radius:14px; padding:20px 22px; margin-bottom:26px; border:1px solid #e8e8e8; }
+  .title-box{ display:flex; align-items:center; gap:8px; padding:12px 18px; border-radius:10px; margin-bottom:14px; font-weight:700; font-size:.98rem; }
+  .title-box .sub-label{ font-size:.76rem; font-weight:400; margin-left:6px; color:inherit; opacity:.75; }
+  .title-box-orange{ background:#fff4e5; color:#b8780a; border-left:5px solid #f0922b; }
+  .title-box-blue{ background:#eaf1ff; color:#1f3d8f; border-left:5px solid #1f3d8f; }
+  .title-box-purple{ background:#f3eaff; color:#6b3fa0; border-left:5px solid #6b3fa0; }
+  .title-box-pink{ background:#fdecf1; color:#c2486b; border-left:5px solid #e98aa8; }
+
+  .guide-card{ background:#fff; border-radius:14px; padding:20px 22px; margin-bottom:26px; border:1px solid #c7d6f5; }
   .guide-card .law-row{ font-size:.82rem; color:#555; margin-bottom:12px; }
   .guide-card .law-row b{ color:#1f3d8f; }
   .guide-card ul{ margin:8px 0 12px 18px; padding:0; font-size:.85rem; color:#444; line-height:1.7; }
@@ -151,7 +158,7 @@
 <main class="wrap">
 
   <section>
-    <div class="section-title"><h2>📌 교직원 검사안내</h2><span class="sub-label">2026년 전체 교직원 검사실시</span></div>
+    <div class="title-box title-box-blue">📌 교직원 검사안내<span class="sub-label">2026년 전체 교직원 검사실시</span></div>
     <div class="guide-card">
       <div class="law-row"><b>결핵검진대상</b> 유치원 및 각급학교 교직원 및 종사자 (결핵예방법 제11조)</div>
       <ul>
@@ -163,54 +170,59 @@
         <span class="deadline-pill">1학기 조사실시 : 26.8.30까지 입력</span>
         <span class="deadline-pill">2학기 조사실시 : 26.12.31까지 입력</span>
       </div>
-      <div class="note-row">채용검진 시 흉부 X-ray를 이미 촬영하신 경우, 결과지 전체를 다시 내실 필요 없이 아래 "채용검진 대체 인정 확인요청"만 눌러주시면 됩니다.</div>
     </div>
   </section>
 
   <section>
-    <div class="section-title"><h2>📊 교직원 검사기록 (실시간 입력)</h2></div>
-    <div class="table-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <strong style="font-size:.88rem;color:#1f3d8f;">교직원건강검사 기록 시트</strong>
-        <a href="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=1043130740#gid=1043130740" target="_blank" style="font-size:.78rem;color:#1f3d8f;font-weight:600;text-decoration:underline;">새 창에서 열기 ↗</a>
-      </div>
-      <p style="font-size:.78rem;color:#888;margin:0 0 10px;">※ 이 구글시트는 보건업무에서 공통으로 사용 중인 시트입니다. 본인 검진 기록을 이 화면에서 바로 입력해주세요.</p>
-      <iframe src="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?usp=sharing&rm=minimal&gid=1043130740"
-              style="width:100%; height:560px; border:1px solid #eee; border-radius:8px;" loading="lazy"></iframe>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-title"><h2>📤 제출·업로드 센터</h2><span class="sub-label">제출 즉시 위 표에 반영됩니다</span></div>
-    <p style="font-size:.78rem;color:#555;margin:-4px 0 14px;">🆕 <span style="color:#e0455a;font-weight:700;">신규</span> 채용 선생님은 <span style="color:#e0455a;font-weight:700;">입사 후 1개월 이내</span>에 꼭 완료해주세요.</p>
+    <div class="title-box title-box-purple">📤 제출·업로드 센터<span class="sub-label">검진 완료 후 마지막으로 한 번만!</span></div>
+    <p style="font-size:.78rem;color:#888;margin:-2px 0 12px;">💡 여기 제출은 <b>법적으로 필요한 증빙자료 보관용입니다.</b> 번거롭게 두 번 적으시는 것이 아니라, 여기서 한 번만 제출해주시면 확인 후 아래 시트에 반영해드리겠습니다.</p>
+    <p style="font-size:.78rem;color:#555;margin:0 0 14px;">🆕 <span style="color:#e0455a;font-weight:700;">신규</span> 채용 선생님은 <span style="color:#e0455a;font-weight:700;">입사 후 1개월 이내</span>에 꼭 완료해주세요.</p>
     <div class="card-grid">
 
       <div class="submit-tile">
         <span class="tag tag-receiving">접수 중</span>
         <h2><span style="color:#1f3d8f;">재직중</span> 결핵검진 확인증제출(X-ray)</h2>
-        <p class="desc">개별적으로 결핵검진 또는 흉부 X-ray 검진을 완료하신 교직원은 확인 가능한 자료를 제출해주세요.</p>
+        <p class="desc"><span style="color:#e0455a;font-weight:700;">개별적으로 건강검진 예정</span>이시거나 개별건강검진중 흉부 X-ray를 <span style="color:#e0455a;font-weight:700;">완료</span>하신 교직원은 확인 가능한 자료를 제출해주세요.</p>
         <div class="meta-box">
-          <div><span class="k">대상</span><span>개별 검진 완료 교직원</span></div>
-          <div><span class="k">자료</span><span>결핵검진 확인증 또는 흉부 X-ray 확인 자료</span></div>
+          <div><span class="k">대상</span><span>개별검진 예정 또는 완료 교직원</span></div>
+          <div><span class="k">자료</span><span>결핵검진(흉부 X-ray)</span></div>
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
         </div>
-        <div class="hint-box">보건실에서는 흉부 X-ray 검진일자, 검진기관명만 필요합니다.<br>결과지 전체는 받지 않습니다.</div>
-        <button class="tile-btn" onclick="openModal('modal-tb')">확인증 업로드하기</button>
+        <div class="hint-box">보건실에서 흉부 X-ray 검사소견, 검진일자, 검진기관명만 필요합니다.<br>다른 검사항목 결과지 전체는 받지 않습니다.</div>
+        <div style="display:flex; gap:8px; margin-top:auto;">
+          <button class="tile-btn" style="flex:1; background:#fff; color:#1f3d8f; border:1px solid #1f3d8f;" onclick="tbQuickScheduled()">📅 개별건강검진<br>예정입니다</button>
+          <button class="tile-btn" style="flex:1;" onclick="openTbModal('upload')">📁 확인증 업로드하기</button>
+        </div>
       </div>
 
       <div class="submit-tile">
-        <span class="tag tag-confirm">확인 요청</span>
+        <span class="tag tag-receiving">접수 중</span>
         <h2><span style="color:#e0455a;">신규</span> 채용검진 대체인정 확인요청(X-ray, 혈액)</h2>
         <p class="desc">채용검진 서류를 이미 행정실에 제출하신 경우, 보건실 앱에 결과지를 다시 업로드하지 않으셔도 됩니다.</p>
         <div class="meta-box">
-          <div><span class="k">대상</span><span>채용검진으로 결핵검진 대체 인정 확인이 필요한 교직원</span></div>
-          <div><span class="k">자료</span><span>파일 제출 없음</span></div>
+          <div><span class="k">대상</span><span>결핵검진 대체인정확인이 필요한 교직원</span></div>
+          <div><span class="k">자료</span><span>결핵검진(흉부 X-ray), 혈액 잠복결핵검사</span></div>
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
         </div>
-        <div class="hint-box">보건실에서는 흉부 X-ray 검진일자 확인만 필요합니다.<br>채용검진 결과지 전체는 받지 않습니다.</div>
-        <button class="tile-btn" onclick="openModal('modal-hire')">확인 요청하기</button>
+        <div class="hint-box">보건실에서는 흉부 X-ray, 혈액잠복검사결과 검사소견, 검진일자, 검진기관명만 필요합니다.<br>다른 검사항목 결과지 전체는 받지 않습니다.</div>
+        <div style="display:flex; gap:8px; margin-top:auto;">
+          <button class="tile-btn" style="flex:1; background:#fff; color:#1f3d8f; border:1px solid #1f3d8f;" onclick="hireQuickConfirm()">✅ 행정실에 이미<br>제출했습니다</button>
+          <button class="tile-btn" style="flex:1;" onclick="openHireModal('upload')">📁 확인증 업로드하기</button>
+        </div>
       </div>
 
+    </div>
+  </section>
+  <section>
+    <div class="title-box title-box-pink">📊 교직원 검사기록 (실시간 확인용)</div>
+    <div class="table-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <strong style="font-size:.88rem;color:#1f3d8f;">교직원 건강검사기록 시트</strong>
+        <a href="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?gid=1043130740#gid=1043130740" target="_blank" style="font-size:.78rem;color:#1f3d8f;font-weight:600;text-decoration:underline;">새 창에서 열기 ↗</a>
+      </div>
+      <p style="font-size:.78rem;color:#888;margin:0 0 10px;">※ 이 시트는 전체 현황을 빠르게 확인하기 위한 용도입니다. 검진을 마치셨다면 위 제출·업로드 센터에서 확인증 파일을 함께 제출해주시기 바랍니다. 감사합니다.</p>
+      <iframe src="https://docs.google.com/spreadsheets/d/1zjH04mLTu5OGji5-WwKxQ59wOOwfo0L9227uvLAmQlA/edit?usp=sharing&rm=minimal&gid=1043130740"
+              style="width:100%; height:560px; border:none; border-radius:8px;" loading="lazy"></iframe>
     </div>
   </section>
 
@@ -219,9 +231,10 @@
 <div class="modal-overlay" id="modal-tb">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-tb')">✕</button>
-    <h3>🫁 결핵검진 확인증 제출</h3>
+    <h3 id="tb-modal-title">🫁 결핵검진 확인증 제출</h3>
     <form onsubmit="return handleSubmit(event, 'modal-tb')">
       <input type="hidden" name="type" value="결핵검진">
+      <input type="hidden" name="status" id="tb-status-field" value="완료">
       <div class="field">
         <label>성명 <span class="req">*</span></label>
         <input type="text" name="name" placeholder="홍길동" required>
@@ -235,11 +248,12 @@
           <option>1학년부</option><option>2학년부</option><option>3학년부</option><option>기타</option>
         </select>
       </div>
-      <div class="field">
-        <label>검진일자 <span class="req">*</span></label>
+      <div class="field" id="tb-date-field">
+        <label id="tb-date-label">검진일자 <span class="req">*</span></label>
         <input type="date" name="date" required>
       </div>
-      <div class="field">
+      <div id="tb-confirm-hint" class="hint-box" style="display:none;">아직 검진 전이시면 예정 등록만 해두세요.<br>검진을 받으신 후 다시 들어와서 "확인증 업로드하기"로 자료를 제출해주세요.</div>
+      <div id="tb-file-section" class="field">
         <label>확인증 파일 업로드 <span class="req">*</span></label>
         <div class="hint-box">결핵검진 확인증 또는 흉부 X-ray 검진 확인 자료를 업로드해주세요.<br>확인 필요 항목: 성명, 검진일자, 검진 항목</div>
         <div class="drop-zone" id="drop-tb" onclick="document.getElementById('file-tb').click()">
@@ -248,7 +262,7 @@
         </div>
         <input type="file" id="file-tb" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" required onchange="markFile('drop-tb', this)">
       </div>
-      <button class="submit-btn" type="submit">제출하기</button>
+      <button class="submit-btn" type="submit" id="tb-submit-btn">제출하기</button>
       <div class="status-msg" id="status-tb"></div>
     </form>
   </div>
@@ -273,8 +287,20 @@
           <option>1학년부</option><option>2학년부</option><option>3학년부</option><option>기타</option>
         </select>
       </div>
-      <div class="hint-box">파일 제출 없이 확인 요청만 접수됩니다.<br>보건실에서 채용검진 시 실시한 흉부 X-ray 검진일자만 확인합니다.</div>
-      <button class="submit-btn" type="submit">확인 요청하기</button>
+
+      <div id="hire-confirm-hint" class="hint-box">파일 제출 없이 확인 요청만 접수됩니다.<br>보건실에서 채용검진 시 실시한 흉부 X-ray 검진일자만 확인합니다.</div>
+
+      <div id="hire-file-section" class="field" style="display:none;">
+        <label>확인증 파일 업로드 <span class="req">*</span></label>
+        <div class="hint-box">결핵검진 확인증 또는 흉부 X-ray 검진 확인 자료를 업로드해주세요.</div>
+        <div class="drop-zone" id="drop-hire" onclick="document.getElementById('file-hire').click()">
+          📁 파일을 여기에 드래그하거나 클릭해서 선택
+          <small>PDF · JPG · PNG / 최대 10MB</small>
+        </div>
+        <input type="file" id="file-hire" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="markFile('drop-hire', this)">
+      </div>
+
+      <button class="submit-btn" type="submit" id="hire-submit-btn">확인 요청하기</button>
       <div class="status-msg" id="status-hire"></div>
     </form>
   </div>
@@ -307,6 +333,117 @@
 
   function openModal(id){ document.getElementById(id).classList.add('open'); }
   function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+  function openTbModal(mode){
+    const fileSection = document.getElementById('tb-file-section');
+    const confirmHint = document.getElementById('tb-confirm-hint');
+    const fileInput = document.getElementById('file-tb');
+    const submitBtn = document.getElementById('tb-submit-btn');
+    const statusField = document.getElementById('tb-status-field');
+    const title = document.getElementById('tb-modal-title');
+    const dateLabel = document.getElementById('tb-date-label');
+    if(mode === 'scheduled'){
+      fileSection.style.display = 'none';
+      confirmHint.style.display = 'block';
+      fileInput.required = false;
+      submitBtn.textContent = '예정 등록하기';
+      statusField.value = '예정';
+      title.textContent = '📅 개별 건강검진 예정 등록';
+      dateLabel.innerHTML = '검진 예정일자 (대략적인 시기) <span class="req">*</span>';
+    } else {
+      fileSection.style.display = 'block';
+      confirmHint.style.display = 'none';
+      fileInput.required = true;
+      submitBtn.textContent = '업로드하기';
+      statusField.value = '완료';
+      title.textContent = '🫁 결핵검진 확인증 제출';
+      dateLabel.innerHTML = '검진일자 <span class="req">*</span>';
+    }
+    openModal('modal-tb');
+  }
+
+  function openHireModal(mode){
+    const fileSection = document.getElementById('hire-file-section');
+    const confirmHint = document.getElementById('hire-confirm-hint');
+    const fileInput = document.getElementById('file-hire');
+    const submitBtn = document.getElementById('hire-submit-btn');
+    if(mode === 'upload'){
+      fileSection.style.display = 'block';
+      confirmHint.style.display = 'none';
+      fileInput.required = true;
+      submitBtn.textContent = '업로드하기';
+    } else {
+      fileSection.style.display = 'none';
+      confirmHint.style.display = 'block';
+      fileInput.required = false;
+      submitBtn.textContent = '확인 요청하기';
+    }
+    openModal('modal-hire');
+  }
+
+  // 📅 개별건강검진 예정입니다 - 클릭 한 번으로 빠르게 등록
+  async function tbQuickScheduled(){
+    const name = prompt('성명을 입력해주세요');
+    if(!name) return;
+    const month = prompt('검진 예정 월을 입력해주세요 (예: 2026-08)');
+    if(!month) return;
+
+    if(GAS_URL.includes('여기에')){
+      alert('⚠ 아직 구글 시트 연동 주소(GAS_URL)가 설정되지 않았습니다.');
+      return;
+    }
+    try{
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({ type: '결핵검진', status: '예정', name: name, date: month })
+      });
+      const result = await res.json();
+      if(result.result === 'success'){
+        alert('예정 등록되었습니다.\n검진 후 꼭 확인증 업로드 부탁드립니다.');
+      } else {
+        alert('등록 실패: ' + (result.message || '알 수 없는 오류'));
+      }
+    } catch(err){
+      alert('네트워크 오류로 등록하지 못했습니다.');
+    }
+  }
+
+  // ✅ 행정실에 이미 제출했습니다 - 클릭 한 번으로 바로 접수
+  async function hireQuickConfirm(){
+    const name = prompt('성명을 입력해주세요');
+    if(!name) return;
+    const dept = prompt('소속/부서를 입력해주세요 (예: 1학년부)');
+    if(!dept) return;
+
+    if(GAS_URL.includes('여기에')){
+      alert('⚠ 아직 구글 시트 연동 주소(GAS_URL)가 설정되지 않았습니다.');
+      return;
+    }
+    try{
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({ type: '채용검진대체', name: name, dept: dept })
+      });
+      const result = await res.json();
+      if(result.result === 'success'){
+        alert('접수되었습니다.');
+      } else {
+        alert('접수 실패: ' + (result.message || '알 수 없는 오류'));
+      }
+    } catch(err){
+      alert('네트워크 오류로 접수하지 못했습니다.');
+    }
+  }
+
+  // 주소 끝에 ?open=tb-upload 또는 ?open=hire-upload 를 붙이면 해당 업로드창이 바로 열립니다
+  (function autoOpenFromUrl(){
+    const params = new URLSearchParams(window.location.search);
+    const open = params.get('open');
+    if(open === 'tb-upload') window.addEventListener('DOMContentLoaded', ()=>openTbModal('upload'));
+    if(open === 'hire-upload') window.addEventListener('DOMContentLoaded', ()=>openHireModal('upload'));
+  })();
   document.querySelectorAll('.modal-overlay').forEach(ov=>{
     ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); });
   });
