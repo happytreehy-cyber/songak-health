@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>확인증 제출 | 송악고등학교 온라인 보건실</title>
+<script>
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+</script>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+    background:#f4f6f9; color:#222; min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .card {
+    background:#fff; border-radius:16px; padding:28px 26px; max-width:420px; width:100%;
+    box-shadow:0 2px 16px rgba(0,0,0,.06);
+  }
+  .card h1 { font-size:1.15rem; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
+  .card .sub { font-size:.84rem; color:#888; margin:0 0 18px; }
+  .field { margin-bottom:16px; }
+  .field label { display:block; font-size:.9rem; font-weight:600; margin-bottom:6px; }
+  .field label .req { color:#e0455a; }
+  .field input[type="text"], .field input[type="date"] {
+    width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:9px; font-size:.96rem;
+  }
+  .hint-box { background:#eaf5e3; color:#3a6b1f; font-size:.86rem; border-radius:8px; padding:11px 14px; margin-bottom:14px; line-height:1.6; }
+  .drop-zone {
+    border:1.5px dashed #ccc; border-radius:10px; text-align:center; padding:24px 12px;
+    cursor:pointer; color:#888; font-size:.9rem; margin-bottom:8px;
+  }
+  .drop-zone.has-file { border-color:#1f3d8f; color:#1f3d8f; background:#f3f5ff; }
+  .drop-zone small { display:block; color:#aaa; margin-top:4px; }
+  .submit-btn {
+    width:100%; background:#1f3d8f; color:#fff; border:none; padding:14px;
+    border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; margin-top:6px;
+  }
+  .submit-btn:disabled { background:#3a5bb0; cursor:not-allowed; }
+  .submit-btn:hover:not(:disabled) { background:#16307a; }
+  .status-msg { font-size:.86rem; margin-top:10px; text-align:center; }
+  .status-msg.ok { color:#2e7d32; }
+  .status-msg.err { color:#c23c3c; }
+  .done-box { display:none; text-align:center; padding:20px 0; }
+  .done-box .check { font-size:2.4rem; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<div class="card" id="formCard">
+  <h1 id="pageTitle">🫁 확인증 제출</h1>
+  <p class="sub" id="pageSub">송악고등학교 온라인 보건실</p>
+
+  <form id="uploadForm">
+    <input type="hidden" name="type" id="typeField" value="결핵검진">
+    <input type="hidden" name="status" value="완료">
+
+    <div class="field">
+      <label>성명 <span class="req">*</span></label>
+      <input type="text" name="name" placeholder="홍길동" required>
+    </div>
+
+    <div class="field" id="dateField">
+      <label>검진일자 <span class="req">*</span></label>
+      <input type="date" name="date" required>
+    </div>
+
+    <div class="hint-box" id="hintBox"></div>
+
+    <div class="field">
+      <label>확인증 파일 업로드 <span class="req">*</span></label>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        📁 파일을 여기에 드래그하거나 클릭해서 선택
+        <small>PDF · JPG · PNG / 최대 10MB</small>
+      </div>
+      <input type="file" id="fileInput" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" required>
+    </div>
+
+    <button class="submit-btn" type="submit" id="submitBtn">업로드하기</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </form>
+</div>
+
+<div class="card done-box" id="doneCard">
+  <div class="check">✅</div>
+  <h1 style="justify-content:center;">제출 완료되었습니다</h1>
+  <p class="sub">확인 후 처리해드리겠습니다. 감사합니다.</p>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('t') === 'h' ? 'hire' : 'tb'; // ?t=h → 신규채용, 그 외 → 재직중
+
+  const typeField = document.getElementById('typeField');
+  const dateField = document.getElementById('dateField');
+  const hintBox = document.getElementById('hintBox');
+  const pageTitle = document.getElementById('pageTitle');
+  const pageSub = document.getElementById('pageSub');
+
+  if (mode === 'hire') {
+    typeField.value = '채용검진대체';
+    dateField.style.display = 'none';
+    document.querySelector('input[name="date"]').required = false;
+    pageTitle.innerHTML = '🫁 채용검진 대체인정 확인증 제출';
+    pageSub.textContent = '신규 채용 교직원 전용';
+    hintBox.innerHTML = '<b style="color:#c23c3c;">[중요]</b> <b style="color:#222;">흉부 X-ray, 혈액잠복결핵검사 확인 필요 항목</b><br>성명, 검진일자, 검진기관, 검진소견<br>(그 외 기타 개인정보는 가리고 자료 업로드 부탁드립니다.)';
+  } else {
+    typeField.value = '결핵검진';
+    pageTitle.innerHTML = '🫁 재직중 결핵검진 확인증 제출';
+    pageSub.textContent = '재직중 교직원 전용';
+    hintBox.innerHTML = '<b style="color:#c23c3c;">[중요]</b> <b style="color:#222;">흉부 X-ray 확인 필요 항목</b><br>성명, 검진일자, 검진기관, 검진소견<br>(그 외 기타 개인정보는 가리고 자료 업로드 부탁드립니다.)';
+  }
+
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  fileInput.addEventListener('change', function(){
+    if(fileInput.files.length){
+      dropZone.classList.add('has-file');
+      dropZone.innerHTML = '✅ ' + fileInput.files[0].name + '<small>다른 파일을 선택하려면 다시 클릭</small>';
+    }
+  });
+
+  function fileToBase64(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('uploadForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('statusMsg');
+    statusEl.textContent = '';
+    statusEl.className = 'status-msg';
+
+    if (GAS_URL.includes('여기에')) {
+      statusEl.textContent = '⚠ 연동 주소가 설정되지 않았습니다.';
+      statusEl.className = 'status-msg err';
+      return;
+    }
+
+    btn.disabled = true;
+    let frame = 0;
+    const frames = ['⏳ 잠시만 기다려주세요...', '⌛ 잠시만 기다려주세요...'];
+    btn.textContent = frames[0];
+    const timer = setInterval(() => { frame = 1 - frame; btn.textContent = frames[frame]; }, 500);
+
+    try {
+      const formData = new FormData(form);
+      const payload = {};
+      formData.forEach((v, k) => { if (k !== 'file') payload[k] = v; });
+
+      if (fileInput.files.length) {
+        const file = fileInput.files[0];
+        payload.fileBase64 = await fileToBase64(file);
+        payload.fileName = file.name;
+        payload.fileType = file.type;
+      }
+
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if (result.result === 'success') {
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('doneCard').style.display = 'block';
+      } else {
+        statusEl.textContent = '제출 실패: ' + (result.message || '알 수 없는 오류');
+        statusEl.className = 'status-msg err';
+      }
+    } catch (err) {
+      statusEl.textContent = '네트워크 오류로 제출하지 못했습니다.';
+      statusEl.className = 'status-msg err';
+    } finally {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = '업로드하기';
+    }
+  });
+</script>
+
+</body>
+</html>
