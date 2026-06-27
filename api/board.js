@@ -104,6 +104,20 @@ async function handleAddNotice(req, res) {
   res.status(200).json({ success: true, message: "등록되었습니다." });
 }
 
+async function handleEditNotice(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, title, date, deadline, status, url } = req.body;
+  if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${NOTICE_TAB}!A${sheetRowNumber}:E${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, date || "", deadline || "", status === "closed" ? "마감" : "진행중", url || ""]] }
+  });
+  res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
 async function handleUpdateNoticeStatus(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
   const { rowNum, status } = req.body;
@@ -161,6 +175,20 @@ async function handleAddCoop(req, res) {
     requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
   });
   res.status(200).json({ success: true, message: "등록되었습니다." });
+}
+
+async function handleEditCoop(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, title, content, date, status, attachType, attachValue } = req.body;
+  if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${COOP_TAB}!A${sheetRowNumber}:F${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, content || "", date || "", status === "closed" ? "마감" : "진행중", attachType || "", attachValue || ""]] }
+  });
+  res.status(200).json({ success: true, message: "수정되었습니다." });
 }
 
 async function handleUpdateCoopStatus(req, res) {
@@ -225,6 +253,21 @@ async function handleAddCheckup(req, res) {
   res.status(200).json({ success: true, message: "등록되었습니다." });
 }
 
+async function handleEditCheckup(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, title, target, content, datetime, link, status, fileUrl } = req.body;
+  if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${CHECKUP_TAB}!A${sheetRowNumber}:H${sheetRowNumber}`,
+    valueInputOption: "RAW",
+    requestBody: { values: [[new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }), title, target || "", content, datetime || "", link || "", fileUrl || "", status === "closed" ? "마감" : "진행중"]] }
+  });
+  res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
 async function handleUpdateCheckupStatus(req, res) {
   if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
   const { rowNum, status } = req.body;
@@ -274,16 +317,19 @@ module.exports = async (req, res) => {
       if (action === "checkpw") return await handleCheckAdminPw(req, res);
       if (type === "notice") {
         if (action === "add") return await handleAddNotice(req, res);
+        if (action === "edit") return await handleEditNotice(req, res);
         if (action === "updatestatus") return await handleUpdateNoticeStatus(req, res);
         if (action === "delete") return await handleDeleteNotice(req, res);
       }
       if (type === "coop") {
         if (action === "add") return await handleAddCoop(req, res);
+        if (action === "edit") return await handleEditCoop(req, res);
         if (action === "updatestatus") return await handleUpdateCoopStatus(req, res);
         if (action === "delete") return await handleDeleteCoop(req, res);
       }
       if (type === "checkup") {
         if (action === "add") return await handleAddCheckup(req, res);
+        if (action === "edit") return await handleEditCheckup(req, res);
         if (action === "updatestatus") return await handleUpdateCheckupStatus(req, res);
         if (action === "delete") return await handleDeleteCheckup(req, res);
       }
