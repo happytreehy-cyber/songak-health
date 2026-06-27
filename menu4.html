@@ -246,19 +246,27 @@ function loadNoticeCards(){
       window.noticeList = items;
       if(!items.length){ wrap.innerHTML = '<div class="empty-msg">등록된 보건소식이 없습니다.</div>'; return; }
       wrap.innerHTML = items.map(function(item, idx){
+        var attachLine = '';
+        if(item.attachValue){
+          if(item.attachType === 'qr'){ attachLine = '📎 설문 QR'; }
+          else if(item.attachType === 'file'){ attachLine = '📎 첨부파일'; }
+          else { attachLine = '🔗 관련 링크'; }
+        }
         return '<div class="thumb-card" data-idx="'+idx+'" data-kind="notice"><div class="thumb-box" id="noticeThumb'+idx+'">⏳</div>'+
           '<div class="thumb-info"><div class="thumb-title">'+escHtml(item.title)+'</div>'+
-          '<div class="thumb-sub">'+escHtml(item.date||item.deadline||'')+'</div>'+
+          (item.content ? '<div class="thumb-sub" style="white-space:normal;">'+escHtml(item.content)+'</div>' : '')+
+          '<div class="thumb-sub">'+escHtml(item.date||'')+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div>'+
+          (attachLine ? '<div class="thumb-sub">'+attachLine+'</div>' : '')+
           '<span class="thumb-status '+item.status+'">'+(item.status==='closed'?'마감':'진행중')+'</span></div></div>';
       }).join('');
       items.forEach(function(item, idx){
-        if(item.url) renderThumb(item.url, document.getElementById('noticeThumb'+idx));
-        else document.getElementById('noticeThumb'+idx).innerHTML = '📄';
+        if(item.attachType === 'file' && item.attachValue) renderThumb(item.attachValue, document.getElementById('noticeThumb'+idx));
+        else document.getElementById('noticeThumb'+idx).innerHTML = item.attachType === 'qr' ? '🔳' : (item.attachValue ? '🔗' : '📄');
       });
       wrap.querySelectorAll('.thumb-card[data-kind="notice"]').forEach(function(card){
         card.addEventListener('click', function(){
           var item = window.noticeList[Number(card.dataset.idx)];
-          if(item.url) openFile(item);
+          if(item.attachValue) window.open(item.attachValue, '_blank');
         });
       });
     })
