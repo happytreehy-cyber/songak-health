@@ -331,6 +331,26 @@ async function handleAddNewsCard(req, res) {
   res.status(200).json({ success: true, message: "카드뉴스가 등록되었습니다." });
 }
 
+async function handleEditNewsCard(req, res) {
+  const { password, rowNum, title, date, tag, url } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  if (rowNum === undefined || !title || !url) {
+    res.status(400).json({ success: false, message: "제목과 파일을 모두 입력해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A${sheetRowNumber}:D${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, date || "", tag || "", url]] }
+  });
+  res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
 async function handleDeleteNewsCard(req, res) {
   const { password, rowNum } = req.body;
   if (!password || password !== process.env.ADMIN_PASSWORD) {
@@ -353,7 +373,6 @@ async function handleDeleteNewsCard(req, res) {
 }
 
 module.exports = async (req, res) => {
-  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET") {
       if (req.query.action === "students") return await handleStudents(req, res);
@@ -366,6 +385,7 @@ module.exports = async (req, res) => {
       if (action === "list") return await handleList(req, res);
       if (action === "updatecase") return await handleUpdateCase(req, res);
       if (action === "addnewscard") return await handleAddNewsCard(req, res);
+      if (action === "editnewscard") return await handleEditNewsCard(req, res);
       if (action === "deletenewscard") return await handleDeleteNewsCard(req, res);
       return await handleSubmit(req, res);
     }
