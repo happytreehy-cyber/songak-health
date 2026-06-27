@@ -1,398 +1,981 @@
-// /api/infection-report.js
-const { google } = require("googleapis");
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 - 송악고등학교 온라인 보건실</title>
+<meta name="color-scheme" content="light only">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1e3a8a;--bg:#f5f7fb;--card:#ffffff;--border:#e3e7f0;--text:#1c2333;--muted:#6b7280;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,textarea,select{font-family:inherit;}
 
-const SHEET_TAB_NAME = "감염병발생보고";
-const HEADER = ["제출일시","학년","반","번호","학생명","감염병종류","진단일(=등교중지시작일)","등교중지종료(예정)일","비고","처리상태","보건교사확인","안내완료"];
-const STUDENT_TAB_NAME = "학생명단";
+  /* 로그인 게이트 */
+  #loginGate{position:fixed;inset:0;background:#f5f7fb;display:flex;align-items:center;justify-content:center;z-index:100;}
+  .login-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;width:100%;max-width:340px;text-align:center;}
+  .login-box h2{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+  .login-box p{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .login-box input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;margin-bottom:10px;}
+  .login-box button{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;}
+  .login-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
 
-function getSheetsClient(scopes) {
-  return google.sheets({
-    version: "v4",
-    auth: new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
-      scopes
-    )
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .brand{font-size:15px;font-weight:700;color:var(--navy);}
+  .topbar .brand span{font-size:11.5px;color:var(--muted);font-weight:400;margin-left:6px;}
+  .logout-btn{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:6px 12px;background:#fff;}
+
+  .layout{display:flex;min-height:calc(100vh - 53px);}
+  .sidebar{width:230px;background:#fff;border-right:1px solid var(--border);padding:22px 18px;flex-shrink:0;}
+  .sidebar-label{font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:4px;}
+  .sidebar-title{font-size:17px;font-weight:800;color:#1e293b;margin-bottom:4px;}
+  .sidebar-desc{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:20px;}
+  .nav-item{display:block;width:100%;text-align:left;font-size:13.5px;font-weight:600;color:#475569;padding:10px 12px;border-radius:9px;margin-bottom:6px;border:none;background:none;}
+  .nav-item.active{background:var(--navy);color:#fff;}
+  .nav-item.exit{margin-top:16px;border:1px solid var(--border);text-align:center;color:#334155;background:#fff;}
+
+  .main{flex:1;padding:28px 32px;max-width:760px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .panel-tag{font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:6px;}
+  .panel-title{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:6px;}
+  .panel-desc{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+  .form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
+  .form-card h4{font-size:13.5px;font-weight:700;margin-bottom:12px;}
+  .form-row{display:flex;gap:8px;margin-bottom:8px;}
+  .form-row > *{flex:1;}
+  input[type=text],input[type=date],input[type=file],textarea,select{width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:13px;margin-bottom:8px;}
+  textarea{resize:vertical;min-height:60px;}
+  .submit-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;}
+  .submit-btn:disabled{opacity:.6;}
+  .result-msg{margin-top:8px;font-size:12.5px;text-align:center;}
+  .result-msg.ok{color:#16803c;}
+  .result-msg.err{color:#dc2626;}
+
+  .list-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .list-card h4{font-size:13.5px;font-weight:700;margin-bottom:10px;}
+  .list-item{border-bottom:1px solid #f1f5f9;padding:12px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .list-item:last-child{border-bottom:none;}
+  .li-main strong{font-size:13.5px;}
+  .li-main .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .li-actions{display:flex;gap:6px;flex-shrink:0;}
+  .li-actions button{font-size:11.5px;border:none;border-radius:7px;padding:6px 10px;font-weight:700;}
+  .btn-toggle{background:#dbeafe;color:#1e3a8a;}
+  .btn-del{background:#fee2e2;color:#b91c1c;}
+  .empty-msg{font-size:12.5px;color:var(--muted);}
+
+  .tile-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}
+  .tile{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .tile .t-label{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+  .tile .t-value{font-size:22px;font-weight:800;color:#1e293b;}
+</style>
+</head>
+<body>
+
+<div id="loginGate">
+  <div class="login-box">
+    <h2>🔒 관리자 로그인</h2>
+    <p>송악고등학교 온라인 보건실 관리자 모드입니다.</p>
+    <input type="password" id="loginPw" placeholder="관리자 비밀번호">
+    <button id="loginBtn">로그인</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none;">
+  <div class="topbar">
+    <div class="brand">송악고등학교 온라인 보건실 <span>관리자 모드</span></div>
+    <button class="logout-btn" id="logoutBtn">🔒 로그아웃</button>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">ADMIN CONSOLE</div>
+      <div class="sidebar-title">온라인 보건실 관리자</div>
+      <div class="sidebar-desc">교직원 공개 화면과 분리된 통합 관리 영역입니다.</div>
+
+      <button class="nav-item active" data-panel="home">관리자 홈</button>
+      <button class="nav-item" data-panel="coop">🙏 담임 협조 요청 관리</button>
+      <button class="nav-item" data-panel="notice">🏥 이번주·이달의 보건소식 관리</button>
+      <button class="nav-item" data-panel="news">🦠 감염병 카드뉴스 관리</button>
+      <button class="nav-item" data-panel="checkup">🫁 검사안내 게시판 관리</button>
+      <button class="nav-item" data-panel="receipts">📋 접수 현황</button>
+      <button class="nav-item" data-panel="infectionAdmin">🦠 감염병 보고 관리</button>
+      <button class="nav-item" data-panel="careAdmin">💗 요보호 학생 추가</button>
+
+      <a class="nav-item exit" href="menu4.html" target="_blank">← 공개 포털로 이동</a>
+    </aside>
+
+    <main class="main">
+
+      <!-- 관리자 홈 -->
+      <section class="panel active" id="panel-home">
+        <div class="panel-tag">ADMIN DASHBOARD</div>
+        <div class="panel-title">관리자 홈</div>
+        <div class="panel-desc">비밀번호 1회 입력으로 모든 항목을 이 화면에서 관리합니다.</div>
+        <div class="tile-row">
+          <div class="tile"><div class="t-label">담임 협조 요청</div><div class="t-value" id="tileCoop">-</div></div>
+          <div class="tile"><div class="t-label">이번주·이달의 보건소식</div><div class="t-value" id="tileNotice">-</div></div>
+          <div class="tile"><div class="t-label">카드뉴스 등록</div><div class="t-value" id="tileNews">-</div></div>
+          <div class="tile"><div class="t-label">검사안내 게시판</div><div class="t-value" id="tileCheckup">-</div></div>
+          <div class="tile"><div class="t-label">현재 등교중지 인원</div><div class="t-value" id="tileInfectionOngoing">-</div></div>
+          <div class="tile"><div class="t-label">결핵검진 미완료</div><div class="t-value" id="tileTbPending">-</div></div>
+        </div>
+      </section>
+
+      <!-- 담임 협조 요청 관리 -->
+      <section class="panel" id="panel-coop">
+        <div class="panel-tag">COOPERATION</div>
+        <div class="panel-title">🙏 담임 협조 요청 관리</div>
+        <div class="panel-desc">문진표 회수, 가정통신문 배부 등 담임 선생님께 요청할 항목을 등록·관리합니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 협조 요청 등록</h4>
+          <input type="text" id="coopTitle" placeholder="제목 (예: 1학년 문진표 회수 요청)">
+          <textarea id="coopContent" placeholder="내용 (예: 6월 20일까지 회수하여 보건실에 제출해주세요)"></textarea>
+          <div class="form-row">
+            <input type="date" id="coopDate">
+            <select id="coopAttachType">
+              <option value="">첨부 없음</option>
+              <option value="link">구글폼/일반 링크</option>
+              <option value="qr">설문 QR (링크 입력시 자동생성)</option>
+              <option value="file">파일 업로드</option>
+            </select>
+          </div>
+          <input type="text" id="coopAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
+          <input type="file" id="coopAttachFile" style="display:none;">
+          <button class="submit-btn" id="coopAddBtn">등록</button>
+          <div class="result-msg" id="coopAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 협조 요청</h4>
+          <div id="coopAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 보건소식 관리 -->
+      <section class="panel" id="panel-notice">
+        <div class="panel-tag">HEALTH NOTICE</div>
+        <div class="panel-title">🏥 이번주·이달의 보건소식 관리</div>
+        <div class="panel-desc">PDF나 이미지 형태의 보건소식을 등록·관리합니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 보건소식 등록</h4>
+          <input type="text" id="noticeTitle" placeholder="제목 (예: 여름철 식중독 예방 안내)">
+          <div class="form-row">
+            <input type="date" id="noticeDate">
+            <input type="date" id="noticeDeadline" placeholder="마감 기한">
+          </div>
+          <select id="noticeAttachType">
+            <option value="">첨부 없음</option>
+            <option value="link">구글폼/일반 링크</option>
+            <option value="qr">설문 QR (링크 입력시 자동생성)</option>
+            <option value="file">파일 업로드</option>
+          </select>
+          <input type="text" id="noticeAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
+          <input type="file" id="noticeFile" accept="image/*,application/pdf" style="display:none;">
+          <button class="submit-btn" id="noticeAddBtn">등록</button>
+          <div class="result-msg" id="noticeAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 보건소식</h4>
+          <div id="noticeAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 카드뉴스 관리 -->
+      <section class="panel" id="panel-news">
+        <div class="panel-tag">CARD NEWS</div>
+        <div class="panel-title">🦠 감염병 카드뉴스 관리</div>
+        <div class="panel-desc">감염병 예방 카드뉴스, 가정통신문을 등록·관리합니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 카드뉴스 등록</h4>
+          <input type="text" id="newsTitle" placeholder="제목 (예: 수두 예방 안내)">
+          <div class="form-row">
+            <input type="date" id="newsDate">
+            <input type="text" id="newsTag" placeholder="태그 (선택, 예: 유행주의)">
+          </div>
+          <select id="newsAttachType">
+            <option value="">첨부 없음</option>
+            <option value="link">구글폼/일반 링크</option>
+            <option value="qr">설문 QR (링크 입력시 자동생성)</option>
+            <option value="file">파일 업로드</option>
+          </select>
+          <input type="text" id="newsAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
+          <input type="file" id="newsFile" accept="image/*,application/pdf" style="display:none;">
+          <button class="submit-btn" id="newsAddBtn">등록</button>
+          <div class="result-msg" id="newsAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 카드뉴스</h4>
+          <div id="newsAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 검사안내 게시판 관리 (tb-checkup.html과 시트 공유) -->
+      <section class="panel" id="panel-checkup">
+        <div class="panel-tag">CHECKUP NOTICE</div>
+        <div class="panel-title">🫁 검사안내 게시판 관리</div>
+        <div class="panel-desc">결핵검진 페이지(교직원 검사안내)의 공지사항 게시판입니다. 여기서 작성하면 tb-checkup.html 화면에도 바로 표시됩니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 글 작성</h4>
+          <input type="text" id="checkupTitle" placeholder="제목 (예: 7월 결핵검진 안내)">
+          <input type="text" id="checkupTarget" placeholder="대상 (예: 전체 교직원 / 신규 채용 교직원)">
+          <textarea id="checkupContent" placeholder="내용"></textarea>
+          <div class="form-row">
+            <input type="date" id="checkupDatetime">
+            <input type="text" id="checkupLink" placeholder="링크 (https://...)">
+          </div>
+          <input type="file" id="checkupFile" accept="image/*,application/pdf">
+          <select id="checkupStatus" style="margin-top:10px;">
+            <option value="ongoing">진행중</option>
+            <option value="closed">마감</option>
+          </select>
+          <button class="submit-btn" id="checkupAddBtn">등록</button>
+          <div class="result-msg" id="checkupAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 게시글</h4>
+          <div id="checkupAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 접수 현황 -->
+      <section class="panel" id="panel-receipts">
+        <div class="panel-tag">RECEIPTS OVERVIEW</div>
+        <div class="panel-title">📋 접수 현황</div>
+        <div class="panel-desc">교직원 검진·감염병 보고 등 실제 접수 데이터를 한눈에 모아 보는 화면입니다.</div>
+
+        <div class="tile-row">
+          <div class="tile" style="cursor:pointer;" onclick="showRcDetail('tbdone')"><div class="t-label">결핵검진 완료</div><div class="t-value" id="rcTbDone">-</div></div>
+          <div class="tile" style="cursor:pointer;" onclick="showRcDetail('tbplanned')"><div class="t-label">결핵검진 예정</div><div class="t-value" id="rcTbPlanned">-</div></div>
+          <div class="tile" style="cursor:pointer;" onclick="showRcDetail('hire')"><div class="t-label">채용검진 대체 확인요청</div><div class="t-value" id="rcHire">-</div></div>
+          <div class="tile" style="cursor:pointer;" onclick="showRcDetail('infection')"><div class="t-label">감염병 누적 보고</div><div class="t-value" id="rcInfectionTotal">-</div></div>
+        </div>
+
+        <div id="rcDetailBox" style="display:none;" class="list-card"></div>
+
+        <div class="list-card">
+          <h4>🫁 교직원 결핵검진 명부 현황</h4>
+          <div id="rcTbList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>📎 제출된 확인증 파일 보기</h4>
+          <div id="rcFileList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>🧴 감염병예방 물품·소모품 신청 내역</h4>
+          <div id="rcSupplyList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 감염병 보고 관리 -->
+      <section class="panel" id="panel-infectionAdmin">
+        <div class="panel-tag">INFECTION CASE MANAGEMENT</div>
+        <div class="panel-title">🦠 감염병 보고 관리</div>
+        <div class="panel-desc">담임 선생님이 제출한 감염병 발생 보고 전체 목록입니다. 등교중지가 진행 중인 경우 빨간색으로 표시됩니다.</div>
+        <div id="infectionAdminList"><div class="empty-msg">불러오는 중...</div></div>
+      </section>
+
+      <!-- 요보호 학생 추가 -->
+      <section class="panel" id="panel-careAdmin">
+        <div class="panel-tag">CARE STUDENT</div>
+        <div class="panel-title">💗 요보호 학생 관리</div>
+        <div class="panel-desc">담임 선생님이 제출한 요보호 학생 명단을 확인하고, 새 학생을 추가합니다.</div>
+
+        <div class="list-card">
+          <h4>📋 학년별 요보호 학생 목록</h4>
+          <div class="form-row">
+            <button class="btn-toggle" onclick="loadCareList(1)">1학년</button>
+            <button class="btn-toggle" onclick="loadCareList(2)">2학년</button>
+            <button class="btn-toggle" onclick="loadCareList(3)">3학년</button>
+          </div>
+          <div id="careListBox" style="margin-top:10px;"><div class="empty-msg">학년을 선택해주세요.</div></div>
+        </div>
+
+        <div class="form-card">
+          <h4>📝 요보호 학생 등록</h4>
+          <div class="form-row">
+            <select id="careGrade">
+              <option value="">학년 선택</option>
+              <option value="1">1학년</option>
+              <option value="2">2학년</option>
+              <option value="3">3학년</option>
+            </select>
+            <input type="text" id="careClassNum" placeholder="반 (예: 3)">
+          </div>
+          <div class="form-row">
+            <input type="text" id="careNumber" placeholder="번호">
+            <input type="text" id="careName" placeholder="이름">
+          </div>
+          <h4 style="margin-top:14px;">해당 증상 선택</h4>
+          <div class="form-row" style="flex-wrap:wrap;gap:8px;">
+            <label><input type="checkbox" id="symFemale"> 여성질환</label>
+            <label><input type="checkbox" id="symHeadache"> 두통</label>
+            <label><input type="checkbox" id="symRhinitis"> 비염</label>
+            <label><input type="checkbox" id="symAtopy"> 아토피</label>
+            <label><input type="checkbox" id="symAsthma"> 천식</label>
+            <label><input type="checkbox" id="symAllergy"> 알레르기</label>
+            <label><input type="checkbox" id="symEtc"> 기타</label>
+          </div>
+          <input type="text" id="careEtcText" placeholder="기타 증상 직접 입력 (선택)" style="margin-top:8px;">
+          <textarea id="careNote" placeholder="교내활동시 확인이 필요한 부분 (예: 체육활동 - 천식 있어 격한 활동 자제 필요)"></textarea>
+          <button class="submit-btn" id="careAddBtn">등록</button>
+          <div class="result-msg" id="careAddMsg"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function statusDiamond(status){
+  if(status === 'closed') return '<span style="color:#dc2626;font-weight:700;">◆ 마감</span>';
+  return '<span style="color:#2563eb;font-weight:700;">◆ 진행중</span>';
+}
+
+/* ---------- 로그인 ---------- */
+function getPw(){ return sessionStorage.getItem('songakAdminPw') || ''; }
+function setPw(pw){ sessionStorage.setItem('songakAdminPw', pw); }
+function clearPw(){ sessionStorage.removeItem('songakAdminPw'); }
+
+async function tryLogin(pw){
+  const res = await fetch('/api/board?type=coop', { method:'GET' }); // 더미: 실제 인증은 checkpw로
+  const r = await fetch('/api/board', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'checkpw', password: pw }) });
+  return await r.json();
+}
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+async function doLogin(){
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginErr');
+  if(!pw){ errEl.textContent = '비밀번호를 입력해주세요.'; return; }
+  errEl.textContent = '확인 중...';
+  try{
+    const data = await tryLogin(pw);
+    if(data.success){
+      setPw(pw);
+      enterAdmin();
+    }else{
+      errEl.textContent = data.message || '비밀번호가 올바르지 않습니다.';
+    }
+  }catch(e){
+    errEl.textContent = '서버 연결에 실패했습니다.';
+  }
+}
+
+function enterAdmin(){
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'block';
+  loadAll();
+}
+
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  clearPw();
+  location.reload();
+});
+
+/* 자동 로그인 (세션에 비번 남아있으면) */
+window.addEventListener('DOMContentLoaded', async function(){
+  const cached = getPw();
+  if(cached){
+    try{
+      const data = await tryLogin(cached);
+      if(data.success){ enterAdmin(); return; }
+    }catch(e){}
+  }
+});
+
+/* ---------- 사이드바 패널 전환 ---------- */
+document.querySelectorAll('.nav-item[data-panel]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.nav-item[data-panel]').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
   });
-}
+});
 
-async function ensureTab(sheets, sheetId) {
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-  const exists = meta.data.sheets.some(s => s.properties.title === SHEET_TAB_NAME);
-  if (!exists) {
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
-      requestBody: { requests: [{ addSheet: { properties: { title: SHEET_TAB_NAME } } }] }
-    });
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
-      valueInputOption: "RAW", requestBody: { values: [HEADER] }
-    });
-  }
-}
-
-function parseKoreanDate(str) {
-  const d = new Date(str);
-  return isNaN(d) ? null : d;
-}
-
-// 이름 마스킹: 이민성 -> 이0성, 김철 -> 김0
-function maskName(name) {
-  if (!name) return "";
-  if (name.length <= 1) return name;
-  if (name.length === 2) return name[0] + "0";
-  return name[0] + "0" + name.slice(-1);
-}
-
-async function handleSubmit(req, res) {
-  const {
-    grade, classNum, studentNumber, studentName,
-    diseaseType, diseaseEtc, diagnosisDate,
-    exclusionEndDate, memo
-  } = req.body;
-
-  if (!grade || !classNum || !studentNumber || !studentName || !diagnosisDate || (!diseaseType && !diseaseEtc)) {
-    res.status(400).json({ success: false, message: "필수 항목을 모두 입력해주세요." });
-    return;
-  }
-
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  await ensureTab(sheets, sheetId);
-
-  const disease = diseaseType === "기타" ? (diseaseEtc || "기타") : diseaseType;
-
-  const existing = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:G` });
-  const rows = existing.data.values || [];
-  const dup = rows.some(r =>
-    r[1] === grade && r[2] === classNum && r[3] === String(studentNumber) &&
-    r[4] === studentName && r[5] === disease && r[6] === diagnosisDate
-  );
-  if (dup) {
-    res.status(409).json({ success: false, message: "이미 같은 내용의 보고가 접수되어 있습니다." });
-    return;
-  }
-
-  const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  // 진단일 = 등교중지 시작일 (별도 입력 없음)
-  const row = [
-    now, grade, classNum, studentNumber, studentName, disease, diagnosisDate,
-    exclusionEndDate || "", memo || "",
-    "접수", "미확인", "미완료"
-  ];
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
-    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [row] }
+/* ---------- 공통: 파일 업로드 ---------- */
+async function uploadFile(file){
+  const res = await fetch('/api/upload', {
+    method:'POST',
+    headers:{ 'Content-Type': file.type || 'application/octet-stream', 'x-filename': encodeURIComponent(file.name) },
+    body: file
   });
-
-  res.status(200).json({ success: true, message: "감염병 발생 보고가 제출되었습니다." });
+  return await res.json();
 }
 
-async function handleSummary(req, res) {
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+/* ---------- 담임 협조 요청 관리 ---------- */
+document.getElementById('coopAttachType').addEventListener('change', function(){
+  const v = this.value;
+  document.getElementById('coopAttachLink').style.display = (v==='link'||v==='qr') ? 'block' : 'none';
+  document.getElementById('coopAttachFile').style.display = (v==='file') ? 'block' : 'none';
+});
 
-  let rows = [];
-  try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:H` });
-    rows = result.data.values || [];
-  } catch (e) { rows = []; }
+async function loadCoopAdmin(){
+  const listEl = document.getElementById('coopAdminList');
+  try{
+    const res = await fetch('/api/board?type=coop');
+    const data = await res.json();
+    const items = data.items || [];
+    document.getElementById('tileCoop').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
+        '<div class="sub">'+escHtml(item.date)+'</div></div>'+
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editCoop('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteCoop('+item.rowNum+')">삭제</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
 
-  const today = new Date();
-  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+async function editCoop(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const content = prompt('내용', item.content||''); if(content===null) return;
+  const date = prompt('등록일', item.date||''); if(date===null) return;
+  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
+  loadCoopAdmin();
+}
 
-  const byDisease = {}, byGrade = {};
-  let last7days = 0, last30days = 0, currentlyExcluded = 0;
-  const maskedCurrent = [];
-  const allCasesMasked = [];
+async function toggleCoopStatus(rowNum, curStatus){
+  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
+  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
+  loadCoopAdmin();
+}
+async function deleteCoop(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
+  loadCoopAdmin();
+}
 
-  rows.forEach((r, idx) => {
-    const grade = r[1], classNum = r[2], studentNumber = r[3], studentName = r[4], disease = r[5], diagnosisDate = r[6], exclusionEnd = r[7];
-    if (disease) byDisease[disease] = (byDisease[disease] || 0) + 1;
-    if (grade) byGrade[grade] = (byGrade[grade] || 0) + 1;
+document.getElementById('coopAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('coopAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('coopTitle').value.trim();
+  const content = document.getElementById('coopContent').value.trim();
+  const date = document.getElementById('coopDate').value;
+  const attachType = document.getElementById('coopAttachType').value;
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
 
-    const diagDate = parseKoreanDate(diagnosisDate);
-    if (diagDate && diagDate >= sevenDaysAgo) last7days++;
-    if (diagDate && diagDate >= thirtyDaysAgo) last30days++;
-
-    allCasesMasked.push({
-      no: idx + 1, rowNum: idx, disease, grade, classNum, studentNumber,
-      maskedName: maskName(studentName), fullName: studentName, diagnosisDate,
-      exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정",
-      ended: exclusionEnd ? (parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false
-    });
-
-    if (exclusionEnd) {
-      const endDate = parseKoreanDate(exclusionEnd);
-      if (endDate && endDate >= today) {
-        currentlyExcluded++;
-        maskedCurrent.push({ grade, classNum, maskedName: maskName(studentName), disease, exclusionEnd });
+  btn.disabled = true; btn.textContent = '등록 중...';
+  try{
+    let attachValue = '';
+    if(attachType==='link' || attachType==='qr'){
+      attachValue = document.getElementById('coopAttachLink').value.trim();
+    } else if(attachType==='file'){
+      const f = document.getElementById('coopAttachFile').files[0];
+      if(f){
+        const up = await uploadFile(f);
+        if(up.success) attachValue = up.url;
       }
     }
-  });
-
-  res.status(200).json({
-    success: true,
-    summary: { totalCases: rows.length, byDisease, byGrade, last7days, last30days, currentlyExcluded, maskedCurrent, allCasesMasked }
-  });
-}
-
-async function handleList(req, res) {
-  const { password } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-
-  let rows = [];
-  try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:L` });
-    rows = result.data.values || [];
-  } catch (e) { rows = []; }
-
-  const today = new Date();
-  const list = rows.map((r, i) => {
-    const end = r[7] ? new Date(r[7]) : null;
-    return {
-      rowNum: i,
-      submittedAt: r[0], grade: r[1], classNum: r[2], studentNumber: r[3],
-      studentName: r[4], disease: r[5], diagnosisDate: r[6],
-      exclusionStart: r[6], exclusionEnd: r[7] || "", memo: r[8] || "", status: r[9] || "접수",
-      ongoing: !!(end && !isNaN(end) && end >= today)
-    };
-  }).reverse();
-
-  res.status(200).json({ success: true, list });
-}
-
-async function handleStudents(req, res) {
-  const { grade, classNum } = req.query;
-  if (!grade || !classNum) {
-    res.status(400).json({ success: false, message: "학년과 반을 선택해주세요." });
-    return;
-  }
-  // "1학년" -> "1", "1반" -> "1" 처럼 숫자만 비교
-  const gradeNum = String(grade).replace(/[^0-9]/g, "");
-  const classNumNum = String(classNum).replace(/[^0-9]/g, "");
-
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  let rows = [];
-  try {
-    // C=학년, D=반, E=번호, F=이름
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STUDENT_TAB_NAME}!C2:F` });
-    rows = result.data.values || [];
-  } catch (e) {
-    res.status(200).json({ success: true, students: [], message: "학생명단 탭을 찾을 수 없습니다." });
-    return;
-  }
-  const students = rows
-    .filter(r => String(r[0] || "").replace(/[^0-9]/g, "") === gradeNum && String(r[1] || "").replace(/[^0-9]/g, "") === classNumNum)
-    .filter(r => r[3]) // 이름이 있는 줄만
-    .map(r => ({ number: r[2], name: r[3] }))
-    .sort((a, b) => Number(a.number) - Number(b.number));
-  res.status(200).json({ success: true, students });
-}
-
-const ACCOUNT_TAB_NAME = "교직원계정";
-const LOG_TAB_NAME = "접속기록";
-
-async function handleCheckLogin(req, res) {
-  const { name, password } = req.body;
-  if (!name || !password) {
-    res.status(400).json({ success: false, message: "이름과 비밀번호를 모두 입력해주세요." });
-    return;
-  }
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-
-  let rows = [];
-  try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${ACCOUNT_TAB_NAME}!A2:B` });
-    rows = result.data.values || [];
-  } catch (e) {
-    res.status(200).json({ success: false, message: "교직원계정 탭을 찾을 수 없습니다. 관리자에게 문의해주세요." });
-    return;
-  }
-
-  const match = rows.find(r => r[0] === name && r[1] === password);
-  if (!match) {
-    res.status(200).json({ success: false, message: "이름 또는 비밀번호가 올바르지 않습니다." });
-    return;
-  }
-
-  // 접속기록 남기기
-  try {
-    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const exists = meta.data.sheets.some(s => s.properties.title === LOG_TAB_NAME);
-    if (!exists) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: sheetId,
-        requestBody: { requests: [{ addSheet: { properties: { title: LOG_TAB_NAME } } }] }
-      });
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: sheetId, range: `${LOG_TAB_NAME}!A1`,
-        valueInputOption: "RAW", requestBody: { values: [["이름", "접속일시", "접속메뉴"]] }
-      });
+    const res = await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, status:'ongoing', attachType, attachValue }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('coopTitle').value='';
+      document.getElementById('coopContent').value='';
+      document.getElementById('coopDate').value='';
+      document.getElementById('coopAttachType').value='';
+      document.getElementById('coopAttachLink').value='';
+      document.getElementById('coopAttachLink').style.display='none';
+      document.getElementById('coopAttachFile').value='';
+      document.getElementById('coopAttachFile').style.display='none';
+      loadCoopAdmin();
+    }else{
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
     }
-    const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId, range: `${LOG_TAB_NAME}!A1`,
-      valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-      requestBody: { values: [[name, now, "감염병현황"]] }
-    });
-  } catch (e) {
-    console.error("접속기록 저장 실패:", e);
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled=false; btn.textContent='등록';
   }
+});
 
-  res.status(200).json({ success: true, message: "" });
+/* ---------- 보건소식 관리 ---------- */
+async function loadNoticeAdmin(){
+  const listEl = document.getElementById('noticeAdminList');
+  try{
+    const res = await fetch('/api/board?type=notice');
+    const data = await res.json();
+    const items = data.items || [];
+    document.getElementById('tileNotice').textContent = items.length + '건';
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
+        '<div class="sub">'+escHtml(item.date)+'</div></div>'+
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick="toggleNoticeStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editNotice('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteNotice('+item.rowNum+')">삭제</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
 }
 
-async function handleUpdateCase(req, res) {
-  const {
-    rowNum, grade, classNum, studentNumber, studentName,
-    diseaseType, diseaseEtc, diagnosisDate, exclusionEndDate, memo
-  } = req.body;
-
-  if (rowNum === undefined || !grade || !classNum || !studentNumber || !studentName || !diagnosisDate) {
-    res.status(400).json({ success: false, message: "필수 항목을 모두 입력해주세요." });
-    return;
-  }
-
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  const disease = diseaseType === "기타" ? (diseaseEtc || "기타") : diseaseType;
-  const sheetRowNumber = Number(rowNum) + 2;
-
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId,
-    range: `${SHEET_TAB_NAME}!B${sheetRowNumber}:I${sheetRowNumber}`,
-    valueInputOption: "RAW",
-    requestBody: { values: [[grade, classNum, studentNumber, studentName, disease, diagnosisDate, exclusionEndDate || "", memo || ""]] }
-  });
-
-  res.status(200).json({ success: true, message: "수정되었습니다." });
+async function editNotice(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const date = prompt('날짜', item.date||''); if(date===null) return;
+  const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
+  const url = prompt('링크/파일', item.url||''); if(url===null) return;
+  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, date, deadline, status:item.status, url }) });
+  loadNoticeAdmin();
 }
-
-const NEWS_TAB_NAME = "카드뉴스";
-
-async function ensureNewsTab(sheets, sheetId) {
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-  const exists = meta.data.sheets.some(s => s.properties.title === NEWS_TAB_NAME);
-  if (!exists) {
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
-      requestBody: { requests: [{ addSheet: { properties: { title: NEWS_TAB_NAME } } }] }
-    });
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A1`,
-      valueInputOption: "RAW", requestBody: { values: [["제목","날짜","태그","URL"]] }
-    });
-  }
+async function toggleNoticeStatus(rowNum, curStatus){
+  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
+  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
+  loadNoticeAdmin();
 }
-
-async function handleGetNewsCards(req, res) {
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  let rows = [];
-  try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A2:D` });
-    rows = result.data.values || [];
-  } catch (e) { rows = []; }
-  const cards = rows
-    .filter(r => r[0] && r[3])
-    .map((r, i) => ({ rowNum: i, title: r[0], date: r[1] || "", tag: r[2] || "", url: r[3] }));
-  res.status(200).json({ success: true, cards });
+async function deleteNotice(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
+  loadNoticeAdmin();
 }
+document.getElementById('noticeAttachType').addEventListener('change', function(){
+  const v = this.value;
+  document.getElementById('noticeAttachLink').style.display = (v==='link'||v==='qr') ? 'block' : 'none';
+  document.getElementById('noticeFile').style.display = (v==='file') ? 'block' : 'none';
+});
+document.getElementById('noticeAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('noticeAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('noticeTitle').value.trim();
+  const date = document.getElementById('noticeDate').value;
+  const deadline = document.getElementById('noticeDeadline').value;
+  const attachType = document.getElementById('noticeAttachType').value;
+  const fileInput = document.getElementById('noticeFile');
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
 
-async function handleAddNewsCard(req, res) {
-  const { password, title, date, tag, url } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
-  if (!title || !url) {
-    res.status(400).json({ success: false, message: "제목과 파일을 모두 입력해주세요." });
-    return;
-  }
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  await ensureNewsTab(sheets, sheetId);
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A1`,
-    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [[title, date || "", tag || "", url]] }
-  });
-  res.status(200).json({ success: true, message: "카드뉴스가 등록되었습니다." });
-}
-
-async function handleEditNewsCard(req, res) {
-  const { password, rowNum, title, date, tag, url } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
-  if (rowNum === undefined || !title || !url) {
-    res.status(400).json({ success: false, message: "제목과 파일을 모두 입력해주세요." });
-    return;
-  }
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  const sheetRowNumber = Number(rowNum) + 2;
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: sheetId, range: `${NEWS_TAB_NAME}!A${sheetRowNumber}:D${sheetRowNumber}`,
-    valueInputOption: "RAW", requestBody: { values: [[title, date || "", tag || "", url]] }
-  });
-  res.status(200).json({ success: true, message: "수정되었습니다." });
-}
-
-async function handleDeleteNewsCard(req, res) {
-  const { password, rowNum } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
-  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-  const tab = meta.data.sheets.find(s => s.properties.title === NEWS_TAB_NAME);
-  if (!tab) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
-  const sheetRowNumber = Number(rowNum) + 2;
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: sheetId,
-    requestBody: { requests: [{
-      deleteDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber } }
-    }] }
-  });
-  res.status(200).json({ success: true, message: "삭제되었습니다." });
-}
-
-module.exports = async (req, res) => {
-  try {
-    if (req.method === "GET") {
-      if (req.query.action === "students") return await handleStudents(req, res);
-      if (req.query.action === "newscards") return await handleGetNewsCards(req, res);
-      return await handleSummary(req, res);
+  btn.disabled=true; btn.textContent='⏳ 잠시만 기다려주세요...';
+  try{
+    let url = '';
+    if(attachType==='link' || attachType==='qr'){
+      url = document.getElementById('noticeAttachLink').value.trim();
+    } else if(attachType==='file'){
+      const f = fileInput.files[0];
+      if(f){
+        const up = await uploadFile(f);
+        if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+        url = up.url;
+      }
     }
-    if (req.method === "POST") {
-      const action = req.body.action || "submit";
-      if (action === "checkpw") return await handleCheckLogin(req, res);
-      if (action === "list") return await handleList(req, res);
-      if (action === "updatecase") return await handleUpdateCase(req, res);
-      if (action === "addnewscard") return await handleAddNewsCard(req, res);
-      if (action === "editnewscard") return await handleEditNewsCard(req, res);
-      if (action === "deletenewscard") return await handleDeleteNewsCard(req, res);
-      return await handleSubmit(req, res);
+    const res = await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'add', password:getPw(), title, date, deadline, status:'ongoing', url }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('noticeTitle').value='';
+      document.getElementById('noticeDate').value='';
+      document.getElementById('noticeDeadline').value='';
+      document.getElementById('noticeAttachType').value='';
+      document.getElementById('noticeAttachLink').value=''; document.getElementById('noticeAttachLink').style.display='none';
+      fileInput.value=''; fileInput.style.display='none';
+      loadNoticeAdmin();
+    }else{
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
     }
-    res.status(405).json({ success: false, message: "허용되지 않은 요청입니다." });
-  } catch (err) {
-    console.error("infection-report error:", err);
-    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled=false; btn.textContent='등록';
   }
-};
+});
+
+/* ---------- 카드뉴스 관리 ---------- */
+async function loadNewsAdmin(){
+  const listEl = document.getElementById('newsAdminList');
+  try{
+    const res = await fetch('/api/infection-report?action=newscards');
+    const data = await res.json();
+    const items = data.cards || [];
+    document.getElementById('tileNews').textContent = items.length + '건';
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
+        '<div class="sub">'+escHtml(item.date)+(item.tag?' · '+escHtml(item.tag):'')+'</div></div>'+
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick=\'editNews('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteNews('+item.rowNum+')">삭제</button></div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editNews(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const date = prompt('날짜', item.date||''); if(date===null) return;
+  const tag = prompt('태그', item.tag||''); if(tag===null) return;
+  const url = prompt('파일 URL (그대로 둬도 됩니다)', item.url||''); if(url===null) return;
+  await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'editnewscard', password:getPw(), rowNum, title, date, tag, url }) });
+  loadNewsAdmin();
+}
+async function deleteNews(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'deletenewscard', password:getPw(), rowNum }) });
+  loadNewsAdmin();
+}
+document.getElementById('newsAttachType').addEventListener('change', function(){
+  const v = this.value;
+  document.getElementById('newsAttachLink').style.display = (v==='link'||v==='qr') ? 'block' : 'none';
+  document.getElementById('newsFile').style.display = (v==='file') ? 'block' : 'none';
+});
+document.getElementById('newsAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('newsAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('newsTitle').value.trim();
+  const date = document.getElementById('newsDate').value;
+  const tag = document.getElementById('newsTag').value.trim();
+  const attachType = document.getElementById('newsAttachType').value;
+  const fileInput = document.getElementById('newsFile');
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
+
+  btn.disabled=true; btn.textContent='⏳ 잠시만 기다려주세요...';
+  try{
+    let url = '';
+    if(attachType==='link' || attachType==='qr'){
+      url = document.getElementById('newsAttachLink').value.trim();
+    } else if(attachType==='file'){
+      const f = fileInput.files[0];
+      if(f){
+        const up = await uploadFile(f);
+        if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+        url = up.url;
+      }
+    }
+    if(!url){ msgEl.textContent='첨부(링크 또는 파일)를 입력해주세요.'; msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+    const res = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'addnewscard', password:getPw(), title, date, tag, url }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('newsTitle').value='';
+      document.getElementById('newsDate').value='';
+      document.getElementById('newsTag').value='';
+      document.getElementById('newsAttachType').value='';
+      document.getElementById('newsAttachLink').value=''; document.getElementById('newsAttachLink').style.display='none';
+      fileInput.value=''; fileInput.style.display='none';
+      loadNewsAdmin();
+    }else{
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled=false; btn.textContent='등록';
+  }
+});
+
+function loadAll(){
+  loadCoopAdmin();
+  loadNoticeAdmin();
+  loadNewsAdmin();
+  loadCheckupAdmin();
+  loadReceipts();
+  loadInfectionAdmin();
+}
+
+/* ---------- 검사안내 게시판 관리 ---------- */
+async function loadCheckupAdmin(){
+  const listEl = document.getElementById('checkupAdminList');
+  try{
+    const res = await fetch('/api/board?type=checkup');
+    const data = await res.json();
+    const items = data.items || [];
+    document.getElementById('tileCheckup').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.slice().reverse().map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
+        '<div class="sub">'+escHtml(item.target||'-')+(item.datetime?(' · '+escHtml(item.datetime)):'')+'</div></div>'+
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick="toggleCheckupStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-toggle" onclick=\'editCheckup('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteCheckup('+item.rowNum+')">삭제</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function editCheckup(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const target = prompt('대상', item.target||''); if(target===null) return;
+  const content = prompt('내용', item.content||''); if(content===null) return;
+  const datetime = prompt('일시', item.datetime||''); if(datetime===null) return;
+  const link = prompt('링크', item.link||''); if(link===null) return;
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, target, content, datetime, link, status:item.status, fileUrl:item.fileUrl }) });
+  loadCheckupAdmin();
+}
+
+async function toggleCheckupStatus(rowNum, curStatus){
+  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
+  loadCheckupAdmin();
+}
+async function deleteCheckup(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
+  loadCheckupAdmin();
+}
+
+document.getElementById('checkupAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('checkupAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('checkupTitle').value.trim();
+  const target = document.getElementById('checkupTarget').value.trim();
+  const content = document.getElementById('checkupContent').value.trim();
+  const datetime = document.getElementById('checkupDatetime').value.trim();
+  const link = document.getElementById('checkupLink').value.trim();
+  const status = document.getElementById('checkupStatus').value;
+  const fileInput = document.getElementById('checkupFile');
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
+  if(!content){ msgEl.textContent='내용을 입력해주세요.'; msgEl.classList.add('err'); return; }
+
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
+  try{
+    let fileUrl = '';
+    if(fileInput.files[0]){
+      const up = await uploadFile(fileInput.files[0]);
+      if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+      fileUrl = up.url;
+    }
+    const res = await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'add', password:getPw(), title, target, content, datetime, link, status, fileUrl }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('checkupTitle').value='';
+      document.getElementById('checkupTarget').value='';
+      document.getElementById('checkupContent').value='';
+      document.getElementById('checkupDatetime').value='';
+      document.getElementById('checkupLink').value='';
+      document.getElementById('checkupStatus').value='ongoing';
+      fileInput.value='';
+      loadCheckupAdmin();
+    }else{
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled=false; btn.textContent='등록';
+  }
+});
+/* ---------- 접수 현황 (실제 데이터 연동) ---------- */
+const TB_GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+
+async function loadReceipts(){
+  const listEl = document.getElementById('rcTbList');
+  try{
+    const res = await fetch(TB_GAS_URL);
+    const data = await res.json();
+    const rows = data.rows || [];
+    window.__tbRows = rows;
+    const done = rows.filter(r => r['상태'] === '완료').length;
+    const planned = rows.filter(r => String(r['상태']||'').indexOf('예정') === 0).length;
+    const hire = rows.filter(r => String(r['상태']||'').indexOf('확인요청') !== -1).length;
+    document.getElementById('rcTbDone').textContent = done + '명';
+    document.getElementById('rcTbPlanned').textContent = planned + '명';
+    document.getElementById('rcHire').textContent = hire + '건';
+    document.getElementById('tileTbPending').textContent = (rows.length - done) + '명';
+
+    if(!rows.length){ listEl.innerHTML = '<div class="empty-msg">명부 데이터가 없습니다.</div>'; }
+    else{
+      listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:12.5px;">' +
+        '<tr style="background:#f1f5f9;"><th style="padding:6px;text-align:left;">소속</th><th style="padding:6px;text-align:left;">성명</th><th style="padding:6px;text-align:left;">상태</th></tr>' +
+        rows.map(r => '<tr><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['소속'])+'</td><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['성명'])+'</td><td style="padding:6px;border-top:1px solid #eee;">'+escHtml(r['상태']||'미제출')+'</td></tr>').join('') +
+        '</table>';
+    }
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">결핵검진 명부를 불러오지 못했습니다.</div>'; }
+
+  try{
+    const res2 = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data2 = await res2.json();
+    if(data2.success){
+      window.__infectionList = data2.list || [];
+      document.getElementById('rcInfectionTotal').textContent = window.__infectionList.length + '건';
+      document.getElementById('tileInfectionOngoing').textContent = window.__infectionList.filter(i=>i.ongoing).length + '명';
+    }
+  }catch(e){}
+
+  // 📎 제출된 확인증 파일 보기 (결핵검진 명부의 파일링크 칸)
+  const fileListEl = document.getElementById('rcFileList');
+  try{
+    const res3 = await fetch(TB_GAS_URL);
+    const data3 = await res3.json();
+    const filed = (data3.rows||[]).filter(r => r['파일링크']);
+    if(!filed.length){ fileListEl.innerHTML = '<div class="empty-msg">아직 제출된 확인증 파일이 없습니다.</div>'; }
+    else{
+      fileListEl.innerHTML = filed.map(r =>
+        '<div class="list-item"><div class="li-main"><strong>'+escHtml(r['성명'])+'</strong>'+
+        '<div class="sub">'+escHtml(r['소속']||'')+' · '+escHtml(r['상태']||'')+'</div></div>'+
+        '<div class="li-actions"><a class="btn-toggle" href="'+r['파일링크']+'" target="_blank" style="text-decoration:none;display:inline-block;">파일 열기</a></div></div>'
+      ).join('');
+    }
+  }catch(e){ fileListEl.innerHTML = '<div class="empty-msg">파일 목록을 불러오지 못했습니다.</div>'; }
+
+  // 🧴 물품신청 내역
+  const supplyListEl = document.getElementById('rcSupplyList');
+  try{
+    const res4 = await fetch('/api/infection-supply', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data4 = await res4.json();
+    if(!data4.success){ supplyListEl.innerHTML = '<div class="empty-msg">'+(data4.message||'불러오기 실패')+'</div>'; }
+    else{
+      const list = data4.list || [];
+      if(!list.length){ supplyListEl.innerHTML = '<div class="empty-msg">신청 내역이 없습니다.</div>'; }
+      else{
+        supplyListEl.innerHTML = list.map(item =>
+          '<div class="list-item"><div class="li-main"><strong>신청번호 '+escHtml(item.id)+' · '+escHtml(item.grade)+' '+escHtml(item.classNum)+'</strong>'+
+          '<div class="sub">KF94 '+item.kf94+' · 새부리형 '+item.beak+' · 소독티슈 '+item.tissues+' · 손소독제 '+item.sanitizer+'</div>'+
+          '<div class="sub">신청자: '+escHtml(item.applicantName)+' · '+escHtml(item.submittedAt)+' · 상태: '+escHtml(item.status)+'</div></div></div>'
+        ).join('');
+      }
+    }
+  }catch(e){ supplyListEl.innerHTML = '<div class="empty-msg">물품신청 목록을 불러오지 못했습니다.</div>'; }
+}
+
+function showRcDetail(type){
+  const box = document.getElementById('rcDetailBox');
+  const rows = window.__tbRows || [];
+  const infectionList = window.__infectionList || [];
+  let html = '';
+
+  if(type === 'tbdone'){
+    const filtered = rows.filter(r => r['상태'] === '완료');
+    html = '<h4>✅ 결핵검진 완료자 ('+filtered.length+'명)</h4>' + (filtered.length ?
+      filtered.map(r => '<div class="list-item"><div class="li-main">'+escHtml(r['소속'])+' · '+escHtml(r['성명'])+'</div></div>').join('') :
+      '<div class="empty-msg">완료자가 없습니다.</div>');
+  } else if(type === 'tbplanned'){
+    const filtered = rows.filter(r => String(r['상태']||'').indexOf('예정') === 0);
+    html = '<h4>📅 결핵검진 예정자 ('+filtered.length+'명)</h4>' + (filtered.length ?
+      filtered.map(r => '<div class="list-item"><div class="li-main">'+escHtml(r['소속'])+' · '+escHtml(r['성명'])+' <span class="sub">'+escHtml(r['상태'])+'</span></div></div>').join('') :
+      '<div class="empty-msg">예정자가 없습니다.</div>');
+  } else if(type === 'hire'){
+    const filtered = rows.filter(r => String(r['상태']||'').indexOf('확인요청') !== -1);
+    html = '<h4>📋 채용검진 대체 확인요청 ('+filtered.length+'건)</h4>' + (filtered.length ?
+      filtered.map(r => '<div class="list-item"><div class="li-main">'+escHtml(r['소속'])+' · '+escHtml(r['성명'])+'</div></div>').join('') :
+      '<div class="empty-msg">확인요청이 없습니다.</div>');
+  } else if(type === 'infection'){
+    html = '<h4>🦠 감염병 누적 보고 ('+infectionList.length+'건)</h4>' + (infectionList.length ?
+      infectionList.map(item => '<div class="list-item"><div class="li-main">'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentName)+
+        ' <span class="sub">'+escHtml(item.disease)+' · '+escHtml(item.diagnosisDate)+'</span></div></div>').join('') :
+      '<div class="empty-msg">보고된 사례가 없습니다.</div>');
+  }
+
+  box.innerHTML = html;
+  box.style.display = 'block';
+}
+
+/* ---------- 감염병 보고 관리 (실제 데이터 연동) ---------- */
+async function loadInfectionAdmin(){
+  const listEl = document.getElementById('infectionAdminList');
+  try{
+    const res = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data = await res.json();
+    if(!data.success){ listEl.innerHTML = '<div class="empty-msg">'+(data.message||'불러오기 실패')+'</div>'; return; }
+    const list = data.list || [];
+    if(!list.length){ listEl.innerHTML = '<div class="empty-msg">아직 보고된 사례가 없습니다.</div>'; return; }
+    listEl.innerHTML = list.map(function(item, i){
+      return '<div class="list-item"><div class="li-main">'+
+        '<strong>'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentName)+'</strong> '+
+        (item.ongoing ? '<span style="color:#dc2626;font-weight:700;">◆ 등교중지중</span>' : '<span style="color:#2563eb;font-weight:700;">◆ 종료/해당없음</span>')+
+        '<div class="sub">'+escHtml(item.disease)+' · 진단일 '+escHtml(item.diagnosisDate)+(item.exclusionEnd?(' · 등교중지종료 '+escHtml(item.exclusionEnd)):'')+'</div>'+
+        (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
+}
+
+/* ---------- 요보호 학생 추가 (실제 데이터 연동) ---------- */
+async function loadCareList(grade){
+  const box = document.getElementById('careListBox');
+  box.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
+  try{
+    const res = await fetch('/api/care?grade=' + grade);
+    const data = await res.json();
+    if(!data.success){ box.innerHTML = '<div class="empty-msg">'+(data.message||'불러오기 실패')+'</div>'; return; }
+    const students = (data.data && data.data[String(grade)]) || [];
+    if(!students.length){ box.innerHTML = '<div class="empty-msg">'+grade+'학년에 등록된 요보호 학생이 없습니다.</div>'; return; }
+    box.innerHTML = students.map(s =>
+      '<div class="list-item"><div class="li-main"><strong>'+escHtml(s.classNum)+'반 '+escHtml(s.number)+'번 '+escHtml(s.name)+'</strong>'+
+      '<div class="sub">'+(s.conditions||[]).map(c=>escHtml(c.label+': '+c.value)).join(' · ')+'</div>'+
+      (s.note ? '<div class="sub">📝 '+escHtml(s.note)+'</div>' : '') +
+      '</div></div>'
+    ).join('');
+  }catch(e){ box.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
+}
+
+document.getElementById('careAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('careAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+
+  const grade = document.getElementById('careGrade').value;
+  const classNum = document.getElementById('careClassNum').value.trim();
+  const number = document.getElementById('careNumber').value.trim();
+  const name = document.getElementById('careName').value.trim();
+  if(!grade || !classNum || !number || !name){
+    msgEl.textContent = '학년·반·번호·이름을 모두 입력해주세요.'; msgEl.classList.add('err'); return;
+  }
+
+  const symptoms = {
+    female: document.getElementById('symFemale').checked,
+    headache: document.getElementById('symHeadache').checked,
+    rhinitis: document.getElementById('symRhinitis').checked,
+    atopy: document.getElementById('symAtopy').checked,
+    asthma: document.getElementById('symAsthma').checked,
+    allergy: document.getElementById('symAllergy').checked,
+    etc: document.getElementById('symEtc').checked
+  };
+  const etcText = document.getElementById('careEtcText').value.trim();
+  const note = document.getElementById('careNote').value.trim();
+
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
+  try{
+    const res = await fetch('/api/care', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ grade, classNum, number, name, symptoms, etcText, note }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent = '✅ 등록되었습니다.'; msgEl.classList.add('ok');
+      ['careGrade','careClassNum','careNumber','careName','careEtcText','careNote'].forEach(id => document.getElementById(id).value = '');
+      loadCareList(grade);
+      ['symFemale','symHeadache','symRhinitis','symAtopy','symAsthma','symAllergy','symEtc'].forEach(id => document.getElementById(id).checked = false);
+    } else {
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent = '서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled = false; btn.textContent = '등록';
+  }
+});
+</script>
+
+</body>
+</html>
