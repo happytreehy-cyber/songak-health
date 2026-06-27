@@ -175,6 +175,14 @@
         <span class="deadline-pill">2학기 조사실시 : 26.12.31까지 입력</span>
       </div>
     </div>
+
+    <div class="table-card" style="margin-top:18px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <strong style="font-size:.98rem;color:#1f3d8f;">📋 공지사항 게시판</strong>
+        <button class="refresh-btn" onclick="openModal('modal-post')" style="font-weight:700;">+ 새 글 작성</button>
+      </div>
+      <div id="postListWrap"><div class="table-loading">게시글을 불러오는 중입니다...</div></div>
+    </div>
   </section>
 
   <section>
@@ -238,6 +246,52 @@
 
 </main>
 
+<div class="modal-overlay" id="modal-post">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-post')">✕</button>
+    <h3>📋 공지사항 작성</h3>
+    <form onsubmit="return handlePostSubmit(event)">
+      <div class="field">
+        <label>제목 <span class="req">*</span></label>
+        <input type="text" name="title" placeholder="예: 7월 결핵검진 안내" required>
+      </div>
+      <div class="field">
+        <label>대상</label>
+        <input type="text" name="target" placeholder="예: 전체 교직원 / 신규 채용 교직원">
+      </div>
+      <div class="field">
+        <label>내용 <span class="req">*</span></label>
+        <textarea name="content" rows="4" required style="width:100%; padding:11px 13px; border:1px solid #ddd; border-radius:9px; font-size:.98rem; font-family:inherit;"></textarea>
+      </div>
+      <div class="field">
+        <label>일시</label>
+        <input type="text" name="datetime" placeholder="예: 2026.07.10(금) 14:00">
+      </div>
+      <div class="field">
+        <label>링크</label>
+        <input type="text" name="link" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label>QR / 파일 첨부 (선택)</label>
+        <div class="drop-zone" id="drop-post" onclick="document.getElementById('file-post').click()">
+          📁 파일을 여기에 드래그하거나 클릭해서 선택
+          <small>PDF · JPG · PNG / 최대 10MB</small>
+        </div>
+        <input type="file" id="file-post" name="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="markFile('drop-post', this)">
+      </div>
+      <div class="field">
+        <label>상태 <span class="req">*</span></label>
+        <select name="status" required>
+          <option value="진행중">진행중</option>
+          <option value="마감">마감</option>
+        </select>
+      </div>
+      <button class="submit-btn" type="submit">등록하기</button>
+      <div class="status-msg" id="status-post"></div>
+    </form>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-tb">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-tb')">✕</button>
@@ -265,7 +319,7 @@
       <div id="tb-file-section" class="field">
         <label>확인증 파일 업로드 <span class="req">*</span></label>
         <div class="hint-box" style="line-height:1.8;">
-          <b style="color:#c23c3c;">[중요]</b> 흉부 X-ray 확인 필요 항목:<br>
+          <b style="color:#c23c3c;">[중요]</b> <span style="color:#222;">흉부 X-ray 확인 필요 항목:</span><br>
           성명, 검진일자, 검진기관, 검진소견<br>
           (그 외 기타 개인정보는 가리고 자료 업로드 부탁드립니다.)
         </div>
@@ -297,7 +351,7 @@
       <div id="hire-file-section" class="field" style="display:none;">
         <label>확인증 파일 업로드 <span class="req">*</span></label>
         <div class="hint-box" style="line-height:1.8;">
-          <b style="color:#c23c3c;">[중요]</b> 흉부 X-ray, 혈액 잠복검사 확인 필요 항목:<br>
+          <b style="color:#c23c3c;">[중요]</b> <span style="color:#222;">흉부 X-ray, 혈액 잠복검사 확인 필요 항목:</span><br>
           성명, 검진일자, 검진기관, 검진소견<br>
           (그 외 기타 개인정보는 가리고 자료 업로드 부탁드립니다.)
         </div>
@@ -359,6 +413,122 @@
       alert('복사에 실패했습니다. 링크: ' + text);
     });
   }
+
+  // ===== 공지사항 게시판 =====
+  function statusDiamond(status){
+    if(status === '마감') return '<span style="color:#e0455a;font-weight:700;">◆ 마감</span>';
+    return '<span style="color:#2e7d32;font-weight:700;">◆ 진행중</span>';
+  }
+
+  async function loadPosts(){
+    const wrap = document.getElementById('postListWrap');
+    if(GAS_URL.includes('여기에')){
+      wrap.innerHTML = '<div class="table-empty">⚠ 아직 구글 시트 연동 주소(GAS_URL)가 설정되지 않았습니다.</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="table-loading">게시글을 불러오는 중입니다...</div>';
+    try{
+      const res = await fetch(GAS_URL + '?action=posts');
+      const data = await res.json();
+      if(data.result !== 'success'){
+        wrap.innerHTML = '<div class="table-empty">불러오기 실패: ' + (data.message||'') + '</div>';
+        return;
+      }
+      if(!data.rows.length){
+        wrap.innerHTML = '<div class="table-empty">아직 등록된 게시글이 없습니다.</div>';
+        return;
+      }
+      let html = '';
+      data.rows.slice().reverse().forEach(r=>{
+        html += '<div style="border:1px solid #eee; border-radius:10px; padding:14px 16px; margin-bottom:10px;">'
+          + '<div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">'
+          + '<strong style="font-size:1rem;">' + (r['제목']||'') + '</strong>'
+          + statusDiamond(r['상태'])
+          + '</div>'
+          + '<div style="font-size:.86rem; color:#888; margin:6px 0;">'
+          + (r['대상'] ? ('대상: ' + r['대상']) : '')
+          + (r['일시'] ? (' · ' + r['일시']) : '')
+          + '</div>'
+          + '<div style="font-size:.94rem; color:#444; white-space:pre-wrap; line-height:1.6;">' + (r['내용']||'') + '</div>'
+          + (r['링크'] ? ('<div style="margin-top:8px;"><a href="'+r['링크']+'" target="_blank" style="color:#1f3d8f; font-weight:600;">🔗 링크 바로가기</a></div>') : '')
+          + (r['파일링크'] ? ('<div style="margin-top:4px;"><a href="'+r['파일링크']+'" target="_blank" style="color:#1f3d8f; font-weight:600;">📎 첨부파일/QR 보기</a></div>') : '')
+          + '</div>';
+      });
+      wrap.innerHTML = html;
+    } catch(err){
+      wrap.innerHTML = '<div class="table-empty">네트워크 오류로 불러오지 못했습니다.</div>';
+    }
+  }
+
+  async function handlePostSubmit(e){
+    e.preventDefault();
+    const form = e.target;
+    const statusEl = document.getElementById('status-post');
+    const btn = form.querySelector('.submit-btn');
+    statusEl.textContent = '';
+    statusEl.className = 'status-msg';
+
+    if(GAS_URL.includes('여기에')){
+      statusEl.textContent = '⚠ 아직 구글 시트 연동 주소(GAS_URL)가 설정되지 않았습니다.';
+      statusEl.className = 'status-msg err';
+      return false;
+    }
+
+    btn.disabled = true;
+    const originalFontSize = btn.style.fontSize;
+    btn.style.fontSize = '1.15rem';
+    let hourglassFrame = 0;
+    const hourglassFrames = ['⏳ 잠시만 기다려주세요...', '⌛ 잠시만 기다려주세요...'];
+    btn.textContent = hourglassFrames[0];
+    const hourglassTimer = setInterval(()=>{
+      hourglassFrame = 1 - hourglassFrame;
+      btn.textContent = hourglassFrames[hourglassFrame];
+    }, 500);
+
+    try{
+      const formData = new FormData(form);
+      const payload = { type: '검사안내게시글' };
+      formData.forEach((v,k)=>{ if(k!=='file') payload[k]=v; });
+
+      const fileInput = form.querySelector('input[type="file"]');
+      if(fileInput && fileInput.files.length){
+        const file = fileInput.files[0];
+        payload.fileBase64 = await fileToBase64(file);
+        payload.fileName = file.name;
+        payload.fileType = file.type;
+      }
+
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+
+      if(result.result === 'success'){
+        statusEl.textContent = '✅ 등록되었습니다.';
+        statusEl.className = 'status-msg ok';
+        form.reset();
+        document.getElementById('drop-post').classList.remove('has-file');
+        loadPosts();
+        setTimeout(()=>{ document.getElementById('modal-post').classList.remove('open'); statusEl.textContent=''; }, 1200);
+      } else {
+        statusEl.textContent = '등록 실패: ' + (result.message || '알 수 없는 오류');
+        statusEl.className = 'status-msg err';
+      }
+    } catch(err){
+      statusEl.textContent = '네트워크 오류로 등록하지 못했습니다.';
+      statusEl.className = 'status-msg err';
+    } finally {
+      clearInterval(hourglassTimer);
+      btn.disabled = false;
+      btn.style.fontSize = originalFontSize;
+      btn.textContent = '등록하기';
+    }
+    return false;
+  }
+
+  loadPosts();
 
   function openModal(id){ document.getElementById(id).classList.add('open'); }
   function closeModal(id){ document.getElementById(id).classList.remove('open'); }
