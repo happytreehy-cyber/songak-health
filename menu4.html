@@ -56,11 +56,14 @@
   .coop-item .coop-date{font-size:11.5px;color:#94a3b8;}
   .status-btn{font-size:12px;font-weight:700;border:none;border-radius:20px;padding:5px 13px 5px 9px;flex-shrink:0;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
   .status-btn.ongoing{background:#dbeafe;color:#2563eb;}
+  .status-btn.soon{background:#fee2e2;color:#dc2626;}
   .status-btn.closed{background:#e5e7eb;color:#6b7280;}
   .status-dot { width:11px; height:11px; border-radius:2px; flex-shrink:0; display:inline-block; transform:rotate(45deg); position:relative; box-shadow: inset -2px -2px 3px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.85), 0 0 4px 0 currentColor; }
   .status-dot::after { content:''; position:absolute; top:1.5px; left:1.5px; width:3px; height:3px; background:rgba(255,255,255,0.95); border-radius:50%; filter:blur(0.3px); }
   .status-dot.ongoing { background:linear-gradient(135deg, #93c5fd, #2563eb 60%, #1e3a8a); color:#3b82f6; }
+  .status-dot.soon { background:linear-gradient(135deg, #fca5a5, #dc2626 60%, #7f1d1d); color:#dc2626; }
   .status-dot.closed { background:linear-gradient(135deg, #e2e8f0, #94a3b8 60%, #475569); color:#94a3b8; }
+  .faded-item{ opacity:.45; filter:grayscale(70%); }
   .coop-attach{display:flex;align-items:center;gap:10px;margin-top:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;}
   .coop-attach img{width:46px;height:46px;border-radius:6px;border:1px solid #e2e8f0;flex-shrink:0;object-fit:cover;}
   .coop-attach .attach-info{font-size:12px;color:#334155;}
@@ -77,6 +80,7 @@
   .thumb-sub{font-size:11px;color:var(--muted);margin-top:4px;}
   .thumb-status{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
   .thumb-status.ongoing{background:#dbeafe;color:#2563eb;}
+  .thumb-status.soon{background:#fee2e2;color:#dc2626;}
   .thumb-status.closed{background:#e5e7eb;color:#6b7280;}
   .news-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--navy);background:#e7edfb;padding:2px 7px;border-radius:20px;margin-bottom:5px;}
 
@@ -167,6 +171,25 @@ function renderDate(){
   }
 }
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// 진행중(파랑)/마감임박(빨강, 마감 3일 이내)/종료(회색, 흐리게) 3단계 판정
+function getStatusTier(item){
+  if(item.status === 'closed') return 'closed';
+  if(item.deadline){
+    var d = new Date(item.deadline);
+    if(!isNaN(d)){
+      var today = new Date(); today.setHours(0,0,0,0);
+      var diffDays = Math.ceil((d - today) / 86400000);
+      if(diffDays < 0) return 'closed';
+      if(diffDays <= 3) return 'soon';
+    }
+  }
+  return 'ongoing';
+}
+function tierLabel(tier){
+  if(tier==='closed') return '종료';
+  if(tier==='soon') return '마감임박';
+  return '진행중';
+}
 
 /* ---------- PDF 썸네일 렌더링 ---------- */
 async function renderThumb(url, boxEl, isPdfHint){
@@ -213,7 +236,7 @@ function loadCoop(){
       var items = data.items || [];
       if(!items.length){ el.innerHTML = '<div class="empty-msg">등록된 협조 요청이 없습니다.</div>'; return; }
       el.innerHTML = items.map(function(item){
-        var statusLabel = item.status==='closed' ? '마감' : '진행중';
+        var tier = getStatusTier(item);
         var attachHtml = '';
         if(item.attachValue){
           if(item.attachType === 'qr'){
@@ -225,12 +248,12 @@ function loadCoop(){
             attachHtml = '<div class="coop-attach"><div class="attach-info">🔗 <a href="'+item.attachValue+'" target="_blank">관련 링크 바로가기</a></div></div>';
           }
         }
-        return '<div class="coop-item"><div class="coop-row"><div style="flex:1;">'+
+        return '<div class="coop-item'+(tier==='closed'?' faded-item':'')+'"><div class="coop-row"><div style="flex:1;">'+
           '<h3>'+escHtml(item.title)+'</h3>'+
           (item.content ? '<p>'+escHtml(item.content)+'</p>' : '')+
-          '<div class="coop-date">'+escHtml(item.date)+'</div>'+
+          '<div class="coop-date">'+escHtml(item.date)+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div>'+
           attachHtml+
-          '</div><span class="status-btn '+item.status+'"><span class="status-dot '+item.status+'"></span>'+statusLabel+'</span></div></div>';
+          '</div><span class="status-btn '+tier+'"><span class="status-dot '+tier+'"></span>'+tierLabel(tier)+'</span></div></div>';
       }).join('');
     })
     .catch(function(){ document.getElementById('coopList').innerHTML = '<div class="empty-msg">협조 요청을 불러오지 못했습니다.</div>'; });
@@ -246,18 +269,19 @@ function loadNoticeCards(){
       window.noticeList = items;
       if(!items.length){ wrap.innerHTML = '<div class="empty-msg">등록된 보건소식이 없습니다.</div>'; return; }
       wrap.innerHTML = items.map(function(item, idx){
+        var tier = getStatusTier(item);
         var attachLine = '';
         if(item.attachValue){
           if(item.attachType === 'qr'){ attachLine = '📎 설문 QR'; }
           else if(item.attachType === 'file'){ attachLine = '📎 첨부파일'; }
           else { attachLine = '🔗 관련 링크'; }
         }
-        return '<div class="thumb-card" data-idx="'+idx+'" data-kind="notice"><div class="thumb-box" id="noticeThumb'+idx+'">⏳</div>'+
+        return '<div class="thumb-card'+(tier==='closed'?' faded-item':'')+'" data-idx="'+idx+'" data-kind="notice"><div class="thumb-box" id="noticeThumb'+idx+'">⏳</div>'+
           '<div class="thumb-info"><div class="thumb-title">'+escHtml(item.title)+'</div>'+
           (item.content ? '<div class="thumb-sub" style="white-space:normal;">'+escHtml(item.content)+'</div>' : '')+
           '<div class="thumb-sub">'+escHtml(item.date||'')+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div>'+
           (attachLine ? '<div class="thumb-sub">'+attachLine+'</div>' : '')+
-          '<span class="thumb-status '+item.status+'">'+(item.status==='closed'?'마감':'진행중')+'</span></div></div>';
+          '<span class="thumb-status '+tier+'">'+tierLabel(tier)+'</span></div></div>';
       }).join('');
       items.forEach(function(item, idx){
         if(item.attachType === 'file' && item.attachValue) renderThumb(item.attachValue, document.getElementById('noticeThumb'+idx));
