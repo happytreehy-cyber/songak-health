@@ -102,6 +102,7 @@
       <button class="nav-item" data-panel="coop">🙏 담임 협조 요청 관리</button>
       <button class="nav-item" data-panel="notice">🏥 이번주·이달의 보건소식 관리</button>
       <button class="nav-item" data-panel="news">🦠 감염병 카드뉴스 관리</button>
+      <button class="nav-item" data-panel="checkup">🫁 검사안내 게시판 관리</button>
 
       <a class="nav-item exit" href="menu4.html" target="_blank">← 공개 포털로 이동</a>
     </aside>
@@ -117,6 +118,7 @@
           <div class="tile"><div class="t-label">담임 협조 요청</div><div class="t-value" id="tileCoop">-</div></div>
           <div class="tile"><div class="t-label">이번주·이달의 보건소식</div><div class="t-value" id="tileNotice">-</div></div>
           <div class="tile"><div class="t-label">카드뉴스 등록</div><div class="t-value" id="tileNews">-</div></div>
+          <div class="tile"><div class="t-label">검사안내 게시판</div><div class="t-value" id="tileCheckup">-</div></div>
         </div>
       </section>
 
@@ -196,6 +198,36 @@
         <div class="list-card">
           <h4>등록된 카드뉴스</h4>
           <div id="newsAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <!-- 검사안내 게시판 관리 (tb-checkup.html과 시트 공유) -->
+      <section class="panel" id="panel-checkup">
+        <div class="panel-tag">CHECKUP NOTICE</div>
+        <div class="panel-title">🫁 검사안내 게시판 관리</div>
+        <div class="panel-desc">결핵검진 페이지(교직원 검사안내)의 공지사항 게시판입니다. 여기서 작성하면 tb-checkup.html 화면에도 바로 표시됩니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 글 작성</h4>
+          <input type="text" id="checkupTitle" placeholder="제목 (예: 7월 결핵검진 안내)">
+          <input type="text" id="checkupTarget" placeholder="대상 (예: 전체 교직원 / 신규 채용 교직원)">
+          <textarea id="checkupContent" placeholder="내용"></textarea>
+          <div class="form-row">
+            <input type="text" id="checkupDatetime" placeholder="일시 (예: 2026.07.10(금) 14:00)">
+            <input type="text" id="checkupLink" placeholder="링크 (https://...)">
+          </div>
+          <input type="file" id="checkupFile" accept="image/*,application/pdf">
+          <select id="checkupStatus" style="margin-top:10px;">
+            <option value="ongoing">진행중</option>
+            <option value="closed">마감</option>
+          </select>
+          <button class="submit-btn" id="checkupAddBtn">등록</button>
+          <div class="result-msg" id="checkupAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 게시글</h4>
+          <div id="checkupAdminList"><div class="empty-msg">불러오는 중...</div></div>
         </div>
       </section>
 
@@ -487,7 +519,85 @@ function loadAll(){
   loadCoopAdmin();
   loadNoticeAdmin();
   loadNewsAdmin();
+  loadCheckupAdmin();
 }
+
+/* ---------- 검사안내 게시판 관리 ---------- */
+async function loadCheckupAdmin(){
+  const listEl = document.getElementById('checkupAdminList');
+  try{
+    const res = await fetch('/api/board?type=checkup');
+    const data = await res.json();
+    const items = data.items || [];
+    document.getElementById('tileCheckup').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.slice().reverse().map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
+        '<div class="sub">'+escHtml(item.target||'-')+(item.datetime?(' · '+escHtml(item.datetime)):'')+' · '+(item.status==='closed'?'마감':'진행중')+'</div></div>'+
+        '<div class="li-actions">'+
+        '<button class="btn-toggle" onclick="toggleCheckupStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
+        '<button class="btn-del" onclick="deleteCheckup('+item.rowNum+')">삭제</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function toggleCheckupStatus(rowNum, curStatus){
+  const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updatestatus', password:getPw(), rowNum, status:newStatus }) });
+  loadCheckupAdmin();
+}
+async function deleteCheckup(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
+  loadCheckupAdmin();
+}
+
+document.getElementById('checkupAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('checkupAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('checkupTitle').value.trim();
+  const target = document.getElementById('checkupTarget').value.trim();
+  const content = document.getElementById('checkupContent').value.trim();
+  const datetime = document.getElementById('checkupDatetime').value.trim();
+  const link = document.getElementById('checkupLink').value.trim();
+  const status = document.getElementById('checkupStatus').value;
+  const fileInput = document.getElementById('checkupFile');
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
+  if(!content){ msgEl.textContent='내용을 입력해주세요.'; msgEl.classList.add('err'); return; }
+
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
+  try{
+    let fileUrl = '';
+    if(fileInput.files[0]){
+      const up = await uploadFile(fileInput.files[0]);
+      if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+      fileUrl = up.url;
+    }
+    const res = await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'add', password:getPw(), title, target, content, datetime, link, status, fileUrl }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('checkupTitle').value='';
+      document.getElementById('checkupTarget').value='';
+      document.getElementById('checkupContent').value='';
+      document.getElementById('checkupDatetime').value='';
+      document.getElementById('checkupLink').value='';
+      document.getElementById('checkupStatus').value='ongoing';
+      fileInput.value='';
+      loadCheckupAdmin();
+    }else{
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled=false; btn.textContent='등록';
+  }
+});
+
 </script>
 
 </body>
