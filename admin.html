@@ -138,7 +138,10 @@
           <input type="text" id="coopTitle" placeholder="제목 (예: 1학년 문진표 회수 요청)">
           <textarea id="coopContent" placeholder="내용 (예: 6월 20일까지 회수하여 보건실에 제출해주세요)"></textarea>
           <div class="form-row">
-            <input type="date" id="coopDate">
+            <input type="date" id="coopDate" placeholder="등록일">
+            <input type="date" id="coopDeadline" placeholder="마감기한">
+          </div>
+          <div class="form-row">
             <select id="coopAttachType">
               <option value="">첨부 없음</option>
               <option value="link">구글폼/일반 링크</option>
@@ -167,6 +170,7 @@
         <div class="form-card">
           <h4>📝 새 보건소식 등록</h4>
           <input type="text" id="noticeTitle" placeholder="제목 (예: 여름철 식중독 예방 안내)">
+          <textarea id="noticeContent" placeholder="내용 (예: 폭염 시 충분한 수분 섭취와 휴식이 필요합니다)"></textarea>
           <div class="form-row">
             <input type="date" id="noticeDate">
             <input type="date" id="noticeDeadline" placeholder="마감 기한">
@@ -278,6 +282,11 @@
         <div class="list-card">
           <h4>🧴 감염병예방 물품·소모품 신청 내역</h4>
           <div id="rcSupplyList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+
+        <div class="list-card">
+          <h4>💉 심폐소생술 이수증 제출 현황</h4>
+          <div id="rcCprList"><div class="empty-msg">불러오는 중...</div></div>
         </div>
       </section>
 
@@ -453,8 +462,9 @@ async function editCoop(rowNum, item){
   const title = prompt('제목', item.title); if(title===null) return;
   const content = prompt('내용', item.content||''); if(content===null) return;
   const date = prompt('등록일', item.date||''); if(date===null) return;
+  const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
   await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, deadline, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
   loadCoopAdmin();
 }
 
@@ -476,10 +486,11 @@ document.getElementById('coopAddBtn').addEventListener('click', async function()
   const title = document.getElementById('coopTitle').value.trim();
   const content = document.getElementById('coopContent').value.trim();
   const date = document.getElementById('coopDate').value;
+  const deadline = document.getElementById('coopDeadline').value;
   const attachType = document.getElementById('coopAttachType').value;
   if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
 
-  btn.disabled = true; btn.textContent = '등록 중...';
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
   try{
     let attachValue = '';
     if(attachType==='link' || attachType==='qr'){
@@ -489,16 +500,18 @@ document.getElementById('coopAddBtn').addEventListener('click', async function()
       if(f){
         const up = await uploadFile(f);
         if(up.success) attachValue = up.url;
+        else { msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
       }
     }
     const res = await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, status:'ongoing', attachType, attachValue }) });
+      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue }) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
       document.getElementById('coopTitle').value='';
       document.getElementById('coopContent').value='';
       document.getElementById('coopDate').value='';
+      document.getElementById('coopDeadline').value='';
       document.getElementById('coopAttachType').value='';
       document.getElementById('coopAttachLink').value='';
       document.getElementById('coopAttachLink').style.display='none';
@@ -526,7 +539,9 @@ async function loadNoticeAdmin(){
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.map(function(item){
       return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
-        '<div class="sub">'+escHtml(item.date)+'</div></div>'+
+        '<div class="sub">'+escHtml(item.date)+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div>'+
+        (item.content ? '<div class="sub">'+escHtml(item.content)+'</div>' : '') +
+        '</div>'+
         '<div class="li-actions">'+
         '<button class="btn-toggle" onclick="toggleNoticeStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
         '<button class="btn-toggle" onclick=\'editNotice('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
@@ -538,11 +553,11 @@ async function loadNoticeAdmin(){
 
 async function editNotice(rowNum, item){
   const title = prompt('제목', item.title); if(title===null) return;
+  const content = prompt('내용', item.content||''); if(content===null) return;
   const date = prompt('날짜', item.date||''); if(date===null) return;
   const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
-  const url = prompt('링크/파일', item.url||''); if(url===null) return;
   await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, date, deadline, status:item.status, url }) });
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, deadline, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
   loadNoticeAdmin();
 }
 async function toggleNoticeStatus(rowNum, curStatus){
@@ -565,6 +580,7 @@ document.getElementById('noticeAddBtn').addEventListener('click', async function
   const msgEl = document.getElementById('noticeAddMsg');
   msgEl.textContent=''; msgEl.className='result-msg';
   const title = document.getElementById('noticeTitle').value.trim();
+  const content = document.getElementById('noticeContent').value.trim();
   const date = document.getElementById('noticeDate').value;
   const deadline = document.getElementById('noticeDeadline').value;
   const attachType = document.getElementById('noticeAttachType').value;
@@ -573,23 +589,24 @@ document.getElementById('noticeAddBtn').addEventListener('click', async function
 
   btn.disabled=true; btn.textContent='⏳ 잠시만 기다려주세요...';
   try{
-    let url = '';
+    let attachValue = '';
     if(attachType==='link' || attachType==='qr'){
-      url = document.getElementById('noticeAttachLink').value.trim();
+      attachValue = document.getElementById('noticeAttachLink').value.trim();
     } else if(attachType==='file'){
       const f = fileInput.files[0];
       if(f){
         const up = await uploadFile(f);
         if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
-        url = up.url;
+        attachValue = up.url;
       }
     }
     const res = await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, date, deadline, status:'ongoing', url }) });
+      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue }) });
     const data = await res.json();
     if(data.success){
       msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
       document.getElementById('noticeTitle').value='';
+      document.getElementById('noticeContent').value='';
       document.getElementById('noticeDate').value='';
       document.getElementById('noticeDeadline').value='';
       document.getElementById('noticeAttachType').value='';
@@ -858,6 +875,23 @@ async function loadReceipts(){
       }
     }
   }catch(e){ supplyListEl.innerHTML = '<div class="empty-msg">물품신청 목록을 불러오지 못했습니다.</div>'; }
+
+  // 💉 심폐소생술 이수증 제출 현황
+  const cprListEl = document.getElementById('rcCprList');
+  try{
+    const res5 = await fetch(TB_GAS_URL + '?action=cpr');
+    const data5 = await res5.json();
+    const cprRows = (data5.rows || []);
+    if(!cprRows.length){ cprListEl.innerHTML = '<div class="empty-msg">제출된 이수증이 없습니다.</div>'; }
+    else{
+      cprListEl.innerHTML = cprRows.map(r =>
+        '<div class="list-item"><div class="li-main"><strong>'+escHtml(r['성명'])+'</strong>'+
+        '<div class="sub">'+escHtml(r['제출일시']||'')+'</div></div>'+
+        (r['파일링크'] ? '<div class="li-actions"><a class="btn-toggle" href="'+r['파일링크']+'" target="_blank" style="text-decoration:none;display:inline-block;">파일 열기</a></div>' : '')+
+        '</div>'
+      ).join('');
+    }
+  }catch(e){ cprListEl.innerHTML = '<div class="empty-msg">이수증 목록을 불러오지 못했습니다.</div>'; }
 }
 
 function showRcDetail(type){
