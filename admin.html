@@ -59,6 +59,13 @@
   .list-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
   .list-card h4{font-size:13.5px;font-weight:700;margin-bottom:10px;}
   .list-item{border-bottom:1px solid #f1f5f9;padding:12px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .admin-table th{background:#f8fafc;color:#64748b;font-weight:700;padding:9px 8px;text-align:left;border-bottom:2px solid #e2e8f0;white-space:nowrap;}
+  .admin-table td{padding:9px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top;}
+  .admin-table td.wrap-cell{white-space:normal;max-width:220px;}
+  .pager-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:#64748b;}
+  .pager-btn{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;color:#334155;}
+  .pager-btn:disabled{opacity:.4;cursor:not-allowed;}
   .list-item:last-child{border-bottom:none;}
   .li-main strong{font-size:13.5px;}
   .li-main .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
@@ -158,6 +165,7 @@
         <div class="list-card">
           <h4>등록된 협조 요청</h4>
           <div id="coopAdminList"><div class="empty-msg">불러오는 중...</div></div>
+          <div id="coopPager" class="pager-row" style="display:none;"></div>
         </div>
       </section>
 
@@ -301,8 +309,8 @@
       <!-- 요보호 학생 추가 -->
       <section class="panel" id="panel-careAdmin">
         <div class="panel-tag">CARE STUDENT</div>
-        <div class="panel-title">💗 요보호 학생 관리</div>
-        <div class="panel-desc">담임 선생님이 제출한 요보호 학생 명단을 확인하고, 새 학생을 추가합니다.</div>
+        <div class="panel-title">💗 요보호 학생 확인</div>
+        <div class="panel-desc">담임 선생님이 제출한 요보호 학생 명단을 학년별로 확인합니다. (등록은 담임 선생님이 학생 요보호 관리 화면에서 직접 합니다)</div>
 
         <div class="list-card">
           <h4>📋 학년별 요보호 학생 목록</h4>
@@ -313,36 +321,7 @@
           </div>
           <div id="careListBox" style="margin-top:10px;"><div class="empty-msg">학년을 선택해주세요.</div></div>
         </div>
-
-        <div class="form-card">
-          <h4>📝 요보호 학생 등록</h4>
-          <div class="form-row">
-            <select id="careGrade">
-              <option value="">학년 선택</option>
-              <option value="1">1학년</option>
-              <option value="2">2학년</option>
-              <option value="3">3학년</option>
-            </select>
-            <input type="text" id="careClassNum" placeholder="반 (예: 3)">
-          </div>
-          <div class="form-row">
-            <input type="text" id="careNumber" placeholder="번호">
-            <input type="text" id="careName" placeholder="이름">
-          </div>
-          <h4 style="margin-top:14px;">해당 증상 선택</h4>
-          <div class="form-row" style="flex-wrap:wrap;gap:8px;">
-            <label><input type="checkbox" id="symFemale"> 여성질환</label>
-            <label><input type="checkbox" id="symHeadache"> 두통</label>
-            <label><input type="checkbox" id="symRhinitis"> 비염</label>
-            <label><input type="checkbox" id="symAtopy"> 아토피</label>
-            <label><input type="checkbox" id="symAsthma"> 천식</label>
-            <label><input type="checkbox" id="symAllergy"> 알레르기</label>
-            <label><input type="checkbox" id="symEtc"> 기타</label>
-          </div>
-          <input type="text" id="careEtcText" placeholder="기타 증상 직접 입력 (선택)" style="margin-top:8px;">
-          <textarea id="careNote" placeholder="교내활동시 확인이 필요한 부분 (예: 체육활동 - 천식 있어 격한 활동 자제 필요)"></textarea>
-          <button class="submit-btn" id="careAddBtn">등록</button>
-          <div class="result-msg" id="careAddMsg"></div>
+      </section>
         </div>
       </section>
 
@@ -460,25 +439,57 @@ document.getElementById('coopAttachType').addEventListener('change', function(){
   document.getElementById('coopAttachFile').style.display = (v==='file') ? 'block' : 'none';
 });
 
+let coopItemsCache = [];
+let coopPage = 0;
+const COOP_PAGE_SIZE = 3;
+
 async function loadCoopAdmin(){
   const listEl = document.getElementById('coopAdminList');
   try{
     const res = await fetch('/api/board?type=coop');
     const data = await res.json();
     const items = data.items || [];
+    coopItemsCache = items.slice().reverse(); // 최신 글이 1번
+    coopPage = 0;
     document.getElementById('tileCoop').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
-    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
-    listEl.innerHTML = items.map(function(item){
-      const tier = getStatusTier(item);
-      return '<div class="list-item"'+tierFadeStyle(tier)+'><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+tierDiamond(tier)+
-        '<div class="sub">'+escHtml(item.date)+(item.deadline?(' · 마감 '+escHtml(item.deadline)):'')+'</div></div>'+
-        '<div class="li-actions">'+
-        '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중으로':'마감처리')+'</button>'+
-        '<button class="btn-toggle" onclick=\'editCoop('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+    renderCoopTable();
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; document.getElementById('coopPager').style.display='none'; }
+}
+
+function renderCoopTable(){
+  const listEl = document.getElementById('coopAdminList');
+  const pagerEl = document.getElementById('coopPager');
+  if(!coopItemsCache.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; pagerEl.style.display='none'; return; }
+
+  const totalPages = Math.ceil(coopItemsCache.length / COOP_PAGE_SIZE);
+  const start = coopPage * COOP_PAGE_SIZE;
+  const pageItems = coopItemsCache.slice(start, start + COOP_PAGE_SIZE);
+
+  let html = '<table class="admin-table"><thead><tr><th>순</th><th>제목</th><th>내용</th><th>마감기한</th><th>관련파일</th><th>상태</th><th>관리</th></tr></thead><tbody>';
+  pageItems.forEach(function(item, i){
+    const tier = getStatusTier(item);
+    html += '<tr'+tierFadeStyle(tier)+'>'+
+      '<td>'+(start+i+1)+'</td>'+
+      '<td><strong>'+escHtml(item.title)+'</strong></td>'+
+      '<td class="wrap-cell">'+escHtml(item.content||'-')+'</td>'+
+      '<td>'+escHtml(item.deadline||'-')+'</td>'+
+      '<td>'+(item.attachValue ? '<a href="'+item.attachValue+'" target="_blank">열기</a>' : '-')+'</td>'+
+      '<td>'+tierDiamond(tier)+'</td>'+
+      '<td style="white-space:nowrap;">'+
+        '<button class="btn-toggle" onclick="toggleCoopStatus('+item.rowNum+',\''+item.status+'\')">'+(item.status==='closed'?'진행중':'마감')+'</button> '+
+        '<button class="btn-toggle" onclick=\'editCoop('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button> '+
         '<button class="btn-del" onclick="deleteCoop('+item.rowNum+')">삭제</button>'+
-        '</div></div>';
-    }).join('');
-  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+      '</td></tr>';
+  });
+  html += '</tbody></table>';
+  listEl.innerHTML = html;
+
+  if(totalPages <= 1){ pagerEl.style.display='none'; return; }
+  pagerEl.style.display='flex';
+  pagerEl.innerHTML =
+    '<button class="pager-btn" onclick="coopPage--;renderCoopTable();" '+(coopPage===0?'disabled':'')+'>← 이전</button>'+
+    '<span>'+(coopPage+1)+' / '+totalPages+' 페이지</span>'+
+    '<button class="pager-btn" onclick="coopPage++;renderCoopTable();" '+(coopPage>=totalPages-1?'disabled':'')+'>다음 →</button>';
 }
 
 async function editCoop(rowNum, item){
@@ -989,35 +1000,7 @@ async function loadCareList(grade){
   }catch(e){ box.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
 }
 
-document.getElementById('careAddBtn').addEventListener('click', async function(){
-  const btn = this;
-  const msgEl = document.getElementById('careAddMsg');
-  msgEl.textContent=''; msgEl.className='result-msg';
 
-  const grade = document.getElementById('careGrade').value;
-  const classNum = document.getElementById('careClassNum').value.trim();
-  const number = document.getElementById('careNumber').value.trim();
-  const name = document.getElementById('careName').value.trim();
-  if(!grade || !classNum || !number || !name){
-    msgEl.textContent = '학년·반·번호·이름을 모두 입력해주세요.'; msgEl.classList.add('err'); return;
-  }
-
-  const symptoms = {
-    female: document.getElementById('symFemale').checked,
-    headache: document.getElementById('symHeadache').checked,
-    rhinitis: document.getElementById('symRhinitis').checked,
-    atopy: document.getElementById('symAtopy').checked,
-    asthma: document.getElementById('symAsthma').checked,
-    allergy: document.getElementById('symAllergy').checked,
-    etc: document.getElementById('symEtc').checked
-  };
-  const etcText = document.getElementById('careEtcText').value.trim();
-  const note = document.getElementById('careNote').value.trim();
-
-  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
-  try{
-    const res = await fetch('/api/care', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ grade, classNum, number, name, symptoms, etcText, note }) });
     const data = await res.json();
     if(data.success){
       msgEl.textContent = '✅ 등록되었습니다.'; msgEl.classList.add('ok');
