@@ -206,11 +206,19 @@ async function handleAddStudent(req, res) {
   const sheetId = process.env.GOOGLE_SHEET_ID;
 
   try {
-    await sheets.spreadsheets.values.append({
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const tab = meta.data.sheets.find(s => s.properties.title === tabName);
+    // 6행(헤더) 바로 다음, 7행에 새 줄을 끼워넣어서 최신 등록이 맨 위로 오게 합니다.
+    await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
-      range: `${tabName}!A:A`,
+      requestBody: { requests: [{
+        insertDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: 6, endIndex: 7 }, inheritFromBefore: false }
+      }] }
+    });
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: `${tabName}!A7`,
       valueInputOption: "RAW",
-      insertDataOption: "INSERT_ROWS",
       requestBody: { values: [row] }
     });
   } catch (e) {
@@ -221,7 +229,6 @@ async function handleAddStudent(req, res) {
 }
 
 module.exports = async (req, res) => {
-  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET" && req.query.action === "students") {
       return await handleGetStudents(req, res);
