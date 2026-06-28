@@ -106,13 +106,15 @@
       <div class="sidebar-desc">교직원 공개 화면과 분리된 통합 관리 영역입니다.</div>
 
       <button class="nav-item active" data-panel="home">관리자 홈</button>
-      <button class="nav-item" data-panel="coop">🙏 담임 협조 요청 관리</button>
-      <button class="nav-item" data-panel="notice">🏥 이번주·이달의 보건소식 관리</button>
-      <button class="nav-item" data-panel="news">🦠 감염병 카드뉴스 관리</button>
-      <button class="nav-item" data-panel="checkup">🫁 검사안내 게시판 관리</button>
-      <button class="nav-item" data-panel="receipts">📋 접수 현황</button>
-      <button class="nav-item" data-panel="infectionAdmin">🦠 감염병 보고 관리</button>
-      <button class="nav-item" data-panel="careAdmin">💗 요보호 학생 추가</button>
+      <button class="nav-item" data-panel="infectionAdmin">🦠 [메뉴2] 감염병 보고 관리</button>
+      <button class="nav-item" data-panel="supplyAdmin">🧴 [메뉴2] 물품신청 확인</button>
+      <button class="nav-item" data-panel="careAdmin">💗 [메뉴3] 요보호 학생 확인</button>
+      <button class="nav-item" data-panel="coop">🙏 [메뉴4] 담임 협조 요청 관리</button>
+      <button class="nav-item" data-panel="notice">🏥 [메뉴4] 이번주·이달의 보건소식 관리</button>
+      <button class="nav-item" data-panel="news">🦠 [메뉴4] 감염병 카드뉴스 관리</button>
+      <button class="nav-item" data-panel="training">📚 [메뉴5] 필수이수연수 관리</button>
+      <button class="nav-item" data-panel="checkup">🫁 [메뉴6] 검사안내 게시판 관리</button>
+      <button class="nav-item" data-panel="receipts">📋 전체 접수 현황</button>
 
       <a class="nav-item exit" href="menu4.html" target="_blank">← 공개 포털로 이동</a>
     </aside>
@@ -233,6 +235,36 @@
       </section>
 
       <!-- 검사안내 게시판 관리 (tb-checkup.html과 시트 공유) -->
+      <!-- 필수이수연수 관리 -->
+      <section class="panel" id="panel-training">
+        <div class="panel-tag">REQUIRED TRAINING</div>
+        <div class="panel-title">📚 보건관련 필수 이수연수 관리</div>
+        <div class="panel-desc">메뉴5(보건교육 연수실)의 "보건관련 필수 이수연수" 카드를 등록·관리합니다.</div>
+
+        <div class="form-card">
+          <h4>📝 새 연수 카드 등록</h4>
+          <input type="text" id="trainingTitle" placeholder="제목 (예: 응급처치 기본교육)">
+          <div class="form-row">
+            <input type="text" id="trainingTag" placeholder="태그 (예: 필수, 신규)">
+            <input type="text" id="trainingPeriod" placeholder="기간 (예: 6월 30일까지)">
+          </div>
+          <select id="trainingAttachType">
+            <option value="link">링크 (자료 보기)</option>
+            <option value="file">파일 업로드</option>
+          </select>
+          <input type="text" id="trainingAttachLink" placeholder="링크 주소 (https://...)">
+          <input type="file" id="trainingFile" accept="image/*,application/pdf" style="display:none;">
+          <input type="text" id="trainingThumb" placeholder="썸네일 이미지 URL (선택, 없으면 기본 PDF 아이콘)">
+          <button class="submit-btn" id="trainingAddBtn">등록</button>
+          <div class="result-msg" id="trainingAddMsg"></div>
+        </div>
+
+        <div class="list-card">
+          <h4>등록된 연수 카드</h4>
+          <div id="trainingAdminList"><div class="empty-msg">불러오는 중...</div></div>
+        </div>
+      </section>
+
       <section class="panel" id="panel-checkup">
         <div class="panel-tag">CHECKUP NOTICE</div>
         <div class="panel-title">🫁 검사안내 게시판 관리</div>
@@ -307,6 +339,14 @@
       </section>
 
       <!-- 요보호 학생 추가 -->
+      <!-- 물품신청 확인 -->
+      <section class="panel" id="panel-supplyAdmin">
+        <div class="panel-tag">SUPPLY REQUEST</div>
+        <div class="panel-title">🧴 감염병예방 물품·소모품 신청 확인</div>
+        <div class="panel-desc">선생님들이 신청한 물품 내역입니다. "접수 확인" 버튼을 누르면 신청하신 선생님 화면에 안내 메모가 표시됩니다.</div>
+        <div id="supplyAdminList"><div class="empty-msg">불러오는 중...</div></div>
+      </section>
+
       <section class="panel" id="panel-careAdmin">
         <div class="panel-tag">CARE STUDENT</div>
         <div class="panel-title">💗 요보호 학생 확인</div>
@@ -750,6 +790,8 @@ function loadAll(){
   loadCheckupAdmin();
   loadReceipts();
   loadInfectionAdmin();
+  loadSupplyAdmin();
+  loadTrainingAdmin();
 }
 
 /* ---------- 검사안내 게시판 관리 ---------- */
@@ -1016,6 +1058,123 @@ async function loadCareList(grade){
     btn.disabled = false; btn.textContent = '등록';
   }
 });
+
+/* ---------- 물품신청 확인 (메뉴2) ---------- */
+async function loadSupplyAdmin(){
+  const listEl = document.getElementById('supplyAdminList');
+  try{
+    const res = await fetch('/api/infection-supply', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
+    const data = await res.json();
+    if(!data.success){ listEl.innerHTML = '<div class="empty-msg">'+(data.message||'불러오기 실패')+'</div>'; return; }
+    const list = data.list || [];
+    if(!list.length){ listEl.innerHTML = '<div class="empty-msg">신청 내역이 없습니다.</div>'; return; }
+    listEl.innerHTML = list.map(item =>
+      '<div class="list-item"><div class="li-main"><strong>신청번호 '+escHtml(item.id)+' · '+escHtml(item.grade)+' '+escHtml(item.classNum)+'</strong>'+
+      '<div class="sub">KF94 '+item.kf94+' · 새부리형 '+item.beak+' · 소독티슈 '+item.tissues+' · 손소독제 '+item.sanitizer+'</div>'+
+      '<div class="sub">신청자: '+escHtml(item.applicantName)+' · '+escHtml(item.submittedAt)+' · 상태: '+escHtml(item.status)+(item.adminMessage?(' · 💬 '+escHtml(item.adminMessage)):'')+'</div></div>'+
+      '<div class="li-actions">'+
+      (item.status === '접수' ?
+        '<button class="btn-toggle" onclick="acceptSupply('+item.rowNum+')">✅ 접수 확인</button>' :
+        '<span style="color:#2e7d32;font-weight:700;">✔ 처리됨</span>')+
+      '</div></div>'
+    ).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">물품신청 목록을 불러오지 못했습니다.</div>'; }
+}
+
+async function acceptSupply(rowNum){
+  await fetch('/api/infection-supply', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'update', password:getPw(), rowNum, status:'접수완료', message:'학생을 보내주시면 학생 편에 전달하겠습니다.' }) });
+  loadSupplyAdmin();
+}
+
+/* ---------- 필수이수연수 관리 (메뉴5) ---------- */
+document.getElementById('trainingAttachType').addEventListener('change', function(){
+  const v = this.value;
+  document.getElementById('trainingAttachLink').style.display = (v==='link') ? 'block' : 'none';
+  document.getElementById('trainingFile').style.display = (v==='file') ? 'block' : 'none';
+});
+
+async function loadTrainingAdmin(){
+  const listEl = document.getElementById('trainingAdminList');
+  try{
+    const res = await fetch('/api/board?type=training');
+    const data = await res.json();
+    const items = data.items || [];
+    if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
+    listEl.innerHTML = items.slice().reverse().map(function(item){
+      return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
+        '<div class="sub">'+escHtml(item.tag||'')+(item.period?(' · '+escHtml(item.period)):'')+'</div></div>'+
+        '<div class="li-actions">'+
+        (item.url ? '<a class="btn-toggle" href="'+item.url+'" target="_blank" style="text-decoration:none;display:inline-block;">자료보기</a>' : '')+
+        '<button class="btn-toggle" onclick=\'editTraining('+item.rowNum+', '+JSON.stringify(item).replace(/'/g,"&#39;")+')\'>수정</button>'+
+        '<button class="btn-del" onclick="deleteTraining('+item.rowNum+')">삭제</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
+}
+
+document.getElementById('trainingAddBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('trainingAddMsg');
+  msgEl.textContent=''; msgEl.className='result-msg';
+  const title = document.getElementById('trainingTitle').value.trim();
+  const tag = document.getElementById('trainingTag').value.trim();
+  const period = document.getElementById('trainingPeriod').value.trim();
+  const thumb = document.getElementById('trainingThumb').value.trim();
+  const attachType = document.getElementById('trainingAttachType').value;
+  if(!title){ msgEl.textContent='제목을 입력해주세요.'; msgEl.classList.add('err'); return; }
+
+  btn.disabled = true; btn.textContent = '⏳ 잠시만 기다려주세요...';
+  try{
+    let url = '';
+    if(attachType === 'link'){
+      url = document.getElementById('trainingAttachLink').value.trim();
+    } else {
+      const f = document.getElementById('trainingFile').files[0];
+      if(f){
+        const up = await uploadFile(f);
+        if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+        url = up.url;
+      }
+    }
+    const res = await fetch('/api/board?type=training', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'add', password:getPw(), title, tag, period, url, thumb }) });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('trainingTitle').value='';
+      document.getElementById('trainingTag').value='';
+      document.getElementById('trainingPeriod').value='';
+      document.getElementById('trainingThumb').value='';
+      document.getElementById('trainingAttachLink').value='';
+      document.getElementById('trainingFile').value='';
+      loadTrainingAdmin();
+    } else {
+      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent='서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled = false; btn.textContent = '등록';
+  }
+});
+
+async function editTraining(rowNum, item){
+  const title = prompt('제목', item.title); if(title===null) return;
+  const tag = prompt('태그', item.tag||''); if(tag===null) return;
+  const period = prompt('기간', item.period||''); if(period===null) return;
+  const url = prompt('링크', item.url||''); if(url===null) return;
+  await fetch('/api/board?type=training', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, tag, period, url, thumb:item.thumb }) });
+  loadTrainingAdmin();
+}
+
+async function deleteTraining(rowNum){
+  if(!confirm('삭제하시겠습니까?')) return;
+  await fetch('/api/board?type=training', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'delete', password:getPw(), rowNum }) });
+  loadTrainingAdmin();
+}
 </script>
 
 </body>
