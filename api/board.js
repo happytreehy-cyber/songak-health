@@ -14,6 +14,10 @@ const COOP_HEADER = ["제목", "내용", "등록일", "마감기한", "마감상
 const CHECKUP_TAB = "결핵검진_공지사항";
 const CHECKUP_HEADER = ["제출일시", "제목", "대상", "내용", "일시", "링크", "파일링크", "상태"];
 
+// 메뉴5(보건교육 연수실)의 "보건관련 필수 이수연수" 카드 관리용 탭
+const TRAINING_TAB = "필수이수연수";
+const TRAINING_HEADER = ["제목", "태그", "기간", "자료링크", "썸네일"];
+
 function getSheetsClient(scopes) {
   return google.sheets({
     version: "v4",
@@ -296,6 +300,57 @@ async function handleDeleteCheckup(req, res) {
   res.status(200).json({ success: true, message: "삭제되었습니다." });
 }
 
+/* ---------------- 보건관련 필수 이수연수 (메뉴5 연수카드) ---------------- */
+
+async function handleListTraining(req, res) {
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const rows = await getTabRows(sheets, sheetId, TRAINING_TAB, "E");
+  const items = rows
+    .filter(r => r[0])
+    .map((r, i) => ({ rowNum: i, title: r[0] || "", tag: r[1] || "", period: r[2] || "", url: r[3] || "", thumb: r[4] || "" }));
+  res.status(200).json({ success: true, items });
+}
+
+async function handleAddTraining(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { title, tag, period, url, thumb } = req.body;
+  if (!title) { res.status(400).json({ success: false, message: "제목을 입력해주세요." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  await ensureTab(sheets, sheetId, TRAINING_TAB, TRAINING_HEADER);
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId, range: `${TRAINING_TAB}!A1`,
+    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
+    requestBody: { values: [[title, tag || "", period || "", url || "", thumb || ""]] }
+  });
+  res.status(200).json({ success: true, message: "등록되었습니다." });
+}
+
+async function handleEditTraining(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum, title, tag, period, url, thumb } = req.body;
+  if (rowNum === undefined || !title) { res.status(400).json({ success: false, message: "잘못된 요청입니다." }); return; }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${TRAINING_TAB}!A${sheetRowNumber}:E${sheetRowNumber}`,
+    valueInputOption: "RAW", requestBody: { values: [[title, tag || "", period || "", url || "", thumb || ""]] }
+  });
+  res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
+async function handleDeleteTraining(req, res) {
+  if (!checkPw(req)) { res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." }); return; }
+  const { rowNum } = req.body;
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const ok = await deleteRow(sheets, sheetId, TRAINING_TAB, rowNum);
+  if (!ok) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
+}
+
 /* ---------------- 관리자 비밀번호 단순 확인 (통합 로그인용) ---------------- */
 async function handleCheckAdminPw(req, res) {
   const { password } = req.body;
@@ -313,7 +368,8 @@ module.exports = async (req, res) => {
       if (type === "notice") return await handleListNotice(req, res);
       if (type === "coop") return await handleListCoop(req, res);
       if (type === "checkup") return await handleListCheckup(req, res);
-      res.status(400).json({ success: false, message: "type 파라미터가 필요합니다. (notice, coop 또는 checkup)" });
+      if (type === "training") return await handleListTraining(req, res);
+      res.status(400).json({ success: false, message: "type 파라미터가 필요합니다. (notice, coop, checkup 또는 training)" });
       return;
     }
     if (req.method === "POST") {
@@ -336,6 +392,11 @@ module.exports = async (req, res) => {
         if (action === "edit") return await handleEditCheckup(req, res);
         if (action === "updatestatus") return await handleUpdateCheckupStatus(req, res);
         if (action === "delete") return await handleDeleteCheckup(req, res);
+      }
+      if (type === "training") {
+        if (action === "add") return await handleAddTraining(req, res);
+        if (action === "edit") return await handleEditTraining(req, res);
+        if (action === "delete") return await handleDeleteTraining(req, res);
       }
       res.status(400).json({ success: false, message: "알 수 없는 요청입니다." });
       return;
