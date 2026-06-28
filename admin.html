@@ -1043,22 +1043,6 @@ async function loadCareList(grade){
 }
 
 
-    const data = await res.json();
-    if(data.success){
-      msgEl.textContent = '✅ 등록되었습니다.'; msgEl.classList.add('ok');
-      ['careGrade','careClassNum','careNumber','careName','careEtcText','careNote'].forEach(id => document.getElementById(id).value = '');
-      loadCareList(grade);
-      ['symFemale','symHeadache','symRhinitis','symAtopy','symAsthma','symAllergy','symEtc'].forEach(id => document.getElementById(id).checked = false);
-    } else {
-      msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
-    }
-  }catch(e){
-    msgEl.textContent = '서버 연결에 실패했습니다.'; msgEl.classList.add('err');
-  }finally{
-    btn.disabled = false; btn.textContent = '등록';
-  }
-});
-
 /* ---------- 물품신청 확인 (메뉴2) ---------- */
 async function loadSupplyAdmin(){
   const listEl = document.getElementById('supplyAdminList');
