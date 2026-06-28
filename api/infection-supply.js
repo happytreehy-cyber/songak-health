@@ -45,6 +45,21 @@ function classCode(grade, classNum) {
   return g + c;
 }
 
+async function insertRowAtTop(sheets, sheetId, tabName, row) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const tab = meta.data.sheets.find(s => s.properties.title === tabName);
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    requestBody: { requests: [{
+      insertDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: 1, endIndex: 2 }, inheritFromBefore: false }
+    }] }
+  });
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${tabName}!A2`,
+    valueInputOption: "RAW", requestBody: { values: [row] }
+  });
+}
+
 async function handleSubmit(req, res) {
   const { grade, classNum, kf94, beak, tissues, sanitizer, applicantName, memo } = req.body;
   if (!grade || !classNum) {
@@ -63,11 +78,7 @@ async function handleSubmit(req, res) {
   const submittedAt = now.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
   const id = classCode(grade, classNum);
   const row = [id, submittedAt, grade, classNum, k, b, t, s, applicantName || "-", memo || "", "접수", "", ""];
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
-    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [row] }
-  });
+  await insertRowAtTop(sheets, sheetId, SHEET_TAB_NAME, row);
   res.status(200).json({ success: true, message: "신청이 접수되었습니다.", id, submittedAt });
 }
 
@@ -86,7 +97,7 @@ async function handleList(req, res) {
     kf94: r[4] || 0, beak: r[5] || 0, tissues: r[6] || 0, sanitizer: r[7] || 0,
     applicantName: r[8], memo: r[9] || "",
     status: r[10] || "접수", adminMessage: r[11] || "", updatedAt: r[12] || ""
-  })).reverse();
+  }));
   res.status(200).json({ success: true, list });
 }
 
@@ -142,7 +153,6 @@ async function handleStatus(req, res) {
 }
 
 module.exports = async (req, res) => {
-  res.setHeader("Cache-Control", "no-store, max-age=0");
   try {
     if (req.method === "GET") {
       return await handleStatus(req, res);
