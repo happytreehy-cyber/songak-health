@@ -131,38 +131,7 @@
     <div class="card">
       <div class="carousel-wrap">
         <div class="cards" id="courseCards">
-          <div class="card" style="border:1px solid #e3e7f0;">
-            <div class="thumb">test</div>
-            <span class="tag">test</span>
-            <p class="title">test</p>
-            <p class="period">test</p>
-            <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
-            <button class="go">이어보기</button>
-          </div>
-          <div class="card" style="border:1px solid #e3e7f0;">
-            <div class="thumb">test</div>
-            <span class="tag">test</span>
-            <p class="title">test</p>
-            <p class="period">test</p>
-            <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
-            <button class="go">이어보기</button>
-          </div>
-          <div class="card" style="border:1px solid #e3e7f0;">
-            <div class="thumb">test</div>
-            <span class="tag">test</span>
-            <p class="title">test</p>
-            <p class="period">test</p>
-            <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
-            <button class="go">이어보기</button>
-          </div>
-          <div class="card" style="border:1px solid #e3e7f0;">
-            <div class="thumb">test</div>
-            <span class="tag">test</span>
-            <p class="title">test</p>
-            <p class="period">test</p>
-            <a class="resource" href="#">📄 자료 보기 (PDF/링크)</a>
-            <button class="go">이어보기</button>
-          </div>
+          <div class="empty-msg" style="padding:20px;">불러오는 중...</div>
         </div>
         <button class="carousel-arrow left" id="carouselPrev" aria-label="이전 연수 보기">‹</button>
         <button class="carousel-arrow right" id="carouselNext" aria-label="다음 연수 보기">›</button>
@@ -262,6 +231,33 @@ document.getElementById('carouselPrev').addEventListener('click', function () {
 function openCprModal(){ document.getElementById('cprModal').classList.add('show'); }
 function closeCprModal(){ document.getElementById('cprModal').classList.remove('show'); }
 window.addEventListener('DOMContentLoaded', renderDate);
+window.addEventListener('DOMContentLoaded', loadTrainingCards);
+
+function escHtmlT(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function loadTrainingCards(){
+  fetch('/api/board?type=training')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var wrap = document.getElementById('courseCards');
+      var items = data.items || [];
+      if(!items.length){ wrap.innerHTML = '<div class="empty-msg" style="padding:20px;">등록된 필수 이수연수가 없습니다.</div>'; return; }
+      wrap.innerHTML = items.map(function(item){
+        var thumbHtml = item.thumb ? '<img src="'+item.thumb+'" style="width:100%;height:100%;object-fit:cover;">' : 'PDF';
+        return '<div class="card" style="border:1px solid #e3e7f0;">'+
+          '<div class="thumb">'+thumbHtml+'</div>'+
+          (item.tag ? '<span class="tag">'+escHtmlT(item.tag)+'</span>' : '')+
+          '<p class="title">'+escHtmlT(item.title)+'</p>'+
+          '<p class="period">'+escHtmlT(item.period||'')+'</p>'+
+          (item.url ? '<a class="resource" href="'+item.url+'" target="_blank">📄 자료 보기 (PDF/링크)</a>' : '')+
+          '<button class="go" onclick="'+(item.url ? "window.open('"+item.url+"','_blank')" : '')+'">이어보기</button>'+
+          '</div>';
+      }).join('');
+    })
+    .catch(function(){
+      document.getElementById('courseCards').innerHTML = '<div class="empty-msg" style="padding:20px;">불러오지 못했습니다.</div>';
+    });
+}
 
 // ===== 심폐소생술 이수증 제출 =====
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
