@@ -76,7 +76,9 @@
   .empty-msg{font-size:12.5px;color:var(--muted);}
 
   .tile-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}
-  .tile{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .tile{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;transition:background .2s, border-color .2s;}
+  .tile.has-items{background:#eef4ff;border-color:#93c5fd;}
+  .tile.has-items .t-value{color:#1d4ed8;}
   .tile .t-label{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
   .tile .t-value{font-size:22px;font-weight:800;color:#1e293b;}
 </style>
@@ -161,6 +163,7 @@
           <input type="text" id="coopAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
           <input type="file" id="coopAttachFile" style="display:none;">
           <button class="submit-btn" id="coopAddBtn">등록</button>
+          <button class="btn-toggle" onclick="cancelCoopEdit()" style="margin-top:6px;">취소</button>
           <div class="result-msg" id="coopAddMsg"></div>
         </div>
 
@@ -194,6 +197,7 @@
           <input type="text" id="noticeAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
           <input type="file" id="noticeFile" accept="image/*,application/pdf" style="display:none;">
           <button class="submit-btn" id="noticeAddBtn">등록</button>
+          <button class="btn-toggle" onclick="cancelNoticeEdit()" style="margin-top:6px;">취소</button>
           <div class="result-msg" id="noticeAddMsg"></div>
         </div>
 
@@ -225,6 +229,7 @@
           <input type="text" id="newsAttachLink" placeholder="링크 주소 (https://...)" style="display:none;">
           <input type="file" id="newsFile" accept="image/*,application/pdf" style="display:none;">
           <button class="submit-btn" id="newsAddBtn">등록</button>
+          <button class="btn-toggle" onclick="cancelNewsEdit()" style="margin-top:6px;">취소</button>
           <div class="result-msg" id="newsAddMsg"></div>
         </div>
 
@@ -256,6 +261,7 @@
           <input type="file" id="trainingFile" accept="image/*,application/pdf" style="display:none;">
           <input type="text" id="trainingThumb" placeholder="썸네일 이미지 URL (선택, 없으면 기본 PDF 아이콘)">
           <button class="submit-btn" id="trainingAddBtn">등록</button>
+          <button class="btn-toggle" onclick="cancelTrainingEdit()" style="margin-top:6px;">취소</button>
           <div class="result-msg" id="trainingAddMsg"></div>
         </div>
 
@@ -285,6 +291,7 @@
             <option value="closed">마감</option>
           </select>
           <button class="submit-btn" id="checkupAddBtn">등록</button>
+          <button class="btn-toggle" onclick="cancelCheckupEdit()" style="margin-top:6px;">취소</button>
           <div class="result-msg" id="checkupAddMsg"></div>
         </div>
 
@@ -371,6 +378,13 @@
 
 <script>
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setHomeTile(id, text, hasItems){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  const tile = el.closest('.tile');
+  if(tile) tile.classList.toggle('has-items', !!hasItems);
+}
 function statusDiamond(status){
   if(status === 'closed') return '<span style="color:#dc2626;font-weight:700;">◆ 마감</span>';
   return '<span style="color:#2563eb;font-weight:700;">◆ 진행중</span>';
@@ -491,7 +505,8 @@ async function loadCoopAdmin(){
     const items = data.items || [];
     coopItemsCache = items.slice().reverse(); // 최신 글이 1번
     coopPage = 0;
-    document.getElementById('tileCoop').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
+    const coopOngoingCount = items.filter(i=>i.status==='ongoing').length;
+    setHomeTile('tileCoop', coopOngoingCount + '건 진행중', coopOngoingCount > 0);
     renderCoopTable();
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; document.getElementById('coopPager').style.display='none'; }
 }
@@ -532,14 +547,28 @@ function renderCoopTable(){
     '<button class="pager-btn" onclick="coopPage++;renderCoopTable();" '+(coopPage>=totalPages-1?'disabled':'')+'>다음 →</button>';
 }
 
-async function editCoop(rowNum, item){
-  const title = prompt('제목', item.title); if(title===null) return;
-  const content = prompt('내용', item.content||''); if(content===null) return;
-  const date = prompt('등록일', item.date||''); if(date===null) return;
-  const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
-  await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, deadline, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
-  loadCoopAdmin();
+let coopEditRowNum = null;
+function editCoop(rowNum, item){
+  coopEditRowNum = rowNum;
+  document.getElementById('coopTitle').value = item.title || '';
+  document.getElementById('coopContent').value = item.content || '';
+  document.getElementById('coopDate').value = item.date || '';
+  document.getElementById('coopDeadline').value = item.deadline || '';
+  document.getElementById('coopAttachType').value = item.attachType || '';
+  document.getElementById('coopAttachType').dispatchEvent(new Event('change'));
+  if(item.attachType==='link' || item.attachType==='qr') document.getElementById('coopAttachLink').value = item.attachValue || '';
+  document.getElementById('coopAddBtn').textContent = '✏️ 수정 완료';
+  document.querySelector('#panel-coop .form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelCoopEdit(){
+  coopEditRowNum = null;
+  document.getElementById('coopTitle').value='';
+  document.getElementById('coopContent').value='';
+  document.getElementById('coopDate').value='';
+  document.getElementById('coopDeadline').value='';
+  document.getElementById('coopAttachType').value='';
+  document.getElementById('coopAttachType').dispatchEvent(new Event('change'));
+  document.getElementById('coopAddBtn').textContent = '등록';
 }
 
 async function toggleCoopStatus(rowNum, curStatus){
@@ -577,11 +606,14 @@ document.getElementById('coopAddBtn').addEventListener('click', async function()
         else { msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
       }
     }
+    const isEdit = coopEditRowNum !== null;
+    const payload = { action: isEdit?'edit':'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue };
+    if(isEdit) payload.rowNum = coopEditRowNum;
     const res = await fetch('/api/board?type=coop', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue }) });
+      body: JSON.stringify(payload) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent = isEdit ? '✅ 수정되었습니다!' : '✅ 등록되었습니다!'; msgEl.classList.add('ok');
       document.getElementById('coopTitle').value='';
       document.getElementById('coopContent').value='';
       document.getElementById('coopDate').value='';
@@ -591,6 +623,8 @@ document.getElementById('coopAddBtn').addEventListener('click', async function()
       document.getElementById('coopAttachLink').style.display='none';
       document.getElementById('coopAttachFile').value='';
       document.getElementById('coopAttachFile').style.display='none';
+      coopEditRowNum = null;
+      btn.textContent = '등록';
       loadCoopAdmin();
     }else{
       msgEl.textContent = data.message || '등록 중 오류가 발생했습니다.'; msgEl.classList.add('err');
@@ -609,7 +643,7 @@ async function loadNoticeAdmin(){
     const res = await fetch('/api/board?type=notice');
     const data = await res.json();
     const items = data.items || [];
-    document.getElementById('tileNotice').textContent = items.length + '건';
+    setHomeTile('tileNotice', items.length + '건', items.length > 0);
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.map(function(item){
       const tier = getStatusTier(item);
@@ -626,14 +660,28 @@ async function loadNoticeAdmin(){
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
 }
 
-async function editNotice(rowNum, item){
-  const title = prompt('제목', item.title); if(title===null) return;
-  const content = prompt('내용', item.content||''); if(content===null) return;
-  const date = prompt('날짜', item.date||''); if(date===null) return;
-  const deadline = prompt('마감기한', item.deadline||''); if(deadline===null) return;
-  await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, content, date, deadline, status:item.status, attachType:item.attachType, attachValue:item.attachValue }) });
-  loadNoticeAdmin();
+let noticeEditRowNum = null;
+function editNotice(rowNum, item){
+  noticeEditRowNum = rowNum;
+  document.getElementById('noticeTitle').value = item.title || '';
+  document.getElementById('noticeContent').value = item.content || '';
+  document.getElementById('noticeDate').value = item.date || '';
+  document.getElementById('noticeDeadline').value = item.deadline || '';
+  document.getElementById('noticeAttachType').value = item.attachType || '';
+  document.getElementById('noticeAttachType').dispatchEvent(new Event('change'));
+  if(item.attachType==='link' || item.attachType==='qr') document.getElementById('noticeAttachLink').value = item.attachValue || '';
+  document.getElementById('noticeAddBtn').textContent = '✏️ 수정 완료';
+  document.querySelector('#panel-notice .form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelNoticeEdit(){
+  noticeEditRowNum = null;
+  document.getElementById('noticeTitle').value='';
+  document.getElementById('noticeContent').value='';
+  document.getElementById('noticeDate').value='';
+  document.getElementById('noticeDeadline').value='';
+  document.getElementById('noticeAttachType').value='';
+  document.getElementById('noticeAttachType').dispatchEvent(new Event('change'));
+  document.getElementById('noticeAddBtn').textContent = '등록';
 }
 async function toggleNoticeStatus(rowNum, curStatus){
   const newStatus = curStatus==='closed' ? 'ongoing' : 'closed';
@@ -675,11 +723,15 @@ document.getElementById('noticeAddBtn').addEventListener('click', async function
         attachValue = up.url;
       }
     }
+    const isEdit = noticeEditRowNum !== null;
+    const payload = { action: isEdit?'edit':'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue };
+    if(isEdit) payload.rowNum = noticeEditRowNum;
     const res = await fetch('/api/board?type=notice', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, content, date, deadline, status:'ongoing', attachType, attachValue }) });
+      body: JSON.stringify(payload) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent = isEdit ? '✅ 수정되었습니다!' : '✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      noticeEditRowNum = null; btn.textContent = '등록';
       document.getElementById('noticeTitle').value='';
       document.getElementById('noticeContent').value='';
       document.getElementById('noticeDate').value='';
@@ -705,7 +757,7 @@ async function loadNewsAdmin(){
     const res = await fetch('/api/infection-report?action=newscards');
     const data = await res.json();
     const items = data.cards || [];
-    document.getElementById('tileNews').textContent = items.length + '건';
+    setHomeTile('tileNews', items.length + '건', items.length > 0);
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.map(function(item){
       return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong>'+
@@ -717,14 +769,26 @@ async function loadNewsAdmin(){
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
 }
 
-async function editNews(rowNum, item){
-  const title = prompt('제목', item.title); if(title===null) return;
-  const date = prompt('날짜', item.date||''); if(date===null) return;
-  const tag = prompt('태그', item.tag||''); if(tag===null) return;
-  const url = prompt('파일 URL (그대로 둬도 됩니다)', item.url||''); if(url===null) return;
-  await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'editnewscard', password:getPw(), rowNum, title, date, tag, url }) });
-  loadNewsAdmin();
+let newsEditRowNum = null;
+function editNews(rowNum, item){
+  newsEditRowNum = rowNum;
+  document.getElementById('newsTitle').value = item.title || '';
+  document.getElementById('newsDate').value = item.date || '';
+  document.getElementById('newsTag').value = item.tag || '';
+  document.getElementById('newsAttachType').value = 'link';
+  document.getElementById('newsAttachType').dispatchEvent(new Event('change'));
+  document.getElementById('newsAttachLink').value = item.url || '';
+  document.getElementById('newsAddBtn').textContent = '✏️ 수정 완료';
+  document.querySelector('#panel-news .form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelNewsEdit(){
+  newsEditRowNum = null;
+  document.getElementById('newsTitle').value='';
+  document.getElementById('newsDate').value='';
+  document.getElementById('newsTag').value='';
+  document.getElementById('newsAttachType').value='';
+  document.getElementById('newsAttachType').dispatchEvent(new Event('change'));
+  document.getElementById('newsAddBtn').textContent = '등록';
 }
 async function deleteNews(rowNum){
   if(!confirm('삭제하시겠습니까?')) return;
@@ -761,11 +825,15 @@ document.getElementById('newsAddBtn').addEventListener('click', async function()
       }
     }
     if(!url){ msgEl.textContent='첨부(링크 또는 파일)를 입력해주세요.'; msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
+    const isEdit = newsEditRowNum !== null;
+    const payload = { action: isEdit?'editnewscard':'addnewscard', password:getPw(), title, date, tag, url };
+    if(isEdit) payload.rowNum = newsEditRowNum;
     const res = await fetch('/api/infection-report', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'addnewscard', password:getPw(), title, date, tag, url }) });
+      body: JSON.stringify(payload) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent = isEdit ? '✅ 수정되었습니다!' : '✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      newsEditRowNum = null; btn.textContent = '등록';
       document.getElementById('newsTitle').value='';
       document.getElementById('newsDate').value='';
       document.getElementById('newsTag').value='';
@@ -801,7 +869,8 @@ async function loadCheckupAdmin(){
     const res = await fetch('/api/board?type=checkup');
     const data = await res.json();
     const items = data.items || [];
-    document.getElementById('tileCheckup').textContent = items.filter(i=>i.status==='ongoing').length + '건 진행중';
+    const checkupOngoingCount = items.filter(i=>i.status==='ongoing').length;
+    setHomeTile('tileCheckup', checkupOngoingCount + '건 진행중', checkupOngoingCount > 0);
     if(!items.length){ listEl.innerHTML = '<div class="empty-msg">등록된 항목이 없습니다.</div>'; return; }
     listEl.innerHTML = items.slice().reverse().map(function(item){
       return '<div class="list-item"><div class="li-main"><strong>'+escHtml(item.title)+'</strong> '+statusDiamond(item.status)+
@@ -815,15 +884,27 @@ async function loadCheckupAdmin(){
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">목록을 불러오지 못했습니다.</div>'; }
 }
 
-async function editCheckup(rowNum, item){
-  const title = prompt('제목', item.title); if(title===null) return;
-  const target = prompt('대상', item.target||''); if(target===null) return;
-  const content = prompt('내용', item.content||''); if(content===null) return;
-  const datetime = prompt('일시', item.datetime||''); if(datetime===null) return;
-  const link = prompt('링크', item.link||''); if(link===null) return;
-  await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, target, content, datetime, link, status:item.status, fileUrl:item.fileUrl }) });
-  loadCheckupAdmin();
+let checkupEditRowNum = null;
+function editCheckup(rowNum, item){
+  checkupEditRowNum = rowNum;
+  document.getElementById('checkupTitle').value = item.title || '';
+  document.getElementById('checkupTarget').value = item.target || '';
+  document.getElementById('checkupContent').value = item.content || '';
+  document.getElementById('checkupDatetime').value = item.datetime || '';
+  document.getElementById('checkupLink').value = item.link || '';
+  document.getElementById('checkupStatus').value = item.status || 'ongoing';
+  document.getElementById('checkupAddBtn').textContent = '✏️ 수정 완료';
+  document.querySelector('#panel-checkup .form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelCheckupEdit(){
+  checkupEditRowNum = null;
+  document.getElementById('checkupTitle').value='';
+  document.getElementById('checkupTarget').value='';
+  document.getElementById('checkupContent').value='';
+  document.getElementById('checkupDatetime').value='';
+  document.getElementById('checkupLink').value='';
+  document.getElementById('checkupStatus').value='ongoing';
+  document.getElementById('checkupAddBtn').textContent = '등록';
 }
 
 async function toggleCheckupStatus(rowNum, curStatus){
@@ -859,11 +940,15 @@ document.getElementById('checkupAddBtn').addEventListener('click', async functio
       if(!up.success){ msgEl.textContent='파일 업로드 실패: '+(up.message||''); msgEl.classList.add('err'); btn.disabled=false; btn.textContent='등록'; return; }
       fileUrl = up.url;
     }
+    const isEdit = checkupEditRowNum !== null;
+    const payload = { action: isEdit?'edit':'add', password:getPw(), title, target, content, datetime, link, status, fileUrl };
+    if(isEdit) payload.rowNum = checkupEditRowNum;
     const res = await fetch('/api/board?type=checkup', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, target, content, datetime, link, status, fileUrl }) });
+      body: JSON.stringify(payload) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent = isEdit ? '✅ 수정되었습니다!' : '✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      checkupEditRowNum = null; btn.textContent = '등록';
       document.getElementById('checkupTitle').value='';
       document.getElementById('checkupTarget').value='';
       document.getElementById('checkupContent').value='';
@@ -897,7 +982,8 @@ async function loadReceipts(){
     document.getElementById('rcTbDone').textContent = done + '명';
     document.getElementById('rcTbPlanned').textContent = planned + '명';
     document.getElementById('rcHire').textContent = hire + '건';
-    document.getElementById('tileTbPending').textContent = (rows.length - done) + '명';
+    const tbPendingCount = rows.length - done;
+    setHomeTile('tileTbPending', tbPendingCount + '명', tbPendingCount > 0);
 
     if(!rows.length){ listEl.innerHTML = '<div class="empty-msg">명부 데이터가 없습니다.</div>'; }
     else{
@@ -914,7 +1000,8 @@ async function loadReceipts(){
     if(data2.success){
       window.__infectionList = data2.list || [];
       document.getElementById('rcInfectionTotal').textContent = window.__infectionList.length + '건';
-      document.getElementById('tileInfectionOngoing').textContent = window.__infectionList.filter(i=>i.ongoing).length + '명';
+      const ongoingCount = window.__infectionList.filter(i=>i.ongoing).length;
+      setHomeTile('tileInfectionOngoing', ongoingCount + '명', ongoingCount > 0);
     }
   }catch(e){}
 
@@ -1121,11 +1208,24 @@ document.getElementById('trainingAddBtn').addEventListener('click', async functi
         url = up.url;
       }
     }
+    // 썸네일을 직접 안 넣었고 링크가 있으면, 그 링크의 대표 이미지(og:image)를 서버에서 자동으로 가져와요
+    let finalThumb = thumb;
+    if(!finalThumb && url && attachType === 'link'){
+      try{
+        const ogRes = await fetch('/api/og-thumb?url=' + encodeURIComponent(url));
+        const ogData = await ogRes.json();
+        if(ogData.success && ogData.image) finalThumb = ogData.image;
+      }catch(e){ /* 썸네일 못 가져와도 등록은 계속 진행 */ }
+    }
+    const isEdit = trainingEditRowNum !== null;
+    const payload = { action: isEdit?'edit':'add', password:getPw(), title, tag, period, url, thumb: finalThumb };
+    if(isEdit) payload.rowNum = trainingEditRowNum;
     const res = await fetch('/api/board?type=training', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'add', password:getPw(), title, tag, period, url, thumb }) });
+      body: JSON.stringify(payload) });
     const data = await res.json();
     if(data.success){
-      msgEl.textContent='✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      msgEl.textContent = isEdit ? '✅ 수정되었습니다!' : '✅ 등록되었습니다!'; msgEl.classList.add('ok');
+      trainingEditRowNum = null; btn.textContent = '등록';
       document.getElementById('trainingTitle').value='';
       document.getElementById('trainingTag').value='';
       document.getElementById('trainingPeriod').value='';
@@ -1143,14 +1243,27 @@ document.getElementById('trainingAddBtn').addEventListener('click', async functi
   }
 });
 
-async function editTraining(rowNum, item){
-  const title = prompt('제목', item.title); if(title===null) return;
-  const tag = prompt('태그', item.tag||''); if(tag===null) return;
-  const period = prompt('기간', item.period||''); if(period===null) return;
-  const url = prompt('링크', item.url||''); if(url===null) return;
-  await fetch('/api/board?type=training', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'edit', password:getPw(), rowNum, title, tag, period, url, thumb:item.thumb }) });
-  loadTrainingAdmin();
+let trainingEditRowNum = null;
+function editTraining(rowNum, item){
+  trainingEditRowNum = rowNum;
+  document.getElementById('trainingTitle').value = item.title || '';
+  document.getElementById('trainingTag').value = item.tag || '';
+  document.getElementById('trainingPeriod').value = item.period || '';
+  document.getElementById('trainingThumb').value = item.thumb || '';
+  document.getElementById('trainingAttachType').value = 'link';
+  document.getElementById('trainingAttachType').dispatchEvent(new Event('change'));
+  document.getElementById('trainingAttachLink').value = item.url || '';
+  document.getElementById('trainingAddBtn').textContent = '✏️ 수정 완료';
+  document.querySelector('#panel-training .form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelTrainingEdit(){
+  trainingEditRowNum = null;
+  document.getElementById('trainingTitle').value='';
+  document.getElementById('trainingTag').value='';
+  document.getElementById('trainingPeriod').value='';
+  document.getElementById('trainingThumb').value='';
+  document.getElementById('trainingAttachLink').value='';
+  document.getElementById('trainingAddBtn').textContent = '등록';
 }
 
 async function deleteTraining(rowNum){
