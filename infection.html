@@ -90,7 +90,7 @@
   .masked-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border);}
   .empty-msg{color:var(--muted);font-size:14px;padding:10px 2px;grid-column:1/-1;}
 
-  .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:20px 16px;overflow-y:auto;}
+  .report-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:300;padding:20px 16px;overflow-y:auto;}
   .report-modal.open{display:flex;}
   .report-modal-inner{background:#fff;border-radius:14px;width:100%;max-width:420px;padding:20px;margin-top:20px;}
   .report-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -170,7 +170,7 @@
   .admin-item textarea{margin-top:8px;}
   .admin-item button{margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;}
 
-  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:60;padding:16px;}
+  .pdf-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:300;padding:16px;}
   .pdf-modal.open{display:flex;}
   .pdf-modal-inner{background:#fff;border-radius:12px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
   .pdf-modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);}
@@ -387,7 +387,7 @@
         <label>감염병 종류 *</label>
         <select id="rDisease" required>
           <option value="">선택해주세요</option>
-          <option>인플루엔자</option><option>코로나19</option><option>수두</option>
+          <option>인플루엔자A형</option><option>인플루엔자B형</option><option>코로나19</option><option>수두</option>
           <option>유행성이하선염</option><option>수족구병</option><option>결핵</option>
           <option>백일해</option><option>성홍열</option><option>유행성각결막염</option>
           <option>기타</option>
@@ -643,8 +643,7 @@ function renderCharts(){
     if(!body) return;
     if(window.casePage === 0){
       body.innerHTML = caseHeader + (ongoingCases.length ? ongoingCases.map(caseRowHtml).join("") : '<div class="empty-chart">현재 진행 중인 사례가 없습니다.</div>');
-      label.textContent = `진행중 (${ongoingCases.length}) · 종료사례 보려면 오른쪽 화살표 클릭`;
-      label.style.color = '#2563eb';
+      label.innerHTML = `<span style="color:#2563eb;">진행중 (${ongoingCases.length})</span><br><span style="color:#ea580c;font-size:12.5px;">종료사례 보려면 오른쪽 화살표 클릭</span>`;
     }else{
       const pageIdx = window.casePage - 1;
       const start = pageIdx * PAGE_SIZE;
@@ -679,7 +678,7 @@ function openCaseEdit(rowNum){
     document.getElementById("manualStudentFields").classList.remove("hidden");
     document.getElementById("studentPickWrap").classList.add("hidden");
     selectedStudent = { number: item.studentNumber, name: item.fullName };
-    const stdOptions = ["인플루엔자","코로나19","수두","유행성이하선염","수족구병","결핵","백일해","성홍열","유행성각결막염"];
+    const stdOptions = ["인플루엔자A형","인플루엔자B형","코로나19","수두","유행성이하선염","수족구병","결핵","백일해","성홍열","유행성각결막염"];
     if(stdOptions.includes(item.disease)){
       document.getElementById("rDisease").value = item.disease;
     }else{
