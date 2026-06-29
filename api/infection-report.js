@@ -279,11 +279,6 @@ async function handleCheckLogin(req, res) {
 }
 
 async function handleUpdateCase(req, res) {
-  const { password } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
   const {
     rowNum, grade, classNum, studentNumber, studentName,
     diseaseType, diseaseEtc, diagnosisDate, exclusionEndDate, memo,
