@@ -1081,7 +1081,7 @@ function showRcDetail(type){
       '<div class="empty-msg">확인요청이 없습니다.</div>');
   } else if(type === 'infection'){
     html = '<h4>🦠 감염병 누적 보고 ('+infectionList.length+'건)</h4>' + (infectionList.length ?
-      infectionList.map(item => '<div class="list-item"><div class="li-main">'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentName)+
+      infectionList.map(item => '<div class="list-item"><div class="li-main">'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentNumber)+'번 '+escHtml(item.studentName)+
         ' <span class="sub">'+escHtml(item.disease)+' · '+escHtml(item.diagnosisDate)+'</span></div></div>').join('') :
       '<div class="empty-msg">보고된 사례가 없습니다.</div>');
   }
@@ -1101,7 +1101,7 @@ async function loadInfectionAdmin(){
     if(!list.length){ listEl.innerHTML = '<div class="empty-msg">아직 보고된 사례가 없습니다.</div>'; return; }
     listEl.innerHTML = list.map(function(item, i){
       return '<div class="list-item"><div class="li-main">'+
-        '<strong>'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentName)+'</strong> '+
+        '<strong>'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentNumber)+'번 '+escHtml(item.studentName)+'</strong> '+
         (item.ongoing ? '<span style="color:#dc2626;font-weight:700;">◆ 등교중지중</span>' : '<span style="color:#2563eb;font-weight:700;">◆ 종료/해당없음</span>')+
         '<div class="sub">'+escHtml(item.disease)+' · 진단일 '+escHtml(item.diagnosisDate)+(item.exclusionEnd?(' · 등교중지종료 '+escHtml(item.exclusionEnd)):'')+'</div>'+
         (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
