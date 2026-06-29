@@ -1335,8 +1335,8 @@ async function loadInfectionAdmin(){
         '<td>'+escHtml(item.diagnosisDate)+'</td>'+
         '<td>'+escHtml(item.exclusionEnd||'-')+'</td>'+
         '<td>'+escHtml(item.returnDate||'-')+'</td>'+
-        '<td style="text-align:center;">'+(item.eduReport?'✅':'-')+'</td>'+
-        '<td style="text-align:center;">'+(item.recoveryReport?'✅':'-')+'</td>'+
+        '<td style="text-align:center;"><input type="checkbox" '+(item.eduReport?'checked':'')+' onclick="event.stopPropagation(); adminToggleCaseFlag('+item.rowNum+',\'eduReport\',this.checked)"></td>'+
+        '<td style="text-align:center;"><input type="checkbox" '+(item.recoveryReport?'checked':'')+' onclick="event.stopPropagation(); adminToggleCaseFlag('+item.rowNum+',\'recoveryReport\',this.checked)"></td>'+
         '<td>'+(item.ongoing ? '<span style="color:#dc2626;font-weight:700;">◆ 등교중지중</span>' : '<span style="color:#2563eb;font-weight:700;">◆ 종료/해당없음</span>')+
           (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
         '</td>'+
@@ -1349,6 +1349,23 @@ async function loadInfectionAdmin(){
     html += '</tbody></table>';
     listEl.innerHTML = html;
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
+}
+
+async function adminToggleCaseFlag(rowNum, field, checked){
+  const item = (window.__infectionAdminCache || []).find(function(it){ return it.rowNum === rowNum; });
+  try{
+    const payload = { action: 'togglecase', rowNum };
+    payload[field] = checked;
+    const res = await fetch('/api/infection-report', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!data.success){ alert(data.message || '저장 중 오류가 발생했습니다.'); loadInfectionAdmin(); return; }
+    if(item) item[field] = checked;
+  }catch(e){
+    alert('서버 연결에 실패했습니다.');
+    loadInfectionAdmin();
+  }
 }
 
 function editInfectionCase(rowNum){
