@@ -65,8 +65,8 @@
   .site-lock{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:220;width:100%;max-width:380px;padding:0 20px;}
   .site-lock-box{box-shadow:0 8px 30px rgba(0,0,0,.15);}
   .empty-chart{font-size:12.5px;color:var(--muted);padding:6px 0;}
-  .case-table{font-size:15px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-  .case-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #f1f3f8;gap:6px;}
+  .case-table{font-size:15px;border:1px solid var(--border);border-radius:10px;overflow-x:auto;}
+  .case-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #f1f3f8;gap:6px;min-width:620px;}
   .case-row:last-child{border-bottom:none;}
   .case-row.case-head{background:#f3f5fa;font-weight:800;color:var(--text);font-size:15px;}
   .case-row .c-disease{flex:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -74,6 +74,8 @@
   .case-row .c-name{flex:0.9;text-align:center;}
   .case-row .c-date{flex:1.1;text-align:center;white-space:nowrap;}
   .case-row .c-period{flex:1.6;text-align:center;white-space:nowrap;font-size:14px;color:var(--muted);}
+  .case-row .c-return{flex:1;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
+  .case-row .c-check{flex:0.7;text-align:center;font-size:14px;}
   .dash-stat{border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
   .dash-stat .num{font-size:24px;font-weight:800;color:var(--navy);}
   .dash-stat .label{font-size:12px;color:var(--muted);margin-top:2px;}
@@ -413,7 +415,8 @@
       <div class="report-field">
         <label>등교중지 종료(예정)일</label>
         <input type="date" id="rExEnd">
-        <div class="hint">아직 모르면 비워두셔도 됩니다. 정확한 등교 가능일이 확인되면 다시 알려주세요!</div>
+        <label class="checkbox-row" style="margin-top:8px;"><input type="checkbox" id="rNoExclusion"> 의사가 종료일을 안 주셨어요 (등교중지 해당없음으로 처리)</label>
+        <div class="hint">아직 모르면 비워두셔도 됩니다. 정확한 등교 가능일이 확인되면 다시 알려주세요! 종료일을 영영 안 주는 경우라면 위 체크박스를 선택하시면 "해당없음"으로 정리되고 더 이상 진행중 목록에 남지 않아요.</div>
       </div>
 
       <div class="report-field">
@@ -429,6 +432,7 @@
         <textarea id="rMemo" placeholder="추가로 전달할 내용이 있으면 입력해주세요."></textarea>
       </div>
       <button type="submit" class="submit-btn" id="reportSubmitBtn">감염병 발생 보고하기</button>
+      <button type="button" id="reportDeleteBtn" style="display:none;width:100%;background:#fee2e2;color:#b91c1c;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;">🗑 이 보고 삭제하기</button>
       <div class="result-msg" id="reportResultMsg"></div>
     </form>
   </div>
@@ -611,6 +615,9 @@ function renderCharts(){
       <span class="c-name">${it.studentNumber}번 ${it.fullName}</span>
       <span class="c-date">${it.diagnosisDate}</span>
       <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
+      <span class="c-return">${it.returnDate || '-'}</span>
+      <span class="c-check">${it.eduReport ? '✅' : '☐'}</span>
+      <span class="c-check">${it.recoveryReport ? '✅' : '☐'}</span>
     </div>`;
   }
   const caseHeader = `
@@ -620,6 +627,9 @@ function renderCharts(){
       <span class="c-name">이름</span>
       <span class="c-date">확진일</span>
       <span class="c-period">등교중지기간</span>
+      <span class="c-return">등교일</span>
+      <span class="c-check">교육청<br>보고</span>
+      <span class="c-check">완치후<br>등교보고</span>
     </div>`;
 
   wrap.innerHTML = `
@@ -699,11 +709,15 @@ function openCaseEdit(rowNum){
       document.getElementById("rDiseaseEtcField").style.display = "block";
     }
     document.getElementById("rDiagDate").value = item.diagnosisDate;
-    document.getElementById("rExEnd").value = (item.exclusionEnd && item.exclusionEnd !== "미정") ? item.exclusionEnd : "";
+    const isNoExclusion = item.exclusionEnd === "해당없음";
+    document.getElementById("rNoExclusion").checked = isNoExclusion;
+    document.getElementById("rExEnd").disabled = isNoExclusion;
+    document.getElementById("rExEnd").value = (item.exclusionEnd && item.exclusionEnd !== "미정" && !isNoExclusion) ? item.exclusionEnd : "";
     document.getElementById("rEduReport").checked = !!item.eduReport;
     document.getElementById("rRecoveryReport").checked = !!item.recoveryReport;
     document.getElementById("reportForm").dataset.editRowNum = item.rowNum;
     document.getElementById("reportSubmitBtn").textContent = "수정 완료";
+    document.getElementById("reportDeleteBtn").style.display = "block";
   }, 300);
 }
 
@@ -717,10 +731,45 @@ function closeReportModal(){
   document.getElementById("reportModal").classList.remove("open");
   delete document.getElementById("reportForm").dataset.editRowNum;
   document.getElementById("reportSubmitBtn").textContent = "감염병 발생 보고하기";
+  document.getElementById("reportDeleteBtn").style.display = "none";
+  document.getElementById("rNoExclusion").checked = false;
+  document.getElementById("rExEnd").disabled = false;
 }
+
+document.getElementById("reportDeleteBtn").addEventListener("click", async () => {
+  const editRowNum = document.getElementById("reportForm").dataset.editRowNum;
+  if(editRowNum === undefined) return;
+  if(!confirm("이 보고 내용을 정말 삭제하시겠습니까?")) return;
+  const pw = await askAdminPw();
+  if(!pw) return;
+  const msgEl = document.getElementById("reportResultMsg");
+  try{
+    const res = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"deletecase", password: pw, rowNum: Number(editRowNum) })
+    });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent = "삭제되었습니다."; msgEl.className = "result-msg ok";
+      loadDashboard();
+      setTimeout(closeReportModal, 800);
+    }else{
+      sessionStorage.removeItem("infectionAdminPw");
+      msgEl.textContent = data.message || "삭제 중 오류가 발생했습니다."; msgEl.className = "result-msg err";
+    }
+  }catch(e){
+    msgEl.textContent = "서버 연결에 실패했습니다."; msgEl.className = "result-msg err";
+  }
+});
 
 document.getElementById("rDisease").addEventListener("change", (e) => {
   document.getElementById("rDiseaseEtcField").style.display = e.target.value === "기타" ? "block" : "none";
+});
+
+document.getElementById("rNoExclusion").addEventListener("change", (e) => {
+  const dateInput = document.getElementById("rExEnd");
+  if(e.target.checked){ dateInput.value = ""; dateInput.disabled = true; }
+  else { dateInput.disabled = false; }
 });
 
 /* ---------- 학생 이름 검색 선택 (메뉴3 요보호 추가와 동일한 방식) ---------- */
@@ -822,6 +871,7 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
   }
 
   const editRowNum = document.getElementById("reportForm").dataset.editRowNum;
+  const noExclusion = document.getElementById("rNoExclusion").checked;
   const payload = {
     grade: document.getElementById("rGrade").value,
     classNum: document.getElementById("rClass").value,
@@ -829,7 +879,7 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     diseaseType: document.getElementById("rDisease").value,
     diseaseEtc: document.getElementById("rDiseaseEtc").value.trim(),
     diagnosisDate: document.getElementById("rDiagDate").value,
-    exclusionEndDate: document.getElementById("rExEnd").value,
+    exclusionEndDate: noExclusion ? "해당없음" : document.getElementById("rExEnd").value,
     eduReport: document.getElementById("rEduReport").checked,
     recoveryReport: document.getElementById("rRecoveryReport").checked,
     memo: document.getElementById("rMemo").value.trim()
