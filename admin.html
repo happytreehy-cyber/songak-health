@@ -342,6 +342,17 @@
         <div class="panel-tag">INFECTION CASE MANAGEMENT</div>
         <div class="panel-title">🦠 감염병 보고 관리</div>
         <div class="panel-desc">담임 선생님이 제출한 감염병 발생 보고 전체 목록입니다. 등교중지가 진행 중인 경우 빨간색으로 표시됩니다.</div>
+
+        <div class="form-card">
+          <h4>📋 엑셀/구글시트에서 여러 건 한 번에 붙여넣기</h4>
+          <div class="panel-desc" style="margin:4px 0 10px;">
+            엑셀이나 구글시트에서 <b>학년, 반, 번호, 이름, 진단명, 확진일, 등교중지종료일(선택), 비고(선택)</b> 순서로 칸을 맞춰 범위를 선택한 뒤 복사(Ctrl+C)해서, 아래 칸에 그대로 붙여넣으세요(Ctrl+V). 날짜는 2026.4.13 또는 2026-04-13처럼 입력해주세요.
+          </div>
+          <textarea id="bulkInfectionInput" placeholder="1	6	25	이현정	B형독감	2026.3.20		&#10;1	7	2	구도현	B형독감	2026.3.24		" style="min-height:140px;font-family:monospace;font-size:12.5px;"></textarea>
+          <button class="submit-btn" id="bulkInfectionBtn">일괄 등록</button>
+          <div class="result-msg" id="bulkInfectionMsg"></div>
+        </div>
+
         <div id="infectionAdminList"><div class="empty-msg">불러오는 중...</div></div>
       </section>
 
@@ -1091,6 +1102,57 @@ function showRcDetail(type){
 }
 
 /* ---------- 감염병 보고 관리 (실제 데이터 연동) ---------- */
+/* ---------- 감염병 보고 일괄 등록 (엑셀 붙여넣기) ---------- */
+function parseDateLoose(s){
+  s = (s||'').trim();
+  if(!s) return '';
+  // 2026.4.13 / 2026.04.13 / 2026-4-13 / 2026-04-13 모두 허용
+  const m = s.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/);
+  if(!m) return s;
+  return m[1] + '-' + String(m[2]).padStart(2,'0') + '-' + String(m[3]).padStart(2,'0');
+}
+
+document.getElementById('bulkInfectionBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('bulkInfectionMsg');
+  const raw = document.getElementById('bulkInfectionInput').value;
+  msgEl.textContent = ''; msgEl.className = 'result-msg';
+
+  const lines = raw.split('\n').map(l => l.replace(/\r$/,'')).filter(l => l.trim());
+  if(!lines.length){ msgEl.textContent = '붙여넣은 내용이 없어요.'; msgEl.classList.add('err'); return; }
+
+  btn.disabled = true; btn.textContent = '⏳ 등록 중...';
+  let okCount = 0, failCount = 0; const failRows = [];
+
+  for(let i = 0; i < lines.length; i++){
+    const cols = lines[i].split('\t').map(c => c.trim());
+    const [grade, classNum, studentNumber, studentName, diseaseType, diagnosisDateRaw, exclusionEndDateRaw, memo] = cols;
+    if(!grade || !classNum || !studentNumber || !studentName || !diseaseType || !diagnosisDateRaw){
+      failCount++; failRows.push((i+1) + '번째 줄(항목 부족)'); continue;
+    }
+    try{
+      const res = await fetch('/api/infection-report', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          action: 'submit', grade, classNum, studentNumber, studentName,
+          diseaseType, diagnosisDate: parseDateLoose(diagnosisDateRaw),
+          exclusionEndDate: parseDateLoose(exclusionEndDateRaw), memo: memo || ''
+        })
+      });
+      const data = await res.json();
+      if(data.success) okCount++;
+      else { failCount++; failRows.push((i+1) + '번째 줄: ' + (data.message||'')); }
+    }catch(e){
+      failCount++; failRows.push((i+1) + '번째 줄: 네트워크 오류');
+    }
+  }
+
+  btn.disabled = false; btn.textContent = '일괄 등록';
+  msgEl.innerHTML = '✅ ' + okCount + '건 등록 완료' + (failCount ? (', ⚠ ' + failCount + '건 실패<br>' + failRows.join('<br>')) : '');
+  msgEl.classList.add(failCount ? 'err' : 'ok');
+  if(okCount > 0){ document.getElementById('bulkInfectionInput').value = ''; loadInfectionAdmin(); loadReceipts(); }
+});
+
 async function loadInfectionAdmin(){
   const listEl = document.getElementById('infectionAdminList');
   try{
