@@ -95,7 +95,7 @@
   .report-modal-inner{background:#fff;border-radius:14px;width:100%;max-width:420px;padding:20px;margin-top:20px;}
   .report-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
   .report-modal-head button{border:none;background:none;font-size:20px;cursor:pointer;}
-  .report-field{margin-bottom:12px;}
+  .report-field{margin-bottom:12px;position:relative;}
   .report-field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px;}
   .report-field .hint{font-size:11px;color:var(--muted);margin-top:4px;font-weight:400;}
   .report-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -107,6 +107,13 @@
   .selected-student-box{display:none;border:1px solid var(--navy);background:#eef3ff;border-radius:10px;padding:10px;font-size:13px;margin-bottom:10px;align-items:center;justify-content:space-between;}
   .selected-student-box.show{display:flex;}
   .selected-student-box button{border:none;background:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;}
+  .student-search-dropdown{display:none;position:absolute;left:0;right:0;top:100%;z-index:60;background:#fff;border:1px solid var(--border);border-radius:10px;max-height:190px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.1);margin-top:4px;}
+  .student-search-dropdown.show{display:block;}
+  .student-search-item{padding:9px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid #f1f3f8;}
+  .student-search-item:last-child{border-bottom:none;}
+  .student-search-item:hover{background:#eef3ff;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;}
+  .checkbox-row input[type=checkbox]{width:auto;margin:0;}
 
   /* 카드뉴스 - 4칸x2줄 가로 페이징 */
   #newsGrid{
@@ -367,9 +374,8 @@
 
       <div class="report-field">
         <label>학생 선택 * <span style="font-weight:400;color:var(--muted);">(학년·반을 먼저 선택하세요)</span></label>
-        <div id="studentPickWrap" class="hidden">
-          <div class="student-pick-list" id="studentPickList"></div>
-        </div>
+        <input type="text" id="rStudentSearch" placeholder="이름을 입력해보세요 (예: 김)" autocomplete="off" disabled>
+        <div class="student-search-dropdown" id="studentSearchDropdown"></div>
         <div class="selected-student-box" id="selectedStudentBox">
           <span id="selectedStudentText"></span>
           <button type="button" onclick="clearSelectedStudent()">다시 선택</button>
@@ -387,7 +393,7 @@
         <label>감염병 종류 *</label>
         <select id="rDisease" required>
           <option value="">선택해주세요</option>
-          <option>인플루엔자A형</option><option>인플루엔자B형</option><option>코로나19</option><option>수두</option>
+          <option>인플루엔자 독감</option><option>인플루엔자 독감A형</option><option>인플루엔자 독감B형</option><option>코로나19</option><option>수두</option>
           <option>유행성이하선염</option><option>수족구병</option><option>결핵</option>
           <option>백일해</option><option>성홍열</option><option>유행성각결막염</option>
           <option>기타</option>
@@ -411,6 +417,14 @@
       </div>
 
       <div class="report-field">
+        <label>처리 확인</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label class="checkbox-row"><input type="checkbox" id="rEduReport"> 교육청보고 완료</label>
+          <label class="checkbox-row"><input type="checkbox" id="rRecoveryReport"> 완치후등교보고 완료</label>
+        </div>
+      </div>
+
+      <div class="report-field">
         <label>비고</label>
         <textarea id="rMemo" placeholder="추가로 전달할 내용이 있으면 입력해주세요."></textarea>
       </div>
@@ -422,11 +436,9 @@
 
 <script>
 /* ---------- 사이트 잠금 (공용 키: 다른 민감 메뉴와 공유됨) ---------- */
-/* ⚠️ 오늘의 보건실현황 / 감염병현황 / 요보호현황 페이지에 이 블록을 동일하게 넣으면
-   한 곳에서 풀면 나머지도 같이 풀립니다. */
 (function(){
-  const UNLOCK_KEY = "songakStaffUnlocked"; // 다른 페이지에도 똑같은 이름으로 사용
-  const UNLOCK_HOURS = 6; // 이 시간 동안은 다시 안 물어봄
+  const UNLOCK_KEY = "songakStaffUnlocked";
+  const UNLOCK_HOURS = 6;
 
   function isUnlocked(){
     const raw = localStorage.getItem(UNLOCK_KEY);
@@ -443,7 +455,6 @@
     document.getElementById("siteLock").style.display = "none";
   }
 
-  // 이름 기억 (체크박스 체크 시에만)
   const savedName = localStorage.getItem("songak_staff_name");
   if (savedName) {
     document.getElementById("siteLockName").value = savedName;
@@ -511,7 +522,7 @@ async function askAdminPw() {
 
 /* ---------- 감염병 현황 대시보드 (차트형) ---------- */
 let lastSummary = null;
-let heroMode = "7"; // "7" or "30"
+let heroMode = "7";
 const PALETTE = ["#2563eb","#06b6d4","#8b5cf6","#f59e0b","#ec4899","#10b981","#f43f5e","#6366f1"];
 
 async function loadDashboard(){
@@ -581,14 +592,14 @@ function renderCharts(){
     </div>`;
   }).join("");
 
-  const allCases = (s.allCasesMasked || []).slice().sort((a,b) => new Date(a.diagnosisDate) - new Date(b.diagnosisDate));
+  const allCases = (s.allCasesMasked || []).slice();
   allCases.forEach((it,i) => it.no = i+1);
-  window.allCasesData = allCases; // 더블클릭 수정용 캐시
+  window.allCasesData = allCases;
   const ongoingCases = allCases.filter(it => !it.ended);
-  const endedCases = allCases.filter(it => it.ended).reverse(); // 최신 종료 먼저
+  const endedCases = allCases.filter(it => it.ended); // 서버에서 진단일 내림차순으로 이미 정렬되어 옴
   const PAGE_SIZE = 6;
   window.endedCasesData = endedCases;
-  window.casePage = 0; // 0 = 진행중, 1+ = 종료 페이지
+  window.casePage = 0;
 
   function caseRowHtml(it){
     const g = (it.grade||"").replace(/[^0-9]/g,"");
@@ -627,7 +638,7 @@ function renderCharts(){
     </div>
     ${ allCases.length ? `
     <div class="chart-block">
-      <div class="chart-title">📋 전체 발생 사례 <span style="font-size:11px;font-weight:400;color:var(--muted);">(칸 더블클릭시 수정가능)</span></div>
+      <div class="chart-title">📋 전체 발생 사례 <span style="font-size:11px;font-weight:400;color:var(--muted);">(진단일 최신순 · 칸 더블클릭시 수정가능)</span></div>
       <div class="case-table" id="caseTableBody"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:14px;color:var(--muted);">
         <button type="button" class="qty-btn" id="casePrevBtn" style="color:#2563eb;font-weight:700;font-size:16px;">‹</button>
@@ -676,9 +687,10 @@ function openCaseEdit(rowNum){
     document.getElementById("rNumber").value = item.studentNumber;
     document.getElementById("rName").value = item.fullName;
     document.getElementById("manualStudentFields").classList.remove("hidden");
-    document.getElementById("studentPickWrap").classList.add("hidden");
+    document.getElementById("rStudentSearch").value = "";
+    document.getElementById("studentSearchDropdown").classList.remove("show");
     selectedStudent = { number: item.studentNumber, name: item.fullName };
-    const stdOptions = ["인플루엔자A형","인플루엔자B형","코로나19","수두","유행성이하선염","수족구병","결핵","백일해","성홍열","유행성각결막염"];
+    const stdOptions = ["인플루엔자 독감","인플루엔자 독감A형","인플루엔자 독감B형","코로나19","수두","유행성이하선염","수족구병","결핵","백일해","성홍열","유행성각결막염"];
     if(stdOptions.includes(item.disease)){
       document.getElementById("rDisease").value = item.disease;
     }else{
@@ -688,6 +700,8 @@ function openCaseEdit(rowNum){
     }
     document.getElementById("rDiagDate").value = item.diagnosisDate;
     document.getElementById("rExEnd").value = (item.exclusionEnd && item.exclusionEnd !== "미정") ? item.exclusionEnd : "";
+    document.getElementById("rEduReport").checked = !!item.eduReport;
+    document.getElementById("rRecoveryReport").checked = !!item.recoveryReport;
     document.getElementById("reportForm").dataset.editRowNum = item.rowNum;
     document.getElementById("reportSubmitBtn").textContent = "수정 완료";
   }, 300);
@@ -709,43 +723,75 @@ document.getElementById("rDisease").addEventListener("change", (e) => {
   document.getElementById("rDiseaseEtcField").style.display = e.target.value === "기타" ? "block" : "none";
 });
 
+/* ---------- 학생 이름 검색 선택 (메뉴3 요보호 추가와 동일한 방식) ---------- */
+let studentListCache = [];
+
 async function loadStudentPicker(){
   const grade = document.getElementById("rGrade").value;
   const classNum = document.getElementById("rClass").value;
-  const wrap = document.getElementById("studentPickWrap");
+  const searchInput = document.getElementById("rStudentSearch");
+  const dropdown = document.getElementById("studentSearchDropdown");
   const manual = document.getElementById("manualStudentFields");
   clearSelectedStudent();
-  if(!grade || !classNum){ wrap.classList.add("hidden"); manual.classList.add("hidden"); return; }
+  studentListCache = [];
+  dropdown.classList.remove("show");
+  searchInput.value = "";
 
-  wrap.classList.remove("hidden");
-  document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">불러오는 중...</span>';
+  if(!grade || !classNum){ searchInput.disabled = true; manual.classList.add("hidden"); return; }
+
+  searchInput.disabled = false;
+  searchInput.placeholder = "불러오는 중...";
   try{
     const res = await fetch(`/api/infection-report?action=students&grade=${encodeURIComponent(grade)}&classNum=${encodeURIComponent(classNum)}`);
     const data = await res.json();
-    const students = data.students || [];
-    if(students.length === 0){
-      document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">명단이 없어요. 아래에 직접 입력해주세요.</span>';
+    studentListCache = data.students || [];
+    if(studentListCache.length === 0){
+      searchInput.placeholder = "명단이 없어요. 아래에 직접 입력해주세요.";
+      searchInput.disabled = true;
       manual.classList.remove("hidden");
       return;
     }
     manual.classList.add("hidden");
-    document.getElementById("studentPickList").innerHTML = students.map(s =>
-      `<span class="student-pick" data-num="${s.number}" data-name="${s.name}">${s.name}</span>`
-    ).join("");
-    document.querySelectorAll(".student-pick").forEach(el => {
-      el.addEventListener("click", () => selectStudent(el.dataset.num, el.dataset.name));
-    });
+    searchInput.placeholder = "이름을 입력해보세요 (예: 김)";
   }catch(e){
-    document.getElementById("studentPickList").innerHTML = '<span style="font-size:12px;color:var(--muted);">명단을 불러오지 못했어요. 직접 입력해주세요.</span>';
+    searchInput.placeholder = "명단을 불러오지 못했어요. 직접 입력해주세요.";
+    searchInput.disabled = true;
     manual.classList.remove("hidden");
   }
 }
 document.getElementById("rGrade").addEventListener("change", loadStudentPicker);
 document.getElementById("rClass").addEventListener("change", loadStudentPicker);
 
+document.getElementById("rStudentSearch").addEventListener("input", (e) => {
+  const q = e.target.value.trim();
+  const dropdown = document.getElementById("studentSearchDropdown");
+  if(!q){ dropdown.classList.remove("show"); dropdown.innerHTML = ""; return; }
+  const matches = studentListCache.filter(s => (s.name||"").includes(q));
+  if(!matches.length){
+    dropdown.innerHTML = '<div class="student-search-item" style="color:var(--muted);">일치하는 학생이 없어요</div>';
+    dropdown.classList.add("show");
+    return;
+  }
+  dropdown.innerHTML = matches.map(s => `<div class="student-search-item" data-num="${s.number}" data-name="${s.name}">${s.name} (${s.number}번)</div>`).join("");
+  dropdown.classList.add("show");
+  dropdown.querySelectorAll(".student-search-item[data-num]").forEach(el => {
+    el.addEventListener("click", () => selectStudent(el.dataset.num, el.dataset.name));
+  });
+});
+document.getElementById("rStudentSearch").addEventListener("focus", (e) => {
+  if(e.target.value.trim()) e.target.dispatchEvent(new Event("input"));
+});
+document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("studentSearchDropdown");
+  if(!dropdown.contains(e.target) && e.target.id !== "rStudentSearch"){
+    dropdown.classList.remove("show");
+  }
+});
+
 function selectStudent(number, name){
   selectedStudent = { number, name };
-  document.getElementById("studentPickWrap").classList.add("hidden");
+  document.getElementById("studentSearchDropdown").classList.remove("show");
+  document.getElementById("rStudentSearch").value = "";
   document.getElementById("manualStudentFields").classList.add("hidden");
   const box = document.getElementById("selectedStudentBox");
   box.classList.add("show");
@@ -754,9 +800,6 @@ function selectStudent(number, name){
 function clearSelectedStudent(){
   selectedStudent = null;
   document.getElementById("selectedStudentBox").classList.remove("show");
-  const grade = document.getElementById("rGrade").value;
-  const classNum = document.getElementById("rClass").value;
-  if(grade && classNum) document.getElementById("studentPickWrap").classList.remove("hidden");
 }
 
 document.getElementById("reportForm").addEventListener("submit", async (e) => {
@@ -787,6 +830,8 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
     diseaseEtc: document.getElementById("rDiseaseEtc").value.trim(),
     diagnosisDate: document.getElementById("rDiagDate").value,
     exclusionEndDate: document.getElementById("rExEnd").value,
+    eduReport: document.getElementById("rEduReport").checked,
+    recoveryReport: document.getElementById("rRecoveryReport").checked,
     memo: document.getElementById("rMemo").value.trim()
   };
   if(editRowNum !== undefined){
@@ -808,7 +853,8 @@ document.getElementById("reportForm").addEventListener("submit", async (e) => {
       document.getElementById("reportSubmitBtn").textContent = "감염병 발생 보고하기";
       clearSelectedStudent();
       document.getElementById("rDiseaseEtcField").style.display = "none";
-      document.getElementById("studentPickWrap").classList.add("hidden");
+      document.getElementById("rStudentSearch").value = "";
+      document.getElementById("rStudentSearch").disabled = true;
       document.getElementById("manualStudentFields").classList.add("hidden");
       loadDashboard();
       setTimeout(closeReportModal, 1600);
@@ -985,7 +1031,6 @@ document.getElementById("adminOpenBtn").addEventListener("click", async () => {
 function renderAdminList(list, pw){
   const listEl = document.getElementById("adminList");
 
-  // 부서(학년·반)별 누적 통계 - 전체 신청 기준(완료 포함)
   const totals = {};
   list.forEach(item => {
     const key = `${item.grade} ${item.classNum}`;
