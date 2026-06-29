@@ -2,7 +2,7 @@
 const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "감염병발생보고";
-const HEADER = ["제출일시","학년","반","번호","학생명","감염병종류","진단일(=등교중지시작일)","등교중지종료(예정)일","비고","처리상태","보건교사확인","안내완료"];
+const HEADER = ["제출일시","학년","반","번호","학생명","감염병종류","진단일(=등교중지시작일)","등교중지종료(예정)일","비고","처리상태","보건교사확인","안내완료","등교일","교육청보고","완치후등교보고"];
 const STUDENT_TAB_NAME = "학생명단";
 
 function getSheetsClient(scopes) {
@@ -49,7 +49,8 @@ async function handleSubmit(req, res) {
   const {
     grade, classNum, studentNumber, studentName,
     diseaseType, diseaseEtc, diagnosisDate,
-    exclusionEndDate, memo
+    exclusionEndDate, memo,
+    returnDate, eduReport, recoveryReport
   } = req.body;
 
   if (!grade || !classNum || !studentNumber || !studentName || !diagnosisDate || (!diseaseType && !diseaseEtc)) {
@@ -79,7 +80,8 @@ async function handleSubmit(req, res) {
   const row = [
     now, grade, classNum, studentNumber, studentName, disease, diagnosisDate,
     exclusionEndDate || "", memo || "",
-    "접수", "미확인", "미완료"
+    "접수", "미확인", "미완료",
+    returnDate || "", eduReport ? "Y" : "", recoveryReport ? "Y" : ""
   ];
 
   await sheets.spreadsheets.values.append({
@@ -137,7 +139,17 @@ async function handleSummary(req, res) {
 
   res.status(200).json({
     success: true,
-    summary: { totalCases: rows.length, byDisease, byGrade, last7days, last30days, currentlyExcluded, maskedCurrent, allCasesMasked }
+    summary: { totalCases: rows.length, byDisease, byGrade, last7days, last30days, currentlyExcluded,
+      maskedCurrent,
+      allCasesMasked: allCasesMasked.slice().sort((a, b) => {
+        const da = parseKoreanDate(a.diagnosisDate);
+        const db = parseKoreanDate(b.diagnosisDate);
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db - da; // 최신 진단일이 먼저 오도록 내림차순
+      })
+    }
   });
 }
 
@@ -152,7 +164,7 @@ async function handleList(req, res) {
 
   let rows = [];
   try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:L` });
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:O` });
     rows = result.data.values || [];
   } catch (e) { rows = []; }
 
@@ -164,9 +176,20 @@ async function handleList(req, res) {
       submittedAt: r[0], grade: r[1], classNum: r[2], studentNumber: r[3],
       studentName: r[4], disease: r[5], diagnosisDate: r[6],
       exclusionStart: r[6], exclusionEnd: r[7] || "", memo: r[8] || "", status: r[9] || "접수",
-      ongoing: !!(end && !isNaN(end) && end >= today)
+      ongoing: !!(end && !isNaN(end) && end >= today),
+      returnDate: r[12] || "",
+      eduReport: r[13] === "Y",
+      recoveryReport: r[14] === "Y"
     };
-  }).reverse();
+  }).sort((a, b) => {
+    const da = parseKoreanDate(a.diagnosisDate);
+    const db = parseKoreanDate(b.diagnosisDate);
+    if (!da && !db) return b.rowNum - a.rowNum;
+    if (!da) return 1;
+    if (!db) return -1;
+    if (db - da !== 0) return db - da; // 진단일 내림차순 (최신이 먼저)
+    return b.rowNum - a.rowNum; // 같은 날짜면 최근 등록 순
+  });
 
   res.status(200).json({ success: true, list });
 }
@@ -255,9 +278,15 @@ async function handleCheckLogin(req, res) {
 }
 
 async function handleUpdateCase(req, res) {
+  const { password } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
   const {
     rowNum, grade, classNum, studentNumber, studentName,
-    diseaseType, diseaseEtc, diagnosisDate, exclusionEndDate, memo
+    diseaseType, diseaseEtc, diagnosisDate, exclusionEndDate, memo,
+    returnDate, eduReport, recoveryReport
   } = req.body;
 
   if (rowNum === undefined || !grade || !classNum || !studentNumber || !studentName || !diagnosisDate) {
@@ -277,7 +306,39 @@ async function handleUpdateCase(req, res) {
     requestBody: { values: [[grade, classNum, studentNumber, studentName, disease, diagnosisDate, exclusionEndDate || "", memo || ""]] }
   });
 
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId,
+    range: `${SHEET_TAB_NAME}!M${sheetRowNumber}:O${sheetRowNumber}`,
+    valueInputOption: "RAW",
+    requestBody: { values: [[returnDate || "", eduReport ? "Y" : "", recoveryReport ? "Y" : ""]] }
+  });
+
   res.status(200).json({ success: true, message: "수정되었습니다." });
+}
+
+async function handleDeleteCase(req, res) {
+  const { password, rowNum } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
+    return;
+  }
+  if (rowNum === undefined) {
+    res.status(400).json({ success: false, message: "삭제할 항목을 찾을 수 없습니다." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const tab = meta.data.sheets.find(s => s.properties.title === SHEET_TAB_NAME);
+  if (!tab) { res.status(404).json({ success: false, message: "탭을 찾을 수 없습니다." }); return; }
+  const sheetRowNumber = Number(rowNum) + 2;
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    requestBody: { requests: [{
+      deleteDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber } }
+    }] }
+  });
+  res.status(200).json({ success: true, message: "삭제되었습니다." });
 }
 
 const NEWS_TAB_NAME = "카드뉴스";
@@ -385,6 +446,7 @@ module.exports = async (req, res) => {
       if (action === "checkpw") return await handleCheckLogin(req, res);
       if (action === "list") return await handleList(req, res);
       if (action === "updatecase") return await handleUpdateCase(req, res);
+      if (action === "deletecase") return await handleDeleteCase(req, res);
       if (action === "addnewscard") return await handleAddNewsCard(req, res);
       if (action === "editnewscard") return await handleEditNewsCard(req, res);
       if (action === "deletenewscard") return await handleDeleteNewsCard(req, res);
