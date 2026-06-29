@@ -99,7 +99,7 @@ async function handleSummary(req, res) {
 
   let rows = [];
   try {
-    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:H` });
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A2:O` });
     rows = result.data.values || [];
   } catch (e) { rows = []; }
 
@@ -125,6 +125,7 @@ async function handleSummary(req, res) {
       no: idx + 1, rowNum: idx, disease, grade, classNum, studentNumber,
       maskedName: maskName(studentName), fullName: studentName, diagnosisDate,
       exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정",
+      returnDate: r[12] || "", eduReport: r[13] === "Y", recoveryReport: r[14] === "Y",
       ended: exclusionEnd ? (parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false
     });
 
