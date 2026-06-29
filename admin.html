@@ -14,7 +14,6 @@
   button{font-family:inherit;cursor:pointer;}
   input,textarea,select{font-family:inherit;}
 
-  /* 로그인 게이트 */
   #loginGate{position:fixed;inset:0;background:#f5f7fb;display:flex;align-items:center;justify-content:center;z-index:100;}
   .login-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 28px;width:100%;max-width:340px;text-align:center;}
   .login-box h2{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px;}
@@ -81,6 +80,21 @@
   .tile.has-items .t-value{color:#1d4ed8;}
   .tile .t-label{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
   .tile .t-value{font-size:22px;font-weight:800;color:#1e293b;}
+
+  .bulk-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  .bulk-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:700px;}
+  .bulk-table th{background:#eef4ff;color:#1e3a8a;font-weight:700;padding:8px 6px;border-bottom:1px solid #dbe4f3;border-right:1px solid #dbe4f3;white-space:nowrap;text-align:center;}
+  .bulk-table th:last-child{border-right:none;}
+  .bulk-table td{border-bottom:1px solid #eef1f6;border-right:1px solid #eef1f6;padding:0;}
+  .bulk-table tr:last-child td{border-bottom:none;}
+  .bulk-table td:last-child{border-right:none;width:30px;text-align:center;}
+  .bulk-table td input{width:100%;border:none;padding:8px 7px;font-size:12.5px;border-radius:0;margin:0;background:transparent;}
+  .bulk-table td input:focus{background:#eff6ff;outline:1px solid #93c5fd;outline-offset:-1px;}
+  .bulk-row-del{background:none;border:none;color:#cbd5e1;font-size:13px;cursor:pointer;padding:6px;}
+  .bulk-row-del:hover{color:#dc2626;}
+  .bulk-toolbar{display:flex;gap:8px;margin:10px 0 14px;}
+  .bulk-toolbar button{width:auto;flex:0 0 auto;font-size:12px;border:1px solid var(--border);background:#fff;border-radius:8px;padding:7px 12px;font-weight:700;color:#334155;}
+  .bulk-toolbar button.danger{color:#b91c1c;border-color:#fecaca;background:#fff5f5;}
 </style>
 </head>
 <body>
@@ -123,7 +137,6 @@
 
     <main class="main">
 
-      <!-- 관리자 홈 -->
       <section class="panel active" id="panel-home">
         <div class="panel-tag">ADMIN DASHBOARD</div>
         <div class="panel-title">관리자 홈</div>
@@ -138,7 +151,6 @@
         </div>
       </section>
 
-      <!-- 담임 협조 요청 관리 -->
       <section class="panel" id="panel-coop">
         <div class="panel-tag">COOPERATION</div>
         <div class="panel-title">🙏 담임 협조 요청 관리</div>
@@ -174,7 +186,6 @@
         </div>
       </section>
 
-      <!-- 보건소식 관리 -->
       <section class="panel" id="panel-notice">
         <div class="panel-tag">HEALTH NOTICE</div>
         <div class="panel-title">🏥 이번주·이달의 보건소식 관리</div>
@@ -207,7 +218,6 @@
         </div>
       </section>
 
-      <!-- 카드뉴스 관리 -->
       <section class="panel" id="panel-news">
         <div class="panel-tag">CARD NEWS</div>
         <div class="panel-title">🦠 감염병 카드뉴스 관리</div>
@@ -239,8 +249,6 @@
         </div>
       </section>
 
-      <!-- 검사안내 게시판 관리 (tb-checkup.html과 시트 공유) -->
-      <!-- 필수이수연수 관리 -->
       <section class="panel" id="panel-training">
         <div class="panel-tag">REQUIRED TRAINING</div>
         <div class="panel-title">📚 보건관련 필수 이수연수 관리</div>
@@ -301,7 +309,6 @@
         </div>
       </section>
 
-      <!-- 접수 현황 -->
       <section class="panel" id="panel-receipts">
         <div class="panel-tag">RECEIPTS OVERVIEW</div>
         <div class="panel-title">📋 접수 현황</div>
@@ -337,18 +344,38 @@
         </div>
       </section>
 
-      <!-- 감염병 보고 관리 -->
       <section class="panel" id="panel-infectionAdmin">
         <div class="panel-tag">INFECTION CASE MANAGEMENT</div>
         <div class="panel-title">🦠 감염병 보고 관리</div>
         <div class="panel-desc">담임 선생님이 제출한 감염병 발생 보고 전체 목록입니다. 등교중지가 진행 중인 경우 빨간색으로 표시됩니다.</div>
 
         <div class="form-card">
-          <h4>📋 엑셀/구글시트에서 여러 건 한 번에 붙여넣기</h4>
+          <h4>📋 엑셀처럼 입력하기 (붙여넣기 가능)</h4>
           <div class="panel-desc" style="margin:4px 0 10px;">
-            엑셀이나 구글시트에서 <b>학년, 반, 번호, 이름, 진단명, 확진일, 등교중지종료일(선택), 비고(선택)</b> 순서로 칸을 맞춰 범위를 선택한 뒤 복사(Ctrl+C)해서, 아래 칸에 그대로 붙여넣으세요(Ctrl+V). 날짜는 2026.4.13 또는 2026-04-13처럼 입력해주세요.
+            엑셀이나 구글시트에서 범위를 선택해 복사(Ctrl+C)한 뒤, 아래 표의 <b>첫 칸을 클릭하고 붙여넣기(Ctrl+V)</b> 하면 자동으로 칸에 맞춰 채워집니다. 한 칸씩 직접 입력해도 됩니다. 날짜는 2026.4.13 또는 2026-04-13처럼 입력해주세요. 등교중지종료일과 비고는 비워둬도 됩니다.
           </div>
-          <textarea id="bulkInfectionInput" placeholder="1	6	25	이현정	B형독감	2026.3.20		&#10;1	7	2	구도현	B형독감	2026.3.24		" style="min-height:140px;font-family:monospace;font-size:12.5px;"></textarea>
+          <div class="bulk-table-wrap">
+            <table class="bulk-table" id="bulkTable">
+              <thead>
+                <tr>
+                  <th style="min-width:50px;">학년</th>
+                  <th style="min-width:50px;">반</th>
+                  <th style="min-width:55px;">번호</th>
+                  <th style="min-width:80px;">이름</th>
+                  <th style="min-width:100px;">진단명</th>
+                  <th style="min-width:100px;">확진일</th>
+                  <th style="min-width:120px;">등교중지종료일</th>
+                  <th style="min-width:100px;">비고</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="bulkTbody"></tbody>
+            </table>
+          </div>
+          <div class="bulk-toolbar">
+            <button type="button" id="bulkAddRowBtn">+ 줄 추가</button>
+            <button type="button" id="bulkClearBtn" class="danger">전체 지우기</button>
+          </div>
           <button class="submit-btn" id="bulkInfectionBtn">일괄 등록</button>
           <div class="result-msg" id="bulkInfectionMsg"></div>
         </div>
@@ -356,8 +383,6 @@
         <div id="infectionAdminList"><div class="empty-msg">불러오는 중...</div></div>
       </section>
 
-      <!-- 요보호 학생 추가 -->
-      <!-- 물품신청 확인 -->
       <section class="panel" id="panel-supplyAdmin">
         <div class="panel-tag">SUPPLY REQUEST</div>
         <div class="panel-title">🧴 감염병예방 물품·소모품 신청 확인</div>
@@ -380,8 +405,6 @@
           <div id="careListBox" style="margin-top:10px;"><div class="empty-msg">학년을 선택해주세요.</div></div>
         </div>
       </section>
-        </div>
-      </section>
 
     </main>
   </div>
@@ -400,7 +423,6 @@ function statusDiamond(status){
   if(status === 'closed') return '<span style="color:#dc2626;font-weight:700;">◆ 마감</span>';
   return '<span style="color:#2563eb;font-weight:700;">◆ 진행중</span>';
 }
-// 진행중(파랑)/마감임박(빨강, 마감기한 3일 이내)/종료(회색) 3단계 판정
 function getStatusTier(item){
   if(item.status === 'closed') return 'ended';
   if(item.deadline){
@@ -423,13 +445,12 @@ function tierFadeStyle(tier){
   return tier==='ended' ? ' style="opacity:.45;filter:grayscale(70%);"' : '';
 }
 
-/* ---------- 로그인 ---------- */
 function getPw(){ return sessionStorage.getItem('songakAdminPw') || ''; }
 function setPw(pw){ sessionStorage.setItem('songakAdminPw', pw); }
 function clearPw(){ sessionStorage.removeItem('songakAdminPw'); }
 
 async function tryLogin(pw){
-  const res = await fetch('/api/board?type=coop', { method:'GET' }); // 더미: 실제 인증은 checkpw로
+  const res = await fetch('/api/board?type=coop', { method:'GET' });
   const r = await fetch('/api/board', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'checkpw', password: pw }) });
   return await r.json();
 }
@@ -466,7 +487,6 @@ document.getElementById('logoutBtn').addEventListener('click', function(){
   location.reload();
 });
 
-/* 자동 로그인 (세션에 비번 남아있으면) */
 window.addEventListener('DOMContentLoaded', async function(){
   const cached = getPw();
   if(cached){
@@ -477,7 +497,6 @@ window.addEventListener('DOMContentLoaded', async function(){
   }
 });
 
-/* ---------- 사이드바 패널 전환 ---------- */
 document.querySelectorAll('.nav-item[data-panel]').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.nav-item[data-panel]').forEach(function(b){ b.classList.remove('active'); });
@@ -487,7 +506,6 @@ document.querySelectorAll('.nav-item[data-panel]').forEach(function(btn){
   });
 });
 
-/* ---------- 공통: 파일 업로드 ---------- */
 async function uploadFile(file){
   const res = await fetch('/api/upload', {
     method:'POST',
@@ -497,7 +515,6 @@ async function uploadFile(file){
   return await res.json();
 }
 
-/* ---------- 담임 협조 요청 관리 ---------- */
 document.getElementById('coopAttachType').addEventListener('change', function(){
   const v = this.value;
   document.getElementById('coopAttachLink').style.display = (v==='link'||v==='qr') ? 'block' : 'none';
@@ -514,7 +531,7 @@ async function loadCoopAdmin(){
     const res = await fetch('/api/board?type=coop');
     const data = await res.json();
     const items = data.items || [];
-    coopItemsCache = items.slice().reverse(); // 최신 글이 1번
+    coopItemsCache = items.slice().reverse();
     coopPage = 0;
     const coopOngoingCount = items.filter(i=>i.status==='ongoing').length;
     setHomeTile('tileCoop', coopOngoingCount + '건 진행중', coopOngoingCount > 0);
@@ -647,7 +664,6 @@ document.getElementById('coopAddBtn').addEventListener('click', async function()
   }
 });
 
-/* ---------- 보건소식 관리 ---------- */
 async function loadNoticeAdmin(){
   const listEl = document.getElementById('noticeAdminList');
   try{
@@ -761,7 +777,6 @@ document.getElementById('noticeAddBtn').addEventListener('click', async function
   }
 });
 
-/* ---------- 카드뉴스 관리 ---------- */
 async function loadNewsAdmin(){
   const listEl = document.getElementById('newsAdminList');
   try{
@@ -873,7 +888,6 @@ function loadAll(){
   loadTrainingAdmin();
 }
 
-/* ---------- 검사안내 게시판 관리 ---------- */
 async function loadCheckupAdmin(){
   const listEl = document.getElementById('checkupAdminList');
   try{
@@ -977,7 +991,6 @@ document.getElementById('checkupAddBtn').addEventListener('click', async functio
     btn.disabled=false; btn.textContent='등록';
   }
 });
-/* ---------- 접수 현황 (실제 데이터 연동) ---------- */
 const TB_GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
 
 async function loadReceipts(){
@@ -1016,7 +1029,6 @@ async function loadReceipts(){
     }
   }catch(e){}
 
-  // 📎 제출된 확인증 파일 보기 (결핵검진 명부의 파일링크 칸)
   const fileListEl = document.getElementById('rcFileList');
   try{
     const res3 = await fetch(TB_GAS_URL);
@@ -1032,7 +1044,6 @@ async function loadReceipts(){
     }
   }catch(e){ fileListEl.innerHTML = '<div class="empty-msg">파일 목록을 불러오지 못했습니다.</div>'; }
 
-  // 🧴 물품신청 내역
   const supplyListEl = document.getElementById('rcSupplyList');
   try{
     const res4 = await fetch('/api/infection-supply', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list', password:getPw() }) });
@@ -1051,7 +1062,6 @@ async function loadReceipts(){
     }
   }catch(e){ supplyListEl.innerHTML = '<div class="empty-msg">물품신청 목록을 불러오지 못했습니다.</div>'; }
 
-  // 💉 심폐소생술 이수증 제출 현황
   const cprListEl = document.getElementById('rcCprList');
   try{
     const res5 = await fetch(TB_GAS_URL + '?action=cpr');
@@ -1101,32 +1111,111 @@ function showRcDetail(type){
   box.style.display = 'block';
 }
 
-/* ---------- 감염병 보고 관리 (실제 데이터 연동) ---------- */
-/* ---------- 감염병 보고 일괄 등록 (엑셀 붙여넣기) ---------- */
 function parseDateLoose(s){
   s = (s||'').trim();
   if(!s) return '';
-  // 2026.4.13 / 2026.04.13 / 2026-4-13 / 2026-04-13 모두 허용
   const m = s.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/);
   if(!m) return s;
   return m[1] + '-' + String(m[2]).padStart(2,'0') + '-' + String(m[3]).padStart(2,'0');
 }
 
+const BULK_COLS = 8;
+
+function createBulkRow(values){
+  values = values || [];
+  const tr = document.createElement('tr');
+  for(let c = 0; c < BULK_COLS; c++){
+    const td = document.createElement('td');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = values[c] || '';
+    td.appendChild(input);
+    tr.appendChild(td);
+  }
+  const delTd = document.createElement('td');
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'bulk-row-del';
+  delBtn.innerHTML = '✕';
+  delBtn.title = '이 줄 비우기/삭제';
+  delBtn.addEventListener('click', function(){
+    const tbody = document.getElementById('bulkTbody');
+    if(tbody.rows.length > 1){ tr.remove(); }
+    else { Array.prototype.forEach.call(tr.querySelectorAll('input'), function(i){ i.value=''; }); }
+  });
+  delTd.appendChild(delBtn);
+  tr.appendChild(delTd);
+  return tr;
+}
+
+function addBulkRows(n){
+  const tbody = document.getElementById('bulkTbody');
+  for(let i=0;i<n;i++) tbody.appendChild(createBulkRow());
+}
+
+function resetBulkTable(){
+  const tbody = document.getElementById('bulkTbody');
+  tbody.innerHTML = '';
+  addBulkRows(8);
+}
+
+resetBulkTable();
+
+document.getElementById('bulkAddRowBtn').addEventListener('click', function(){ addBulkRows(1); });
+document.getElementById('bulkClearBtn').addEventListener('click', function(){
+  if(confirm('입력한 내용을 모두 지울까요?')) resetBulkTable();
+});
+
+document.getElementById('bulkTable').addEventListener('paste', function(e){
+  const target = e.target;
+  if(!target || target.tagName !== 'INPUT') return;
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if(!text) return;
+  if(text.indexOf('\t') === -1 && text.indexOf('\n') === -1) return;
+
+  e.preventDefault();
+  const tbody = document.getElementById('bulkTbody');
+  const td = target.closest('td');
+  const tr = target.closest('tr');
+  const startCol = Array.prototype.indexOf.call(tr.children, td);
+  const startRow = Array.prototype.indexOf.call(tbody.children, tr);
+
+  const pastedLines = text.replace(/\r/g,'').split('\n');
+  if(pastedLines.length && pastedLines[pastedLines.length-1] === '') pastedLines.pop();
+
+  pastedLines.forEach(function(line, ri){
+    const cols = line.split('\t');
+    let targetRow = tbody.children[startRow + ri];
+    if(!targetRow){
+      targetRow = createBulkRow();
+      tbody.appendChild(targetRow);
+    }
+    cols.forEach(function(val, ci){
+      const colIdx = startCol + ci;
+      if(colIdx >= BULK_COLS) return;
+      const input = targetRow.children[colIdx].querySelector('input');
+      if(input) input.value = val.trim();
+    });
+  });
+});
+
 document.getElementById('bulkInfectionBtn').addEventListener('click', async function(){
   const btn = this;
   const msgEl = document.getElementById('bulkInfectionMsg');
-  const raw = document.getElementById('bulkInfectionInput').value;
   msgEl.textContent = ''; msgEl.className = 'result-msg';
 
-  const lines = raw.split('\n').map(l => l.replace(/\r$/,'')).filter(l => l.trim());
-  if(!lines.length){ msgEl.textContent = '붙여넣은 내용이 없어요.'; msgEl.classList.add('err'); return; }
+  const tbody = document.getElementById('bulkTbody');
+  const rows = Array.prototype.map.call(tbody.children, function(tr){
+    return Array.prototype.map.call(tr.querySelectorAll('input'), function(i){ return i.value.trim(); });
+  }).filter(function(cols){ return cols.some(function(v){ return v; }); });
+
+  if(!rows.length){ msgEl.textContent = '입력된 내용이 없어요.'; msgEl.classList.add('err'); return; }
 
   btn.disabled = true; btn.textContent = '⏳ 등록 중...';
   let okCount = 0, failCount = 0; const failRows = [];
 
-  for(let i = 0; i < lines.length; i++){
-    const cols = lines[i].split('\t').map(c => c.trim());
-    const [grade, classNum, studentNumber, studentName, diseaseType, diagnosisDateRaw, exclusionEndDateRaw, memo] = cols;
+  for(let i = 0; i < rows.length; i++){
+    const [grade, classNum, studentNumber, studentName, diseaseType, diagnosisDateRaw, exclusionEndDateRaw, memo] = rows[i];
     if(!grade || !classNum || !studentNumber || !studentName || !diseaseType || !diagnosisDateRaw){
       failCount++; failRows.push((i+1) + '번째 줄(항목 부족)'); continue;
     }
@@ -1150,7 +1239,7 @@ document.getElementById('bulkInfectionBtn').addEventListener('click', async func
   btn.disabled = false; btn.textContent = '일괄 등록';
   msgEl.innerHTML = '✅ ' + okCount + '건 등록 완료' + (failCount ? (', ⚠ ' + failCount + '건 실패<br>' + failRows.join('<br>')) : '');
   msgEl.classList.add(failCount ? 'err' : 'ok');
-  if(okCount > 0){ document.getElementById('bulkInfectionInput').value = ''; loadInfectionAdmin(); loadReceipts(); }
+  if(okCount > 0){ resetBulkTable(); loadInfectionAdmin(); loadReceipts(); }
 });
 
 async function loadInfectionAdmin(){
@@ -1172,7 +1261,6 @@ async function loadInfectionAdmin(){
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
 }
 
-/* ---------- 요보호 학생 추가 (실제 데이터 연동) ---------- */
 async function loadCareList(grade){
   const box = document.getElementById('careListBox');
   box.innerHTML = '<div class="empty-msg">불러오는 중...</div>';
@@ -1191,8 +1279,6 @@ async function loadCareList(grade){
   }catch(e){ box.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
 }
 
-
-/* ---------- 물품신청 확인 (메뉴2) ---------- */
 async function loadSupplyAdmin(){
   const listEl = document.getElementById('supplyAdminList');
   try{
@@ -1220,7 +1306,6 @@ async function acceptSupply(rowNum){
   loadSupplyAdmin();
 }
 
-/* ---------- 필수이수연수 관리 (메뉴5) ---------- */
 document.getElementById('trainingAttachType').addEventListener('change', function(){
   const v = this.value;
   document.getElementById('trainingAttachLink').style.display = (v==='link') ? 'block' : 'none';
@@ -1270,14 +1355,13 @@ document.getElementById('trainingAddBtn').addEventListener('click', async functi
         url = up.url;
       }
     }
-    // 썸네일을 직접 안 넣었고 링크가 있으면, 그 링크의 대표 이미지(og:image)를 서버에서 자동으로 가져와요
     let finalThumb = thumb;
     if(!finalThumb && url && attachType === 'link'){
       try{
         const ogRes = await fetch('/api/og-thumb?url=' + encodeURIComponent(url));
         const ogData = await ogRes.json();
         if(ogData.success && ogData.image) finalThumb = ogData.image;
-      }catch(e){ /* 썸네일 못 가져와도 등록은 계속 진행 */ }
+      }catch(e){}
     }
     const isEdit = trainingEditRowNum !== null;
     const payload = { action: isEdit?'edit':'add', password:getPw(), title, tag, period, url, thumb: finalThumb };
