@@ -126,7 +126,7 @@ async function handleSummary(req, res) {
       maskedName: maskName(studentName), fullName: studentName, diagnosisDate,
       exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정",
       returnDate: r[12] || "", eduReport: r[13] === "Y", recoveryReport: r[14] === "Y",
-      ended: exclusionEnd ? (parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false
+      ended: exclusionEnd === "해당없음" ? true : (exclusionEnd ? !!(parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false)
     });
 
     if (exclusionEnd) {
