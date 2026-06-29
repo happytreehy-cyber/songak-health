@@ -597,7 +597,7 @@ function renderCharts(){
     <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
       <span class="c-disease">${it.no}. ${it.disease}</span>
       <span class="c-class">${g}-${c},${it.studentNumber}</span>
-      <span class="c-name">${it.fullName}</span>
+      <span class="c-name">${it.studentNumber}번 ${it.fullName}</span>
       <span class="c-date">${it.diagnosisDate}</span>
       <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
     </div>`;
