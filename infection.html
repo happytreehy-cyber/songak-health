@@ -527,7 +527,23 @@ async function askAdminPw() {
 /* ---------- 감염병 현황 대시보드 (차트형) ---------- */
 let lastSummary = null;
 let heroMode = "7";
-const PALETTE = ["#2563eb","#06b6d4","#8b5cf6","#f59e0b","#ec4899","#10b981","#f43f5e","#6366f1"];
+const PALETTE = ["#2563eb","#16a34a","#f59e0b","#dc2626","#9333ea","#0d9488","#db2777","#65a30d","#0891b2","#ea580c"];
+
+// 인플루엔자/인플루엔자A형/인플루엔자B형은 같은 질병의 유형 구분일 뿐이므로 차트에서는 하나로 합쳐서 보여줍니다.
+function groupDiseaseEntries(byDisease){
+  const merged = {};
+  const fluBreakdown = {};
+  Object.entries(byDisease).forEach(([name, count]) => {
+    if(name.indexOf("인플루엔자") === 0){
+      merged["인플루엔자(독감)"] = (merged["인플루엔자(독감)"] || 0) + count;
+      const sub = name === "인플루엔자(독감)" || name === "인플루엔자 독감" ? "유형미상" : name.replace("인플루엔자 독감", "").replace("인플루엔자", "") || "유형미상";
+      fluBreakdown[sub] = (fluBreakdown[sub] || 0) + count;
+    }else{
+      merged[name] = (merged[name] || 0) + count;
+    }
+  });
+  return { merged, fluBreakdown };
+}
 
 async function loadDashboard(){
   const hero = document.getElementById("dashHero");
@@ -572,7 +588,8 @@ function renderCharts(){
   const s = lastSummary;
   const wrap = document.getElementById("dashCharts");
 
-  const diseaseEntries = Object.entries(s.byDisease).sort((a,b)=>b[1]-a[1]);
+  const { merged: groupedDisease, fluBreakdown } = groupDiseaseEntries(s.byDisease);
+  const diseaseEntries = Object.entries(groupedDisease).sort((a,b)=>b[1]-a[1]);
   const totalDisease = diseaseEntries.reduce((a,[,v])=>a+v,0) || 1;
   let accD = 0;
   const diseaseStops = diseaseEntries.map(([k,v],i) => {
@@ -581,8 +598,11 @@ function renderCharts(){
     return `${PALETTE[i%PALETTE.length]} ${start}deg ${end}deg`;
   }).join(", ");
   const diseaseDonutCss = diseaseEntries.length ? `conic-gradient(${diseaseStops})` : "#eef1f7";
+  const fluSubLabel = Object.keys(fluBreakdown).length > 1
+    ? ` <span style="color:var(--muted);font-weight:400;">(${Object.entries(fluBreakdown).map(([k,v])=>`${k} ${v}`).join(' · ')})</span>`
+    : "";
   const diseaseLegend = diseaseEntries.length ? diseaseEntries.map(([k,v],i) => `
-    <div><span class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></span>${k} <strong>${v}건</strong> <span style="color:var(--muted);">(${Math.round(v/totalDisease*100)}%)</span></div>
+    <div><span class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></span><strong style="color:${PALETTE[i%PALETTE.length]};">${k}</strong> ${v}건 <span style="color:var(--muted);">(${Math.round(v/totalDisease*100)}%)</span>${k==="인플루엔자(독감)"?fluSubLabel:""}</div>
   `).join("") : '<div class="empty-chart">아직 등록된 사례가 없습니다.</div>';
 
   const gradeOrder = ["1학년","2학년","3학년"];
