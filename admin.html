@@ -352,7 +352,7 @@
         <div class="form-card">
           <h4>📋 엑셀처럼 입력하기 (붙여넣기 가능)</h4>
           <div class="panel-desc" style="margin:4px 0 10px;">
-            엑셀이나 구글시트에서 범위를 선택해 복사(Ctrl+C)한 뒤, 아래 표의 <b>첫 칸을 클릭하고 붙여넣기(Ctrl+V)</b> 하면 자동으로 칸에 맞춰 채워집니다. 한 칸씩 직접 입력해도 됩니다. 날짜는 2026.4.13 또는 2026-04-13처럼 입력해주세요. 등교중지종료일과 비고는 비워둬도 됩니다.
+            엑셀이나 구글시트에서 범위를 선택해 복사(Ctrl+C)한 뒤, 아래 표의 <b>첫 칸을 클릭하고 붙여넣기(Ctrl+V)</b> 하면 자동으로 칸에 맞춰 채워집니다. 한 칸씩 직접 입력해도 됩니다. 날짜는 2026.4.13 또는 2026-04-13처럼 입력해주세요. <b>학년/반/번호/이름/진단명/확진일</b> 외엔 비워둬도 됩니다. 교육청보고·완치후등교보고 칸은 <b>Y</b> 또는 빈칸으로 입력하세요.
           </div>
           <div class="bulk-table-wrap">
             <table class="bulk-table" id="bulkTable">
@@ -365,6 +365,9 @@
                   <th style="min-width:100px;">진단명</th>
                   <th style="min-width:100px;">확진일</th>
                   <th style="min-width:120px;">등교중지종료일</th>
+                  <th style="min-width:100px;">등교일</th>
+                  <th style="min-width:70px;">교육청<br>보고</th>
+                  <th style="min-width:80px;">완치후<br>등교보고</th>
                   <th style="min-width:100px;">비고</th>
                   <th></th>
                 </tr>
@@ -378,6 +381,30 @@
           </div>
           <button class="submit-btn" id="bulkInfectionBtn">일괄 등록</button>
           <div class="result-msg" id="bulkInfectionMsg"></div>
+        </div>
+
+        <div class="form-card" id="infectionEditCard" style="display:none;">
+          <h4>✏️ 보고 수정</h4>
+          <div class="form-row">
+            <input type="text" id="editGrade" placeholder="학년">
+            <input type="text" id="editClassNum" placeholder="반">
+            <input type="text" id="editStudentNumber" placeholder="번호">
+            <input type="text" id="editStudentName" placeholder="이름">
+          </div>
+          <div class="form-row">
+            <input type="text" id="editDisease" placeholder="진단명">
+            <input type="text" id="editDiagnosisDate" placeholder="확진일 (2026-04-13)">
+            <input type="text" id="editExclusionEnd" placeholder="등교중지종료일">
+            <input type="text" id="editReturnDate" placeholder="등교일">
+          </div>
+          <div class="form-row" style="align-items:center;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" id="editEduReport" style="width:auto;margin:0;">교육청보고</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" id="editRecoveryReport" style="width:auto;margin:0;">완치후등교보고</label>
+          </div>
+          <input type="text" id="editMemo" placeholder="비고">
+          <button class="submit-btn" id="infectionEditSaveBtn">저장</button>
+          <button class="btn-toggle" id="infectionEditCancelBtn" style="margin-top:6px;">취소</button>
+          <div class="result-msg" id="infectionEditMsg"></div>
         </div>
 
         <div id="infectionAdminList"><div class="empty-msg">불러오는 중...</div></div>
@@ -1119,17 +1146,29 @@ function parseDateLoose(s){
   return m[1] + '-' + String(m[2]).padStart(2,'0') + '-' + String(m[3]).padStart(2,'0');
 }
 
-const BULK_COLS = 8;
+// 컬럼 순서: 학년,반,번호,이름,진단명,확진일,등교중지종료일,등교일,교육청보고,완치후등교보고,비고
+const BULK_COLS = 11;
+const BULK_CHECKBOX_COLS = [8, 9]; // 교육청보고, 완치후등교보고
 
 function createBulkRow(values){
   values = values || [];
   const tr = document.createElement('tr');
   for(let c = 0; c < BULK_COLS; c++){
     const td = document.createElement('td');
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = values[c] || '';
-    td.appendChild(input);
+    if(BULK_CHECKBOX_COLS.includes(c)){
+      td.style.textAlign = 'center';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.style.width = 'auto';
+      input.style.margin = '0';
+      input.checked = values[c] === 'Y' || values[c] === true;
+      td.appendChild(input);
+    } else {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = values[c] || '';
+      td.appendChild(input);
+    }
     tr.appendChild(td);
   }
   const delTd = document.createElement('td');
@@ -1141,11 +1180,28 @@ function createBulkRow(values){
   delBtn.addEventListener('click', function(){
     const tbody = document.getElementById('bulkTbody');
     if(tbody.rows.length > 1){ tr.remove(); }
-    else { Array.prototype.forEach.call(tr.querySelectorAll('input'), function(i){ i.value=''; }); }
+    else { Array.prototype.forEach.call(tr.querySelectorAll('input[type=text]'), function(i){ i.value=''; }); Array.prototype.forEach.call(tr.querySelectorAll('input[type=checkbox]'), function(i){ i.checked=false; }); }
   });
   delTd.appendChild(delBtn);
   tr.appendChild(delTd);
   return tr;
+}
+
+function getBulkCellValue(td){
+  const input = td.querySelector('input');
+  if(!input) return '';
+  return input.type === 'checkbox' ? (input.checked ? 'Y' : '') : input.value.trim();
+}
+
+function setBulkCellValue(td, val){
+  const input = td.querySelector('input');
+  if(!input) return;
+  if(input.type === 'checkbox'){
+    const v = String(val||'').trim().toLowerCase();
+    input.checked = (v === 'y' || v === 'true' || v === '1' || v === '예');
+  } else {
+    input.value = String(val||'').trim();
+  }
 }
 
 function addBulkRows(n){
@@ -1168,7 +1224,7 @@ document.getElementById('bulkClearBtn').addEventListener('click', function(){
 
 document.getElementById('bulkTable').addEventListener('paste', function(e){
   const target = e.target;
-  if(!target || target.tagName !== 'INPUT') return;
+  if(!target || target.tagName !== 'INPUT' || target.type !== 'text') return;
   const text = (e.clipboardData || window.clipboardData).getData('text');
   if(!text) return;
   if(text.indexOf('\t') === -1 && text.indexOf('\n') === -1) return;
@@ -1193,8 +1249,7 @@ document.getElementById('bulkTable').addEventListener('paste', function(e){
     cols.forEach(function(val, ci){
       const colIdx = startCol + ci;
       if(colIdx >= BULK_COLS) return;
-      const input = targetRow.children[colIdx].querySelector('input');
-      if(input) input.value = val.trim();
+      setBulkCellValue(targetRow.children[colIdx], val);
     });
   });
 });
@@ -1206,7 +1261,10 @@ document.getElementById('bulkInfectionBtn').addEventListener('click', async func
 
   const tbody = document.getElementById('bulkTbody');
   const rows = Array.prototype.map.call(tbody.children, function(tr){
-    return Array.prototype.map.call(tr.querySelectorAll('input'), function(i){ return i.value.trim(); });
+    return Array.prototype.map.call(tr.children, function(td){
+      if(td.tagName !== 'TD' || !td.querySelector('input')) return null;
+      return getBulkCellValue(td);
+    }).filter(function(v){ return v !== null; });
   }).filter(function(cols){ return cols.some(function(v){ return v; }); });
 
   if(!rows.length){ msgEl.textContent = '입력된 내용이 없어요.'; msgEl.classList.add('err'); return; }
@@ -1215,7 +1273,7 @@ document.getElementById('bulkInfectionBtn').addEventListener('click', async func
   let okCount = 0, failCount = 0; const failRows = [];
 
   for(let i = 0; i < rows.length; i++){
-    const [grade, classNum, studentNumber, studentName, diseaseType, diagnosisDateRaw, exclusionEndDateRaw, memo] = rows[i];
+    const [grade, classNum, studentNumber, studentName, diseaseType, diagnosisDateRaw, exclusionEndDateRaw, returnDateRaw, eduReport, recoveryReport, memo] = rows[i];
     if(!grade || !classNum || !studentNumber || !studentName || !diseaseType || !diagnosisDateRaw){
       failCount++; failRows.push((i+1) + '번째 줄(항목 부족)'); continue;
     }
@@ -1225,7 +1283,10 @@ document.getElementById('bulkInfectionBtn').addEventListener('click', async func
         body: JSON.stringify({
           action: 'submit', grade, classNum, studentNumber, studentName,
           diseaseType, diagnosisDate: parseDateLoose(diagnosisDateRaw),
-          exclusionEndDate: parseDateLoose(exclusionEndDateRaw), memo: memo || ''
+          exclusionEndDate: parseDateLoose(exclusionEndDateRaw),
+          returnDate: parseDateLoose(returnDateRaw),
+          eduReport: eduReport === 'Y', recoveryReport: recoveryReport === 'Y',
+          memo: memo || ''
         })
       });
       const data = await res.json();
@@ -1249,16 +1310,113 @@ async function loadInfectionAdmin(){
     const data = await res.json();
     if(!data.success){ listEl.innerHTML = '<div class="empty-msg">'+(data.message||'불러오기 실패')+'</div>'; return; }
     const list = data.list || [];
+    window.__infectionAdminCache = list;
     if(!list.length){ listEl.innerHTML = '<div class="empty-msg">아직 보고된 사례가 없습니다.</div>'; return; }
-    listEl.innerHTML = list.map(function(item, i){
-      return '<div class="list-item"><div class="li-main">'+
-        '<strong>'+escHtml(item.grade)+' '+escHtml(item.classNum)+'반 · '+escHtml(item.studentNumber)+'번 '+escHtml(item.studentName)+'</strong> '+
-        (item.ongoing ? '<span style="color:#dc2626;font-weight:700;">◆ 등교중지중</span>' : '<span style="color:#2563eb;font-weight:700;">◆ 종료/해당없음</span>')+
-        '<div class="sub">'+escHtml(item.disease)+' · 진단일 '+escHtml(item.diagnosisDate)+(item.exclusionEnd?(' · 등교중지종료 '+escHtml(item.exclusionEnd)):'')+'</div>'+
-        (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
-        '</div></div>';
-    }).join('');
+    let html = '<table class="admin-table"><thead><tr>'+
+      '<th>학년반번호</th><th>이름</th><th>진단명</th><th>확진일</th><th>등교중지종료일</th><th>등교일</th><th>교육청<br>보고</th><th>완치후<br>등교보고</th><th>상태</th><th>관리</th>'+
+      '</tr></thead><tbody>';
+    list.forEach(function(item){
+      html += '<tr'+(item.ongoing?' style="background:#fef2f2;"':'')+'>'+
+        '<td>'+escHtml(item.grade)+'-'+escHtml(item.classNum)+'-'+escHtml(item.studentNumber)+'</td>'+
+        '<td>'+escHtml(item.studentName)+'</td>'+
+        '<td>'+escHtml(item.disease)+'</td>'+
+        '<td>'+escHtml(item.diagnosisDate)+'</td>'+
+        '<td>'+escHtml(item.exclusionEnd||'-')+'</td>'+
+        '<td>'+escHtml(item.returnDate||'-')+'</td>'+
+        '<td style="text-align:center;">'+(item.eduReport?'✅':'-')+'</td>'+
+        '<td style="text-align:center;">'+(item.recoveryReport?'✅':'-')+'</td>'+
+        '<td>'+(item.ongoing ? '<span style="color:#dc2626;font-weight:700;">◆ 등교중지중</span>' : '<span style="color:#2563eb;font-weight:700;">◆ 종료/해당없음</span>')+
+          (item.memo ? '<div class="sub">📝 '+escHtml(item.memo)+'</div>' : '') +
+        '</td>'+
+        '<td style="white-space:nowrap;">'+
+          '<button class="btn-toggle" onclick="editInfectionCase('+item.rowNum+')">수정</button> '+
+          '<button class="btn-del" onclick="deleteInfectionCase('+item.rowNum+')">삭제</button>'+
+        '</td>'+
+        '</tr>';
+    });
+    html += '</tbody></table>';
+    listEl.innerHTML = html;
   }catch(e){ listEl.innerHTML = '<div class="empty-msg">불러오지 못했습니다.</div>'; }
+}
+
+function editInfectionCase(rowNum){
+  const item = (window.__infectionAdminCache || []).find(function(it){ return it.rowNum === rowNum; });
+  if(!item) return;
+  document.getElementById('editGrade').value = item.grade || '';
+  document.getElementById('editClassNum').value = item.classNum || '';
+  document.getElementById('editStudentNumber').value = item.studentNumber || '';
+  document.getElementById('editStudentName').value = item.studentName || '';
+  document.getElementById('editDisease').value = item.disease || '';
+  document.getElementById('editDiagnosisDate').value = item.diagnosisDate || '';
+  document.getElementById('editExclusionEnd').value = item.exclusionEnd || '';
+  document.getElementById('editReturnDate').value = item.returnDate || '';
+  document.getElementById('editEduReport').checked = !!item.eduReport;
+  document.getElementById('editRecoveryReport').checked = !!item.recoveryReport;
+  document.getElementById('editMemo').value = item.memo || '';
+  document.getElementById('infectionEditMsg').textContent = '';
+  document.getElementById('infectionEditMsg').className = 'result-msg';
+  document.getElementById('infectionEditCard').dataset.rowNum = rowNum;
+  document.getElementById('infectionEditCard').style.display = 'block';
+  document.getElementById('infectionEditCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+document.getElementById('infectionEditCancelBtn').addEventListener('click', function(){
+  document.getElementById('infectionEditCard').style.display = 'none';
+});
+
+document.getElementById('infectionEditSaveBtn').addEventListener('click', async function(){
+  const btn = this;
+  const msgEl = document.getElementById('infectionEditMsg');
+  msgEl.textContent = ''; msgEl.className = 'result-msg';
+  const rowNum = Number(document.getElementById('infectionEditCard').dataset.rowNum);
+  const grade = document.getElementById('editGrade').value.trim();
+  const classNum = document.getElementById('editClassNum').value.trim();
+  const studentNumber = document.getElementById('editStudentNumber').value.trim();
+  const studentName = document.getElementById('editStudentName').value.trim();
+  const diseaseType = document.getElementById('editDisease').value.trim();
+  const diagnosisDate = parseDateLoose(document.getElementById('editDiagnosisDate').value.trim());
+  const exclusionEndDate = parseDateLoose(document.getElementById('editExclusionEnd').value.trim());
+  const returnDate = parseDateLoose(document.getElementById('editReturnDate').value.trim());
+  const eduReport = document.getElementById('editEduReport').checked;
+  const recoveryReport = document.getElementById('editRecoveryReport').checked;
+  const memo = document.getElementById('editMemo').value.trim();
+
+  if(!grade || !classNum || !studentNumber || !studentName || !diagnosisDate){
+    msgEl.textContent = '필수 항목을 모두 입력해주세요.'; msgEl.classList.add('err'); return;
+  }
+
+  btn.disabled = true; btn.textContent = '⏳ 저장 중...';
+  try{
+    const res = await fetch('/api/infection-report', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'updatecase', password:getPw(), rowNum, grade, classNum, studentNumber, studentName, diseaseType, diagnosisDate, exclusionEndDate, returnDate, eduReport, recoveryReport, memo })
+    });
+    const data = await res.json();
+    if(data.success){
+      msgEl.textContent = '✅ 수정되었습니다!'; msgEl.classList.add('ok');
+      document.getElementById('infectionEditCard').style.display = 'none';
+      loadInfectionAdmin(); loadReceipts();
+    } else {
+      msgEl.textContent = data.message || '수정 중 오류가 발생했습니다.'; msgEl.classList.add('err');
+    }
+  }catch(e){
+    msgEl.textContent = '서버 연결에 실패했습니다.'; msgEl.classList.add('err');
+  }finally{
+    btn.disabled = false; btn.textContent = '저장';
+  }
+});
+
+async function deleteInfectionCase(rowNum){
+  if(!confirm('이 보고 내용을 삭제하시겠습니까?')) return;
+  try{
+    const res = await fetch('/api/infection-report', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'deletecase', password:getPw(), rowNum })
+    });
+    const data = await res.json();
+    if(data.success){ loadInfectionAdmin(); loadReceipts(); }
+    else alert(data.message || '삭제 중 오류가 발생했습니다.');
+  }catch(e){ alert('서버 연결에 실패했습니다.'); }
 }
 
 async function loadCareList(grade){
