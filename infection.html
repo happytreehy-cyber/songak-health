@@ -76,6 +76,7 @@
   .case-row .c-period{flex:1.6;text-align:center;white-space:nowrap;font-size:14px;color:var(--muted);}
   .case-row .c-return{flex:1;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
   .case-row .c-check{flex:0.7;text-align:center;font-size:14px;}
+  .case-row .c-check input[type=checkbox]{width:17px;height:17px;cursor:pointer;margin:0;}
   .dash-stat{border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
   .dash-stat .num{font-size:24px;font-weight:800;color:var(--navy);}
   .dash-stat .label{font-size:12px;color:var(--muted);margin-top:2px;}
@@ -144,8 +145,8 @@
   .hidden{display:none !important;}
 
   .item-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
-  .item-grid-2x2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .item-cell{border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;}
+  .item-grid-2x2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
+  .item-cell{border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;}
   .item-cell-top{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:6px;}
   .item-left{display:flex;align-items:center;gap:10px;}
   .item-emoji{font-size:26px;}
@@ -636,8 +637,8 @@ function renderCharts(){
       <span class="c-date">${it.diagnosisDate}</span>
       <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
       <span class="c-return">${it.returnDate || '-'}</span>
-      <span class="c-check">${it.eduReport ? '✅' : '☐'}</span>
-      <span class="c-check">${it.recoveryReport ? '✅' : '☐'}</span>
+      <span class="c-check"><input type="checkbox" ${it.eduReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'eduReport',this.checked)"></span>
+      <span class="c-check"><input type="checkbox" ${it.recoveryReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'recoveryReport',this.checked)"></span>
     </div>`;
   }
   const caseHeader = `
@@ -704,6 +705,27 @@ function renderCharts(){
     if(window.casePage === 0){ if(endedCases.length>0){ window.casePage = 1; renderCasePage(); } }
     else if(window.casePage < totalPages){ window.casePage++; renderCasePage(); }
   });
+}
+
+async function toggleCaseFlag(rowNum, field, checked){
+  const item = (window.allCasesData||[]).find(c => c.rowNum === rowNum);
+  try{
+    const payload = { action: "togglecase", rowNum };
+    payload[field] = checked;
+    const res = await fetch("/api/infection-report", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!data.success){
+      alert(data.message || "저장 중 오류가 발생했습니다.");
+      loadDashboard();
+      return;
+    }
+    if(item) item[field] = checked;
+  }catch(e){
+    alert("서버 연결에 실패했습니다.");
+    loadDashboard();
+  }
 }
 
 function openCaseEdit(rowNum){
