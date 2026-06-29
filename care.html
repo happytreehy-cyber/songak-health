@@ -14,8 +14,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
 a{text-decoration:none;color:inherit;}
-
-/* ---- 헤더 / 날짜바 (1·2번 메뉴와 동일) ---- */
 .sticky-header-wrapper{position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05);}
 .navbar{height:46px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;border-bottom:1px solid #f1f5f9;}
 .nav-left{display:flex;align-items:center;gap:10px;}
@@ -31,15 +29,12 @@ a{text-decoration:none;color:inherit;}
 .day-item.sun{color:#ef4444;}
 .day-item.today{background-color:#2563eb;color:#fff;border-radius:50%;padding:0 5px;}
 .back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:#0369a1;font-weight:700;padding:5px 12px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;text-decoration:none;white-space:nowrap;}
-
 main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .section-divider-title{font-size:13.5px;font-weight:800;margin:18px 0 12px;padding:7px 12px;border-radius:6px;letter-spacing:.3px;}
 .section-divider-title.status{color:#1e3a8a;background:#eff6ff;border-left:4px solid #2563eb;}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
 .intro-card{background:#eef3ff;border:none;}
 .intro-card p{margin:6px 0;font-size:14px;color:#33405c;line-height:1.6;}
-
-/* ---- 잠금화면: 제목바는 선명하게, 본문만 살짝 흐리게, 화면 위쪽에 바로 보이게 ---- */
 .content-area{position:relative;}
 .site-lock{position:fixed;top:88px;left:0;right:0;bottom:0;background:transparent;display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:20px;pointer-events:none;}
 .site-lock-box{background:#fff;border-radius:16px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.18);pointer-events:auto;}
@@ -52,8 +47,6 @@ main{max-width:1320px;margin:0 auto;padding:0 16px 60px;}
 .site-lock-back{display:block;margin-top:14px;font-size:12.5px;color:#475569;text-decoration:none;font-weight:600;}
 .site-lock-back:hover{color:#1f3c88;text-decoration:underline;}
 body.locked .blur-wrap{filter:blur(3px) brightness(0.97);pointer-events:none;user-select:none;}
-
-/* ---- 학년 탭 ---- */
 .grade-tabs{display:flex;gap:10px;margin-bottom:16px;}
 .grade-tab{flex:1;text-align:center;padding:14px 0;border:2px solid var(--border);background:#fff;border-radius:12px;font-size:16px;font-weight:800;color:#475569;cursor:pointer;transition:all .15s;}
 .grade-tab:hover{border-color:#93c5fd;background:#f0f7ff;}
@@ -62,8 +55,6 @@ body.locked .blur-wrap{filter:blur(3px) brightness(0.97);pointer-events:none;use
 .grade-tab[data-grade="2"].active{background:#16a34a;border-color:#16a34a;}
 .grade-tab[data-grade="3"].active{background:#9333ea;border-color:#9333ea;}
 .tab-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:-4px 0 14px;}
-
-/* ---- 검색 / 통계 ---- */
 .search-row{display:flex;gap:14px;margin-bottom:14px;align-items:flex-end;}
 .filter-group{display:flex;flex-direction:column;gap:4px;}
 .filter-label{font-size:12px;color:var(--muted);font-weight:700;}
@@ -76,12 +67,8 @@ body.locked .blur-wrap{filter:blur(3px) brightness(0.97);pointer-events:none;use
 .stat-pill.total{background:#e0e7ff;border-color:#6366f1;}
 .stat-pill.total .num{color:#4338ca;}
 .stat-pill.total .label{color:#4338ca;}
-
-/* ---- 범례(색깔 설명) ---- */
 .legend-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 12px;font-size:12.5px;color:#9a3412;margin-bottom:14px;}
 .legend-box b{color:#b45309;}
-
-/* ---- 한눈에 보는 표(구글시트 스타일) ---- */
 .table-scroll{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:#fff;}
 table.care-table{border-collapse:collapse;width:100%;table-layout:auto;font-size:12.5px;}
 table.care-table th, table.care-table td{border:1px solid #e9edf3;padding:7px 5px;text-align:center;white-space:nowrap;vertical-align:middle;}
@@ -100,8 +87,6 @@ tr.care-flag-row td.col-name{color:#b45309;}
 td.empty-cell{color:#cbd5e1;background:#fff;}
 tr.class-divider td{border-top:3px solid #94a3b8 !important;}
 td.col-note{white-space:normal !important;text-align:left !important;color:#b91c1c;font-weight:700;width:340px;min-width:300px;font-size:12px;line-height:1.6;padding:8px 10px !important;}
-
-/* 칸 안의 동그란 알약(pill) 표시 */
 .chip{display:inline-block;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:800;line-height:1.3;white-space:nowrap;}
 .chip.bloodType{background:#dc2626;color:#fff;}
 .chip.female{background:#a855f7;color:#fff;}
@@ -112,19 +97,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 .chip.allergy{background:#ef4444;color:#fff;}
 .chip.care{background:#eab308;color:#1c1303;}
 .chip.help{background:#2563eb;color:#fff;}
-
 .empty-msg{color:var(--muted);font-size:14px;padding:24px 2px;text-align:center;}
 .loading-msg{color:var(--muted);font-size:13px;padding:20px 2px;text-align:center;}
-
-/* ---- 학생명단 접기/펼치기 (검색줄 우측 박스형) ---- */
 .list-toggle-btn-box{border:2px solid #ef4444;background:#fef2f2;border-radius:10px;padding:9px 14px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#b91c1c;white-space:nowrap;user-select:none;}
 .list-toggle-btn-box:hover{background:#fee2e2;}
 .legend-box-inline{border:2px solid #b45309;background:#fff;border-radius:10px;padding:9px 14px;text-align:center;font-size:12.5px;font-weight:700;color:#b45309;white-space:nowrap;}
-
-/* ---- 요보호 학생 추가하기 제목바 (마젠타색으로 구분) ---- */
 .section-divider-title.add-section{color:#86198f;background:#fdf4ff;border-left:4px solid #c026d3;}
-
-/* ---- 요보호 학생 추가하기 폼 ---- */
 .add-form-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
 .add-step-title{font-weight:800;font-size:15.5px;color:var(--text);margin-bottom:10px;}
 .add-grid{display:grid;grid-template-columns:0.8fr 0.8fr 1.6fr 1fr;gap:10px;margin-bottom:18px;}
@@ -143,7 +121,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 #addSubmitBtn{width:100%;background:#4338ca;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;}
 #addSubmitBtn:disabled{background:#94a3b8;cursor:not-allowed;}
 .add-err{color:#dc2626;font-size:12.5px;margin-top:8px;min-height:16px;}
-
 .add-success-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
 .add-success-title{font-weight:800;font-size:15px;color:#166534;margin-bottom:6px;}
 .add-success-text{font-size:13.5px;color:#166534;line-height:1.7;margin-bottom:12px;}
@@ -152,7 +129,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
 </style>
 </head>
 <body class="locked">
-
 <div class="sticky-header-wrapper">
   <nav class="navbar">
     <div class="nav-left">
@@ -169,20 +145,16 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     <div class="calendar-strip" id="calendar-strip"></div>
   </section>
 </div>
-
 <div class="content-area">
 <main>
   <a href="index.html" class="back-btn" style="margin:14px 0 10px;display:inline-flex;">← 이전으로</a>
   <div class="page-title-row" style="margin:0 0 4px;display:flex;align-items:center;gap:10px;">
     <h1 style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">🩺 학생 요보호 관리</h1>
   </div>
-
   <div class="card intro-card">
     <p>📋 여성질환 · 두통 · 비염 · 아토피 · 천식 · 알레르기 등 건강 취약 학생의 집중 케어 지침을 학년별로 확인하는 공간입니다.</p>
   </div>
-
   <div class="section-divider-title status">👩‍🎓 학년별 요보호 학생 현황</div>
-
   <div class="blur-wrap">
   <div class="grade-tabs">
     <div class="grade-tab active" data-grade="1">👉 1학년</div>
@@ -190,9 +162,7 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     <div class="grade-tab" data-grade="3">👉 3학년</div>
   </div>
   <div class="tab-hint">위 버튼을 눌러서 보고 싶은 학년을 선택하세요</div>
-
   <div class="stat-strip" id="statStrip"></div>
-
   <div id="studentListWrapper">
     <div class="search-row">
       <div class="filter-group">
@@ -214,15 +184,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
         </div>
       </div>
     </div>
-
     <div class="table-scroll" id="studentList" style="display:none;"><div class="loading-msg">불러오는 중...</div></div>
   </div>
   </div>
-
   <div class="section-divider-title add-section" style="margin-top:40px;">
     ➕ 요보호 학생 추가하기 (담임 선생님 작성)
   </div>
-
   <div class="blur-wrap">
   <div class="add-form-card" id="addFormCard">
     <div class="add-step-title">1. 인적사항</div>
@@ -261,7 +228,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
         <input type="text" id="addNumber" placeholder="자동 입력" disabled>
       </div>
     </div>
-
     <div class="add-step-title">2. 해당 증상 선택</div>
     <div class="symptom-chip-row" id="symptomChipRow">
       <span class="symptom-chip" data-sym="female" style="background:#f3e8ff;color:#6b21a8;">여성질환</span>
@@ -273,15 +239,12 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       <span class="symptom-chip" data-sym="etc" style="background:#fef08a;color:#854d0e;border:1.5px solid #eab308;">기타(직접입력)</span>
     </div>
     <input type="text" id="etcInput" placeholder="기타 선택시 → 어떤 증상인지 직접 적어주세요" style="display:none;margin-top:8px;">
-
     <div class="add-step-title" style="margin-top:18px;">3. 교내활동시 확인</div>
     <div class="add-field-hint">교내활동시 어떤 부분 주의가 필요한지 기재해주세요.</div>
     <textarea id="addNote" placeholder="예: 체육활동 - 천식 있어 격한 활동 자제 필요"></textarea>
-
     <button id="addSubmitBtn" type="button">제출하기</button>
     <div class="add-err" id="addErr"></div>
   </div>
-
   <div class="add-success-box" id="addSuccessBox" style="display:none;">
     <div class="add-success-title">✅ 제출 완료!</div>
     <div class="add-success-text">
@@ -296,7 +259,6 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
   </div>
   </div>
 </main>
-
 <div class="site-lock" id="siteLock">
   <div class="site-lock-box">
     <div class="icon">🔒</div>
@@ -313,13 +275,10 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
   </div>
 </div>
 </div>
-
 <script>
-/* ---------- 잠금화면 ---------- */
 (function(){
   const UNLOCK_KEY = "songakStaffUnlocked";
   const UNLOCK_HOURS = 6;
-
   function isUnlocked(){
     const raw = localStorage.getItem(UNLOCK_KEY);
     if(!raw) return false;
@@ -329,18 +288,15 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
       return ageHours < UNLOCK_HOURS;
     }catch(e){ return false; }
   }
-
   if (isUnlocked()) {
     document.body.classList.remove("locked");
     document.getElementById("siteLock").style.display = "none";
   }
-
   const savedName = localStorage.getItem("songak_staff_name");
   if (savedName) {
     document.getElementById("siteLockName").value = savedName;
     document.getElementById("siteLockRemember").checked = true;
   }
-
   async function tryUnlock(){
     const name = document.getElementById("siteLockName").value.trim();
     const pw = document.getElementById("siteLockInput").value.trim();
@@ -349,20 +305,16 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
     if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
     errEl.textContent = "";
-
     if (remember) localStorage.setItem("songak_staff_name", name);
     else localStorage.removeItem("songak_staff_name");
     localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
     fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
-
     document.body.classList.remove("locked");
     document.getElementById("siteLock").style.display = "none";
   }
   document.getElementById("siteLockBtn").addEventListener("click", tryUnlock);
   document.getElementById("siteLockInput").addEventListener("keydown", (e) => { if(e.key === "Enter") tryUnlock(); });
 })();
-
-/* ---------- 날짜바 ---------- */
 (function(){
   const WK = ['일','월','화','수','목','금','토'];
   function pad(n){ return n < 10 ? '0'+n : n; }
@@ -382,23 +334,17 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     cal.appendChild(span);
   }
 })();
-
-/* ---------- 학생 요보호 데이터 ---------- */
-let ALL_DATA = {};      // { "1": [...], "2": [...], "3": [...] }
+let ALL_DATA = {};
 let currentGrade = "1";
 let listCollapsed = true;
-
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 async function loadGrade(grade, forceExpand){
   currentGrade = grade;
   document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === grade));
   if (forceExpand) listCollapsed = false;
   const addGradeSel = document.getElementById('addGrade');
   if (addGradeSel) { addGradeSel.value = grade; addGradeSel.dispatchEvent(new Event('change')); }
-
   if (ALL_DATA[grade]) { renderGrade(grade); return; }
-
   document.getElementById('studentList').innerHTML = '<div class="loading-msg">불러오는 중...</div>';
   try{
     const res = await fetch('/api/care?grade=' + grade);
@@ -413,13 +359,11 @@ async function loadGrade(grade, forceExpand){
     document.getElementById('studentList').innerHTML = '<div class="empty-msg">데이터를 불러오지 못했습니다.</div>';
   }
 }
-
 function buildClassFilter(students){
   const sel = document.getElementById('classFilter');
   const classes = [...new Set(students.map(s => s.classNum).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
   sel.innerHTML = '<option value="">전체 학급</option>' + classes.map(c => `<option value="${c}">${c}반</option>`).join('');
 }
-
 function renderGrade(grade){
   const students = ALL_DATA[grade] || [];
   buildClassFilter(students);
@@ -430,7 +374,6 @@ function renderGrade(grade){
   document.getElementById('studentList').style.display = listCollapsed ? 'none' : '';
   document.getElementById('listToggleArrow').textContent = '▼';
 }
-
 function renderStats(students){
   const careCount = students.filter(s => s.careNeeded && s.careNeeded.trim()).length;
   const helpCount = students.filter(s => s.helpClass && s.helpClass.trim()).length;
@@ -444,8 +387,6 @@ function renderStats(students){
     <div class="stat-pill"><div class="num">${helpCount}</div><div class="label">도움반</div></div>
   `;
 }
-
-// 학년마다 실제 존재하는 칸이 달라서, 학년별로 보여줄 항목을 따로 정의
 const GRADE_COLUMNS = {
   "1": [
     { type: 'female', label: '여성질환' },
@@ -477,23 +418,18 @@ const GRADE_COLUMNS = {
     { type: 'care', label: '관리필요' }
   ]
 };
-
 function renderList(students){
   const q = document.getElementById('searchInput').value.trim();
   const classFilter = document.getElementById('classFilter').value;
-
   let filtered = students;
   if (classFilter) filtered = filtered.filter(s => String(s.classNum || '') === classFilter);
   if (q) filtered = filtered.filter(s => String(s.name || '').includes(q) || String(s.number || '').includes(q));
-
   const listEl = document.getElementById('studentList');
   if (!filtered.length){
     listEl.innerHTML = '<div class="empty-msg">해당하는 학생이 없습니다.</div>';
     return;
   }
-
   const columns = GRADE_COLUMNS[currentGrade] || GRADE_COLUMNS["1"];
-
   function cellFor(s, col){
     if (col.type === 'care') {
       return s.careNeeded ? `<td><span class="chip care">${escHtml(s.careNeeded)}</span></td>` : `<td class="empty-cell">-</td>`;
@@ -507,7 +443,6 @@ function renderList(students){
     if (/^[.·•ㆍ\s]+$/.test(v)) v = col.label;
     return `<td><span class="chip ${col.type}">${escHtml(v)}</span></td>`;
   }
-
   let prevClass = null;
   const rows = filtered.map(s => {
     const cells = columns.map(col => cellFor(s, col)).join('');
@@ -524,9 +459,7 @@ function renderList(students){
         ${noteCell}
       </tr>`;
   }).join('');
-
   const headerCells = columns.map(col => `<th class="col-${col.type}">${col.label}</th>`).join('');
-
   listEl.innerHTML = `
     <table class="care-table">
       <thead>
@@ -539,16 +472,12 @@ function renderList(students){
       <tbody>${rows}</tbody>
     </table>`;
 }
-
 document.querySelectorAll('.grade-tab').forEach(tab => {
   tab.addEventListener('click', () => loadGrade(tab.dataset.grade, true));
 });
 document.getElementById('searchInput').addEventListener('input', () => renderList(ALL_DATA[currentGrade] || []));
 document.getElementById('classFilter').addEventListener('change', () => renderList(ALL_DATA[currentGrade] || []));
-
 loadGrade('1');
-
-/* ---------- 학생명단 접기/펼치기 (기본값: 펼침) ---------- */
 (function(){
   const wrapper = document.getElementById('studentListWrapper');
   const btn = document.getElementById('listToggleBtn');
@@ -558,7 +487,6 @@ loadGrade('1');
     applyListToggleState(wrapper, arrow);
   });
 })();
-
 function applyListToggleState(wrapper, arrow){
   const tableScroll = document.getElementById('studentList');
   if (listCollapsed) {
@@ -570,8 +498,6 @@ function applyListToggleState(wrapper, arrow){
   }
   arrow.textContent = '▼';
 }
-
-/* ---------- 요보호 학생 추가하기 ---------- */
 (function(){
   const addGrade = document.getElementById('addGrade');
   const addClass = document.getElementById('addClass');
@@ -583,7 +509,6 @@ function applyListToggleState(wrapper, arrow){
   const submitBtn = document.getElementById('addSubmitBtn');
   let nameToNumberMap = {};
   let studentNameList = [];
-
   function updateHeadacheChipVisibility(){
     const chip = document.querySelector('.symptom-chip[data-sym="headache"]');
     if (!chip) return;
@@ -596,7 +521,6 @@ function applyListToggleState(wrapper, arrow){
   }
   addGrade.addEventListener('change', updateHeadacheChipVisibility);
   updateHeadacheChipVisibility();
-
   async function loadStudentNames(){
     const grade = addGrade.value;
     const classNum = addClass.value.trim();
@@ -626,10 +550,8 @@ function applyListToggleState(wrapper, arrow){
       addName.placeholder = '학생 목록을 불러오지 못했어요';
     }
   }
-
   addGrade.addEventListener('change', loadStudentNames);
   addClass.addEventListener('change', loadStudentNames);
-
   function renderNameSuggestions(){
     const typed = addName.value.trim();
     if (!studentNameList.length) {
@@ -648,7 +570,6 @@ function applyListToggleState(wrapper, arrow){
     ).join('');
     addNameSuggest.classList.add('show');
   }
-
   addName.addEventListener('input', function(){
     addNumber.value = nameToNumberMap[addName.value.trim()] !== undefined ? nameToNumberMap[addName.value.trim()] : '';
     renderNameSuggestions();
@@ -667,7 +588,6 @@ function applyListToggleState(wrapper, arrow){
       addNameSuggest.classList.remove('show');
     }
   });
-
   document.querySelectorAll('.symptom-chip').forEach(chip => {
     chip.addEventListener('click', function(){
       chip.classList.toggle('selected');
@@ -677,27 +597,22 @@ function applyListToggleState(wrapper, arrow){
       }
     });
   });
-
   submitBtn.addEventListener('click', async function(){
     addErr.textContent = '';
     const grade = addGrade.value;
     const classNum = addClass.value.trim();
     const name = addName.value;
     const number = addNumber.value;
-
     if (!classNum || !name || !number) {
       addErr.textContent = '반·이름을 선택해주세요. (이름을 선택하면 번호가 자동으로 채워져요)';
       return;
     }
-
     const symptoms = {};
     document.querySelectorAll('.symptom-chip.selected').forEach(c => { symptoms[c.dataset.sym] = true; });
     const etcText = etcInput.value.trim();
     const note = document.getElementById('addNote').value.trim();
-
     submitBtn.disabled = true;
     submitBtn.textContent = '제출 중...';
-
     try {
       const res = await fetch('/api/care', {
         method: 'POST',
@@ -720,7 +635,6 @@ function applyListToggleState(wrapper, arrow){
       addErr.textContent = '제출 중 오류가 발생했습니다.';
     }
   });
-
   document.getElementById('addAnotherBtn').addEventListener('click', function(){
     document.getElementById('addSuccessBox').style.display = 'none';
     document.getElementById('addFormCard').style.display = '';
@@ -735,7 +649,6 @@ function applyListToggleState(wrapper, arrow){
     etcInput.value = '';
     document.getElementById('addNote').value = '';
   });
-
   document.getElementById('backToListBtn').addEventListener('click', function(){
     document.getElementById('addSuccessBox').style.display = 'none';
     document.getElementById('addFormCard').style.display = '';
