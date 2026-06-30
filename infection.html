@@ -69,12 +69,12 @@
   .case-row{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #f1f3f8;gap:6px;min-width:620px;}
   .case-row:last-child{border-bottom:none;}
   .case-row.case-head{background:#f3f5fa;font-weight:800;color:var(--text);font-size:15px;}
-  .case-row .c-disease{flex:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .case-row .c-class{flex:0.9;text-align:center;}
-  .case-row .c-name{flex:0.9;text-align:center;}
-  .case-row .c-date{flex:1.1;text-align:center;white-space:nowrap;}
-  .case-row .c-period{flex:1.6;text-align:center;white-space:nowrap;font-size:14px;color:var(--muted);}
-  .case-row .c-return{flex:1;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
+  .case-row .c-disease{flex:1.4;white-space:normal;overflow:hidden;text-overflow:ellipsis;}
+  .case-row .c-class{flex:0.8;text-align:center;}
+  .case-row .c-name{flex:0.8;text-align:center;line-height:1.3;}
+  .case-row .c-date{flex:0.9;text-align:center;white-space:nowrap;}
+  .case-row .c-period{flex:1.5;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
+  .case-row .c-return{flex:0.8;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
   .case-row .c-check{flex:0.7;text-align:center;font-size:14px;}
   .case-row .c-check.edu{background:#dbeafe;border-radius:6px;margin:2px;}
   .case-row .c-check.recovery{background:#dbeafe;border-radius:6px;margin:2px;}
@@ -628,26 +628,32 @@ function renderCharts(){
   window.endedCasesData = endedCases;
   window.casePage = 0;
 
+  function shortDate(s){
+    if(!s) return s;
+    const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return s;
+    return m[1].slice(2) + "." + Number(m[2]) + "." + Number(m[3]);
+  }
   function caseRowHtml(it){
     const g = (it.grade||"").replace(/[^0-9]/g,"");
     const c = (it.classNum||"").replace(/[^0-9]/g,"");
     return `
     <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
-      <span class="c-disease">${it.no}. ${it.disease}</span>
       <span class="c-class">${g}-${c}</span>
-      <span class="c-name">${it.studentNumber}번 ${it.fullName}</span>
-      <span class="c-date">${it.diagnosisDate}</span>
-      <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
-      <span class="c-return">${it.returnDate || '-'}</span>
+      <span class="c-name">${it.studentNumber}번<br>${it.fullName}</span>
+      <span class="c-disease" style="font-size:12px;">${it.no}. ${it.disease}</span>
+      <span class="c-date">${shortDate(it.diagnosisDate)}</span>
+      <span class="c-period">${shortDate(it.exclusionStart)}~${shortDate(it.exclusionEnd)}</span>
+      <span class="c-return">${it.returnDate ? shortDate(it.returnDate) : '-'}</span>
       <span class="c-check edu"><input type="checkbox" ${it.eduReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'eduReport',this.checked)"></span>
       <span class="c-check recovery"><input type="checkbox" ${it.recoveryReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'recoveryReport',this.checked)"></span>
     </div>`;
   }
   const caseHeader = `
     <div class="case-row case-head">
-      <span class="c-disease">증상명</span>
       <span class="c-class">학년반</span>
       <span class="c-name">번호 이름</span>
+      <span class="c-disease">증상명</span>
       <span class="c-date">확진일</span>
       <span class="c-period">등교중지기간</span>
       <span class="c-return">등교일</span>
