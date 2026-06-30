@@ -541,6 +541,8 @@ function groupDiseaseEntries(byDisease){
       merged["인플루엔자(독감)"] = (merged["인플루엔자(독감)"] || 0) + count;
       const sub = name === "인플루엔자(독감)" || name === "인플루엔자 독감" ? "유형미상" : name.replace("인플루엔자 독감", "").replace("인플루엔자", "") || "유형미상";
       fluBreakdown[sub] = (fluBreakdown[sub] || 0) + count;
+    }else if(name === "코로나19" || name === "코로나"){
+      merged["코로나19"] = (merged["코로나19"] || 0) + count;
     }else{
       merged[name] = (merged[name] || 0) + count;
     }
