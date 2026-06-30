@@ -234,6 +234,35 @@ async function handleStudents(req, res) {
 const ACCOUNT_TAB_NAME = "교직원계정";
 const LOG_TAB_NAME = "접속기록";
 
+const STAFF_LIST_TAB_NAME = "교직원명단";
+
+async function handleCheckStaffName(req, res) {
+  const { name } = req.body;
+  if (!name) {
+    res.status(200).json({ success: false, message: "이름을 입력해주세요." });
+    return;
+  }
+  const sheets = getSheetsClient(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+
+  let rows = [];
+  try {
+    const result = await sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: `${STAFF_LIST_TAB_NAME}!A2:A` });
+    rows = result.data.values || [];
+  } catch (e) {
+    res.status(200).json({ success: false, message: "교직원명단 탭을 찾을 수 없습니다. 관리자에게 문의해주세요." });
+    return;
+  }
+
+  const trimmedName = String(name).trim();
+  const found = rows.some(r => String(r[0] || "").trim() === trimmedName);
+  if (!found) {
+    res.status(200).json({ success: false, message: "등록된 교직원 명단에서 이름을 찾을 수 없습니다. 이름을 정확히 입력했는지 확인해주세요." });
+    return;
+  }
+  res.status(200).json({ success: true });
+}
+
 async function handleCheckLogin(req, res) {
   const { name, password } = req.body;
   if (!name || !password) {
@@ -471,6 +500,7 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const action = req.body.action || "submit";
       if (action === "checkpw") return await handleCheckLogin(req, res);
+      if (action === "checkstaffname") return await handleCheckStaffName(req, res);
       if (action === "list") return await handleList(req, res);
       if (action === "updatecase") return await handleUpdateCase(req, res);
       if (action === "togglecase") return await handleToggleCase(req, res);
