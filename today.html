@@ -94,7 +94,7 @@
 
         .smile-frame-box { position:relative; flex:1; min-height:300px; background:#fff; }
         .smile-frame-box iframe { width:100%; height:100%; border:none; }
-        .smile-fallback { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:#f8fafc; text-align:center; padding:10px 20px; overflow-y:auto; }
+        .smile-fallback { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#f8fafc; text-align:center; padding:8px 16px; overflow-y:auto; }
         .smile-fallback.show { display:flex; }
         .smile-fallback-btn { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:9px 0; font-size:13px; font-weight:700; cursor:pointer; width:100%; box-sizing:border-box; text-align:center; }
 
@@ -211,11 +211,11 @@
                 <div class="smile-frame-box blur-target" style="height:300px; min-height:300px;">
                     <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                     <div class="smile-fallback" id="smile-fallback-today">
-                        <div style="font-size:20px">🏥</div>
-                        <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
-                        <div style="font-size:13px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:8px 0;line-height:1.7;">📌 실시간 확인은 <span style="color:#dc2626;font-size:15px;font-weight:800;">오늘 당일만</span> 조회가능.<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:15px;font-weight:800;">학급·시간·성별</span>로만 확인 가능함.</div>
-                        <div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:6px;">새 탭을 열면 이런 화면이 떠요</div>
-                        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:10px;background:#fff;width:100%;margin-bottom:8px;box-sizing:border-box;">
+                        <div style="font-size:15px;">🏥</div>
+                        <div style="font-size:10.5px;color:#64748b;line-height:1.4;">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
+                        <div style="font-size:12px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:6px 10px;margin:4px 0;line-height:1.5;">📌 실시간 확인은 <span style="color:#dc2626;font-size:13.5px;font-weight:800;">오늘 당일만</span> 조회가능.<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:13.5px;font-weight:800;">학급·시간·성별</span>로만 확인 가능함.</div>
+                        <div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:4px;">새 탭을 열면 이런 화면이 떠요</div>
+                        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:8px;background:#fff;width:100%;margin-bottom:6px;box-sizing:border-box;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
                                 <div style="text-align:left;padding-right:10px;">
                                     <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">입실기록</div>
@@ -283,9 +283,9 @@
                         <input type="date" id="lookup-start">
                         <input type="date" id="lookup-end">
                     </div>
-                    <button id="lookup-btn" style="display:flex;flex-direction:column;align-items:center;gap:4px;height:auto;padding:12px;">
-                        <span style="font-size:17px;font-weight:700;">조회하기</span>
-                        <span style="font-size:12.5px;font-weight:400;"><span style="color:#fbbf24;font-weight:700;">오늘 기록</span>은 아직 업로드 전이라 <span style="color:#ff8080;font-weight:700;">조회안됨</span> 🙅</span>
+                    <button id="lookup-btn" style="display:flex;flex-direction:column;align-items:center;gap:3px;height:auto;padding:9px;">
+                        <span style="font-size:13px;font-weight:700;">조회하기</span>
+                        <span style="font-size:10.5px;font-weight:400;"><span style="color:#fbbf24;font-weight:700;">오늘 기록</span>은 아직 업로드 전이라 <span style="color:#ff8080;font-weight:700;">조회안됨</span> 🙅</span>
                     </button>
                     <div class="lock-error" id="lookup-error"></div>
                 </div>
