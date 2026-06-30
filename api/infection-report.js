@@ -45,6 +45,22 @@ function maskName(name) {
   return name[0] + "0" + name.slice(-1);
 }
 
+async function prependRow(sheets, sheetId, tabName, row) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+  const tab = meta.data.sheets.find(s => s.properties.title === tabName);
+  if (!tab) throw new Error("탭을 찾을 수 없습니다: " + tabName);
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    requestBody: { requests: [{
+      insertDimension: { range: { sheetId: tab.properties.sheetId, dimension: "ROWS", startIndex: 1, endIndex: 2 }, inheritFromBefore: false }
+    }] }
+  });
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId, range: `${tabName}!A2`,
+    valueInputOption: "RAW", requestBody: { values: [row] }
+  });
+}
+
 async function handleSubmit(req, res) {
   const {
     grade, classNum, studentNumber, studentName,
@@ -84,11 +100,7 @@ async function handleSubmit(req, res) {
     returnDate || "", eduReport ? "Y" : "", recoveryReport ? "Y" : ""
   ];
 
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId, range: `${SHEET_TAB_NAME}!A1`,
-    valueInputOption: "RAW", insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [row] }
-  });
+  await prependRow(sheets, sheetId, SHEET_TAB_NAME, row);
 
   res.status(200).json({ success: true, message: "감염병 발생 보고가 제출되었습니다." });
 }
