@@ -305,7 +305,24 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     const errEl = document.getElementById("siteLockErr");
     if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
     if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
+    errEl.textContent = "확인 중...";
+
+    try{
+      const res = await fetch("/api/infection-report", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "checkstaffname", name })
+      });
+      const data = await res.json();
+      if(!data.success){
+        errEl.innerHTML = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px;margin-top:6px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#b91c1c;margin-bottom:4px;">🚫 송악고등학교 교직원 외 접근 불가</div><div style="font-size:12px;color:#991b1b;">' + (data.message || "등록된 교직원이 아닙니다.") + '</div></div>';
+        return;
+      }
+    }catch(e){
+      errEl.textContent = "확인 중 오류가 발생했습니다. 다시 시도해주세요.";
+      return;
+    }
     errEl.textContent = "";
+
     if (remember) localStorage.setItem("songak_staff_name", name);
     else localStorage.removeItem("songak_staff_name");
     localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
