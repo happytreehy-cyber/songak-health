@@ -406,7 +406,7 @@ function bindEvents() {
     });
 }
 
-function handleGateAuth() {
+async function handleGateAuth() {
     var pw = document.getElementById('gate-pw').value.trim();
     var name = document.getElementById('gate-name').value.trim();
     var remember = document.getElementById('gate-remember').checked;
@@ -418,6 +418,22 @@ function handleGateAuth() {
     }
     if (!name) {
         err.textContent = '이름을 입력해 주세요.';
+        return;
+    }
+    err.textContent = '확인 중...';
+
+    try {
+        var res = await fetch('/api/infection-report', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'checkstaffname', name: name })
+        });
+        var data = await res.json();
+        if (!data.success) {
+            err.textContent = data.message || '등록된 교직원이 아닙니다.';
+            return;
+        }
+    } catch (e) {
+        err.textContent = '확인 중 오류가 발생했습니다. 다시 시도해주세요.';
         return;
     }
     err.textContent = '';
