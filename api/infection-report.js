@@ -317,11 +317,7 @@ async function handleUpdateCase(req, res) {
 }
 
 async function handleDeleteCase(req, res) {
-  const { password, rowNum } = req.body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    res.status(401).json({ success: false, message: "비밀번호가 올바르지 않습니다." });
-    return;
-  }
+  const { rowNum } = req.body;
   if (rowNum === undefined) {
     res.status(400).json({ success: false, message: "삭제할 항목을 찾을 수 없습니다." });
     return;
