@@ -199,29 +199,33 @@
                             <span style="font-size:12.5px;">🏥 오늘의 실시간 보건실 현황</span>
                             <a class="cell-link" id="smile-open-link" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" title="새 탭에서 오늘의 보건실 현황을 실시간으로 확인">실시간 확인 ↗</a>
                         </div>
-                        <div class="smile-frame-box blur-target" style="height:320px; min-height:320px;">
+                        <div class="smile-frame-box blur-target" style="height:300px; min-height:300px;">
                             <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                             <div class="smile-fallback" id="smile-fallback-today">
                                 <div style="font-size:20px">🏥</div>
                                 <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
                                 <div style="font-size:13px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:8px 0;line-height:1.7;">📌 실시간 확인은 <span style="color:#dc2626;font-size:15px;font-weight:800;">오늘 당일만</span> 이곳에서 가능하며<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:15px;font-weight:800;">학급·시간·성별</span>로만 확인이 가능합니다.</div>
-                                <div style="font-size:11px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin-bottom:6px;text-align:left;">
-                                    <div style="font-weight:700;color:#475569;margin-bottom:5px;">새 탭을 열면 이런 화면이 떠요</div>
-                                    <div style="font-weight:700;color:#475569;margin-bottom:3px;">입실기록</div>
-                                    <div style="display:flex;align-items:center;gap:8px;background:#ecfdf5;border-radius:6px;padding:5px 8px;font-size:11px;margin-bottom:8px;">
-                                        <span style="color:#2563eb;font-weight:700;">11:32</span>
-                                        <span style="font-weight:700;">1-1</span>
-                                        <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">남</span>
+                                <div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:6px;">새 탭을 열면 이런 화면이 떠요</div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:8px;">
+                                    <div style="text-align:left;">
+                                        <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">입실기록</div>
+                                        <div style="display:flex;align-items:center;gap:6px;background:#ecfdf5;border-radius:8px;padding:8px;font-size:11px;">
+                                            <span style="color:#2563eb;font-weight:700;">11:32</span>
+                                            <span style="font-weight:700;">1-1</span>
+                                            <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">남</span>
+                                        </div>
                                     </div>
-                                    <div style="font-weight:700;color:#475569;margin-bottom:3px;">침상안정기록</div>
-                                    <div style="display:flex;align-items:center;gap:8px;background:#eff6ff;border-radius:6px;padding:5px 8px;font-size:11px;">
-                                        <span style="font-weight:700;">침상 1</span>
-                                        <span style="color:#64748b;">13:05 입실</span>
-                                        <span style="font-weight:700;">2-3</span>
-                                        <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">여</span>
+                                    <div style="text-align:left;">
+                                        <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">침상안정기록</div>
+                                        <div style="display:flex;align-items:center;gap:6px;background:#eff6ff;border-radius:8px;padding:8px;font-size:11px;">
+                                            <span style="font-weight:700;">침상1</span>
+                                            <span style="color:#64748b;">13:05</span>
+                                            <span style="font-weight:700;">2-3</span>
+                                            <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">여</span>
+                                        </div>
                                     </div>
-                                    <div style="margin-top:8px;">실시간확인창엔 이전으로 돌아가기 버튼이 없습니다. 확인 후 탭 닫으면 현재화면으로 돌아옵니다.</div>
                                 </div>
+                                <div style="font-size:11px;color:#64748b;text-align:center;border-top:1px solid #e2e8f0;padding-top:8px;width:100%;">실시간확인창엔 이전으로 돌아가기 버튼이 없습니다. 확인 후 탭 닫으면 현재화면으로 돌아옵니다.</div>
                                 <a class="smile-fallback-btn" id="smile-fallback-btn-today" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" style="display:inline-block;">↗ 새 탭에서 열기</a>
                             </div>
                         </div>
@@ -237,15 +241,9 @@
 
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>👩‍🏫 담임용 학급 보건실 이용 날짜별 조회</span></div>
-                <details style="margin:6px 0 10px;">
-                    <summary style="font-size:12px;color:#2563eb;cursor:pointer;list-style:none;display:flex;align-items:center;gap:4px;">
-                        <span>ⓘ 조회 가능 기간 안내</span><span style="font-size:10px;">▾</span>
-                    </summary>
-                    <div style="margin-top:6px;font-size:11.5px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;line-height:1.7;">
-                        조회 가능 기간: 새학기 시작일 ~ <span style="color:#dc2626;font-weight:700;">어제</span>까지<br>
-                        <span style="display:inline-flex;align-items:center;gap:5px;">🤚❌ 오늘 기록은 아직 업로드 전이라 조회할 수 없어요.</span>
-                    </div>
-                </details>
+                <div style="font-size:12.5px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px 12px;margin:6px 0 12px;line-height:1.6;">
+                    조회 가능 기간: 새학기 시작일 ~ <span style="color:#dc2626;font-weight:700;">어제</span>까지
+                </div>
                 <div class="lookup-summary" id="lookup-summary" style="display:none;">
                     <span><b id="lookup-summary-text"></b></span>
                     <button id="lookup-edit-btn">🔄 다시 조회</button>
@@ -270,7 +268,10 @@
                         <input type="date" id="lookup-start">
                         <input type="date" id="lookup-end">
                     </div>
-                    <button id="lookup-btn">조회하기</button>
+                    <button id="lookup-btn" style="display:flex;flex-direction:column;align-items:center;gap:4px;height:auto;padding:12px;">
+                        <span style="font-size:17px;font-weight:700;">조회하기</span>
+                        <span style="font-size:12.5px;font-weight:400;"><span style="color:#fbbf24;font-weight:700;">오늘 기록</span>은 아직 업로드 전이라 <span style="color:#ff8080;font-weight:700;">조회안됨</span> 🙅</span>
+                    </button>
                     <div class="lock-error" id="lookup-error"></div>
                 </div>
                 <div class="lookup-result blur-target" id="lookup-result"></div>
