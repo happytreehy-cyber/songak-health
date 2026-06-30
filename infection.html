@@ -853,11 +853,11 @@ async function loadStudentPicker(){
 document.getElementById("rGrade").addEventListener("change", loadStudentPicker);
 document.getElementById("rClass").addEventListener("change", loadStudentPicker);
 
-document.getElementById("rStudentSearch").addEventListener("input", (e) => {
-  const q = e.target.value.trim();
+function renderStudentDropdown(query){
   const dropdown = document.getElementById("studentSearchDropdown");
-  if(!q){ dropdown.classList.remove("show"); dropdown.innerHTML = ""; return; }
-  const matches = studentListCache.filter(s => (s.name||"").includes(q));
+  const matches = query
+    ? studentListCache.filter(s => (s.name||"").includes(query))
+    : studentListCache; // 입력 없으면 전체 명단을 보여줘요 (메뉴3 요보호 추가와 동일)
   if(!matches.length){
     dropdown.innerHTML = '<div class="student-search-item" style="color:var(--muted);">일치하는 학생이 없어요</div>';
     dropdown.classList.add("show");
@@ -868,9 +868,16 @@ document.getElementById("rStudentSearch").addEventListener("input", (e) => {
   dropdown.querySelectorAll(".student-search-item[data-num]").forEach(el => {
     el.addEventListener("click", () => selectStudent(el.dataset.num, el.dataset.name));
   });
+}
+
+document.getElementById("rStudentSearch").addEventListener("input", (e) => {
+  renderStudentDropdown(e.target.value.trim());
 });
 document.getElementById("rStudentSearch").addEventListener("focus", (e) => {
-  if(e.target.value.trim()) e.target.dispatchEvent(new Event("input"));
+  if(!e.target.disabled) renderStudentDropdown(e.target.value.trim());
+});
+document.getElementById("rStudentSearch").addEventListener("click", (e) => {
+  if(!e.target.disabled) renderStudentDropdown(e.target.value.trim());
 });
 document.addEventListener("click", (e) => {
   const dropdown = document.getElementById("studentSearchDropdown");
