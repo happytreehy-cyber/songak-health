@@ -76,6 +76,8 @@
   .case-row .c-period{flex:1.6;text-align:center;white-space:nowrap;font-size:14px;color:var(--muted);}
   .case-row .c-return{flex:1;text-align:center;white-space:nowrap;font-size:13px;color:var(--muted);}
   .case-row .c-check{flex:0.7;text-align:center;font-size:14px;}
+  .case-row .c-check.edu{background:#dbeafe;border-radius:6px;margin:2px;}
+  .case-row .c-check.recovery{background:#dcfce7;border-radius:6px;margin:2px;}
   .case-row .c-check input[type=checkbox]{width:17px;height:17px;cursor:pointer;margin:0;}
   .dash-stat{border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
   .dash-stat .num{font-size:24px;font-weight:800;color:var(--navy);}
@@ -414,10 +416,10 @@
       </div>
 
       <div class="report-field">
-        <label>등교중지 종료(예정)일</label>
+        <label>등교중지 종료(예정)일 <span id="rExEndAutoTag" style="display:none;font-weight:400;font-size:11px;color:#9ca3af;">(자동계산 · 클릭해서 확정)</span></label>
         <input type="date" id="rExEnd">
         <label class="checkbox-row" style="margin-top:8px;"><input type="checkbox" id="rNoExclusion"> 등교중지 해당없음</label>
-        <div class="hint">아직 모르면 비워두셔도 됩니다.</div>
+        <div class="hint">아직 모르면 비워두셔도 됩니다. 진단일을 입력하면 인플루엔자 기준(5일)으로 자동 계산됩니다. 자동계산된 날짜는 회색으로 표시되며, 한 번 클릭하면 확정(검정색)되고 직접 수정할 수 있어요.</div>
       </div>
 
       <div class="report-field">
@@ -573,13 +575,13 @@ function renderHero(){
     </div>
     <div class="hero-right">
       <div class="hero-pill">
-        <div class="pnum">${s.totalCases}</div><div class="plabel">26누적발생</div>
+        <div class="pnum">${s.totalCases}<span style="font-size:12px;font-weight:400;">명</span></div><div class="plabel">26누적발생</div>
       </div>
       <div class="hero-pill">
-        <div class="pnum">${s.last7days}</div><div class="plabel">최근 7일</div>
+        <div class="pnum">${s.last7days}<span style="font-size:12px;font-weight:400;">명</span></div><div class="plabel">최근 7일</div>
       </div>
       <div class="hero-pill">
-        <div class="pnum">${s.last30days}</div><div class="plabel">최근 30일</div>
+        <div class="pnum">${s.last30days}<span style="font-size:12px;font-weight:400;">명</span></div><div class="plabel">최근 30일</div>
       </div>
     </div>
   `;
@@ -600,7 +602,7 @@ function renderCharts(){
   }).join(", ");
   const diseaseDonutCss = diseaseEntries.length ? `conic-gradient(${diseaseStops})` : "#eef1f7";
   const fluSubLabel = Object.keys(fluBreakdown).length > 1
-    ? ` <span style="color:var(--muted);font-weight:400;">(${Object.entries(fluBreakdown).map(([k,v])=>`${k} ${v}`).join(' · ')})</span>`
+    ? `<br><span style="color:var(--muted);font-weight:400;margin-left:15px;font-size:12px;">${Object.entries(fluBreakdown).map(([k,v])=>`${k} ${v}`).join(' · ')}</span>`
     : "";
   const diseaseLegend = diseaseEntries.length ? diseaseEntries.map(([k,v],i) => `
     <div><span class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></span><strong style="color:${PALETTE[i%PALETTE.length]};">${k}</strong> ${v}건 <span style="color:var(--muted);">(${Math.round(v/totalDisease*100)}%)</span>${k==="인플루엔자(독감)"?fluSubLabel:""}</div>
@@ -632,20 +634,20 @@ function renderCharts(){
     return `
     <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
       <span class="c-disease">${it.no}. ${it.disease}</span>
-      <span class="c-class">${g}-${c},${it.studentNumber}</span>
+      <span class="c-class">${g}-${c}</span>
       <span class="c-name">${it.studentNumber}번 ${it.fullName}</span>
       <span class="c-date">${it.diagnosisDate}</span>
       <span class="c-period">${it.exclusionStart}~${it.exclusionEnd}</span>
       <span class="c-return">${it.returnDate || '-'}</span>
-      <span class="c-check"><input type="checkbox" ${it.eduReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'eduReport',this.checked)"></span>
-      <span class="c-check"><input type="checkbox" ${it.recoveryReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'recoveryReport',this.checked)"></span>
+      <span class="c-check edu"><input type="checkbox" ${it.eduReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'eduReport',this.checked)"></span>
+      <span class="c-check recovery"><input type="checkbox" ${it.recoveryReport?'checked':''} onclick="event.stopPropagation(); toggleCaseFlag(${it.rowNum},'recoveryReport',this.checked)"></span>
     </div>`;
   }
   const caseHeader = `
     <div class="case-row case-head">
       <span class="c-disease">증상명</span>
-      <span class="c-class">반,번호</span>
-      <span class="c-name">이름</span>
+      <span class="c-class">학년반</span>
+      <span class="c-name">번호 이름</span>
       <span class="c-date">확진일</span>
       <span class="c-period">등교중지기간</span>
       <span class="c-return">등교일</span>
@@ -755,6 +757,8 @@ function openCaseEdit(rowNum){
     document.getElementById("rNoExclusion").checked = isNoExclusion;
     document.getElementById("rExEnd").disabled = isNoExclusion;
     document.getElementById("rExEnd").value = (item.exclusionEnd && item.exclusionEnd !== "미정" && !isNoExclusion) ? item.exclusionEnd : "";
+    exclusionDateConfirmed = true;
+    applyExclusionAutoStyle();
     document.getElementById("rEduReport").checked = !!item.eduReport;
     document.getElementById("rRecoveryReport").checked = !!item.recoveryReport;
     document.getElementById("reportForm").dataset.editRowNum = item.rowNum;
@@ -776,19 +780,19 @@ function closeReportModal(){
   document.getElementById("reportDeleteBtn").style.display = "none";
   document.getElementById("rNoExclusion").checked = false;
   document.getElementById("rExEnd").disabled = false;
+  exclusionDateConfirmed = true;
+  applyExclusionAutoStyle();
 }
 
 document.getElementById("reportDeleteBtn").addEventListener("click", async () => {
   const editRowNum = document.getElementById("reportForm").dataset.editRowNum;
   if(editRowNum === undefined) return;
   if(!confirm("이 보고 내용을 정말 삭제하시겠습니까?")) return;
-  const pw = await askAdminPw();
-  if(!pw) return;
   const msgEl = document.getElementById("reportResultMsg");
   try{
     const res = await fetch("/api/infection-report", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ action:"deletecase", password: pw, rowNum: Number(editRowNum) })
+      body: JSON.stringify({ action:"deletecase", rowNum: Number(editRowNum) })
     });
     const data = await res.json();
     if(data.success){
@@ -796,7 +800,6 @@ document.getElementById("reportDeleteBtn").addEventListener("click", async () =>
       loadDashboard();
       setTimeout(closeReportModal, 800);
     }else{
-      sessionStorage.removeItem("infectionAdminPw");
       msgEl.textContent = data.message || "삭제 중 오류가 발생했습니다."; msgEl.className = "result-msg err";
     }
   }catch(e){
@@ -812,6 +815,57 @@ document.getElementById("rNoExclusion").addEventListener("change", (e) => {
   const dateInput = document.getElementById("rExEnd");
   if(e.target.checked){ dateInput.value = ""; dateInput.disabled = true; }
   else { dateInput.disabled = false; }
+});
+
+/* ---------- 진단일 입력 시 등교중지종료일 자동계산 (인플루엔자 기준 5일) ---------- */
+let exclusionDateConfirmed = true; // 자동계산이 아니라 직접 입력/수정된 상태인지 여부
+
+function addDaysToDateStr(dateStr, days){
+  if(!dateStr) return "";
+  const d = new Date(dateStr + "T00:00:00");
+  if(isNaN(d)) return "";
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function applyExclusionAutoStyle(){
+  const input = document.getElementById("rExEnd");
+  const tag = document.getElementById("rExEndAutoTag");
+  if(exclusionDateConfirmed){
+    input.style.color = "";
+    input.style.fontWeight = "";
+    tag.style.display = "none";
+  }else{
+    input.style.color = "#9ca3af";
+    input.style.fontWeight = "400";
+    tag.style.display = "inline";
+  }
+}
+
+function maybeAutoCalcExclusion(){
+  const noExclusion = document.getElementById("rNoExclusion").checked;
+  if(noExclusion) return;
+  const diagDate = document.getElementById("rDiagDate").value;
+  const exEndInput = document.getElementById("rExEnd");
+  if(!diagDate) return;
+  // 사용자가 직접 입력해 확정한 값이 있으면 자동계산으로 덮어쓰지 않음
+  if(exclusionDateConfirmed && exEndInput.value) return;
+  exEndInput.value = addDaysToDateStr(diagDate, 5);
+  exclusionDateConfirmed = false;
+  applyExclusionAutoStyle();
+}
+
+document.getElementById("rDiagDate").addEventListener("change", maybeAutoCalcExclusion);
+
+document.getElementById("rExEnd").addEventListener("click", () => {
+  if(!exclusionDateConfirmed){
+    exclusionDateConfirmed = true;
+    applyExclusionAutoStyle();
+  }
+});
+document.getElementById("rExEnd").addEventListener("input", () => {
+  exclusionDateConfirmed = true;
+  applyExclusionAutoStyle();
 });
 
 /* ---------- 학생 이름 검색 선택 (메뉴3 요보호 추가와 동일한 방식) ---------- */
