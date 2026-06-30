@@ -84,7 +84,7 @@
         .auth-gate-box button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:14px; font-weight:700; cursor:pointer; }
         .auth-gate-box .err { color:#ef4444; font-size:12.5px; min-height:16px; margin-top:8px; }
 
-        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
         @media (max-width: 760px) { .health-grid-2x2 { grid-template-columns:1fr; } }
 
         .grid-cell { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:200px; }
@@ -138,7 +138,7 @@
         .dot-row .dot-bar { position:absolute; top:0; left:0; height:100%; border-radius:3px; transition:width .2s; background:#3b82f6; }
         .dot-row .dot-value { font-size:11.5px; color:#1e293b; font-weight:700; flex:0 0 30px; text-align:right; }
 
-        .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; }
+        .lock-form { padding:16px; display:flex; flex-direction:column; gap:9px; flex:1; }
         .lock-row { display:flex; gap:8px; }
         .lock-row select, .lock-form input, .lock-form select { padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:inherit; }
         .lock-row select { flex:1; }
@@ -213,7 +213,7 @@
                     <div class="smile-fallback" id="smile-fallback-today">
                         <div style="font-size:20px">🏥</div>
                         <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
-                        <div style="font-size:13px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:8px 0;line-height:1.7;">📌 실시간 확인은 <span style="color:#dc2626;font-size:15px;font-weight:800;">오늘 당일만</span> 이곳에서 가능하며<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:15px;font-weight:800;">학급·시간·성별</span>로만 확인이 가능합니다.</div>
+                        <div style="font-size:13px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:8px 0;line-height:1.7;">📌 실시간 확인은 <span style="color:#dc2626;font-size:15px;font-weight:800;">오늘 당일만</span> 조회가능.<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:15px;font-weight:800;">학급·시간·성별</span>로만 확인 가능함.</div>
                         <div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:6px;">새 탭을 열면 이런 화면이 떠요</div>
                         <div style="border:1px solid #e2e8f0;border-radius:8px;padding:10px;background:#fff;width:100%;margin-bottom:8px;box-sizing:border-box;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
@@ -236,15 +236,17 @@
                                 </div>
                             </div>
                         </div>
-                        <a class="smile-fallback-btn" id="smile-fallback-btn-today" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener">↗ 새 탭에서 열기</a>
-                        <div style="font-size:11px;color:#64748b;text-align:center;width:100%;margin-top:8px;">왼쪽창 새탭열기아래 버튼 없음. 확인후 탭 닫으면 현재화면으로 돌아옴</div>
+                        <a class="smile-fallback-btn" id="smile-fallback-btn-today" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                            <span>↗ 새 탭에서 열기</span>
+                            <span style="font-size:10.5px;font-weight:400;">확인후 탭 닫으면 현재화면으로 돌아옴</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>👩‍🏫 담임용 학급 보건실 이용 날짜별 조회</span></div>
-                <div style="font-size:11px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:6px 9px;margin:6px 0 8px;line-height:1.4;">
+                <div style="font-size:11px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:6px 9px;margin:6px 16px 8px;line-height:1.4;box-sizing:border-box;">
                     조회 가능 기간: 새학기 시작일 ~ <span style="color:#dc2626;font-weight:700;">어제</span>까지
                 </div>
                 <div class="lookup-summary" id="lookup-summary" style="display:none;">
@@ -268,14 +270,15 @@
                         <option value="custom">기간 설정</option>
                     </select>
                     <div style="font-size:12.5px;font-weight:700;color:#475569;margin:8px 0 5px;">조회하면 이런 화면이 떠요</div>
-                    <div style="border:1px solid #e2e8f0;border-radius:7px;overflow:hidden;margin-bottom:8px;font-size:9.5px;">
-                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:4px 7px;color:#64748b;font-weight:700;">
+                    <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px;font-size:10px;box-sizing:border-box;">
+                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:6px 8px;color:#64748b;font-weight:700;">
                             <span>날짜</span><span>입실/퇴실</span><span>이름</span><span>증상</span>
                         </div>
-                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:4px 7px;color:#1e293b;border-top:1px solid #f1f5f9;">
+                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:6px 8px;color:#1e293b;border-top:1px solid #f1f5f9;">
                             <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
                         </div>
                     </div>
+                    <div style="flex:1;"></div>
                     <div class="lock-row" id="lookup-custom-range" style="display:none;">
                         <input type="date" id="lookup-start">
                         <input type="date" id="lookup-end">
