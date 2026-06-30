@@ -104,6 +104,7 @@ async function handleSummary(req, res) {
   } catch (e) { rows = []; }
 
   const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -130,7 +131,9 @@ async function handleSummary(req, res) {
       maskedName: maskName(studentName), fullName: studentName, diagnosisDate,
       exclusionStart: diagnosisDate, exclusionEnd: exclusionEnd || "미정",
       returnDate: r[12] || "", eduReport: r[13] === "Y", recoveryReport: r[14] === "Y",
-      ended: exclusionEnd === "해당없음" ? true : (exclusionEnd ? !!(parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false)
+      ended: exclusionEnd === "해당없음"
+        ? !!(parseKoreanDate(diagnosisDate) && parseKoreanDate(diagnosisDate) < todayMidnight)
+        : (exclusionEnd ? !!(parseKoreanDate(exclusionEnd) && parseKoreanDate(exclusionEnd) < today) : false)
     });
 
     if (exclusionEnd) {
