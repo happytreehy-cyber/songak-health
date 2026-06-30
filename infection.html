@@ -412,14 +412,14 @@
       <div class="report-field">
         <label>진단일 (= 등교중지 시작일) *</label>
         <input type="date" id="rDiagDate" required>
-        <div class="hint">진단일이 곧 등교중지 시작일로 자동 기록됩니다.</div>
+        <div class="hint">진단일이 곧 등교중지 시작일로 자동 기록됩니다. 진단일을 입력하면 인플루엔자인 경우 기준(5일)으로 자동계산되어 <span style="color:#9ca3af;">회색으로 표시</span>되며, 한 번 클릭하면 <span style="color:#111827;font-weight:700;">확정(검정색)</span>으로 변경되어 직접 수정할 수 있습니다.</div>
       </div>
 
       <div class="report-field">
         <label>등교중지 종료(예정)일 <span id="rExEndAutoTag" style="display:none;font-weight:400;font-size:11px;color:#9ca3af;">(자동계산 · 클릭해서 확정)</span></label>
         <input type="date" id="rExEnd">
+        <div class="hint">기간이 정해지지 않았다면 일단 건너뛰고, 확정되면 다시 들어와서 수정해주세요.</div>
         <label class="checkbox-row" style="margin-top:8px;"><input type="checkbox" id="rNoExclusion"> 등교중지 해당없음</label>
-        <div class="hint">아직 모르면 비워두셔도 됩니다. 진단일을 입력하면 인플루엔자 기준(5일)으로 자동 계산됩니다. 자동계산된 날짜는 회색으로 표시되며, 한 번 클릭하면 확정(검정색)되고 직접 수정할 수 있어요.</div>
       </div>
 
       <div class="report-field" style="background:#dbeafe;border:1px solid #93c5fd;border-radius:10px;padding:12px;">
