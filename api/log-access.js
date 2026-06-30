@@ -13,17 +13,38 @@ module.exports = async function handler(req, res) {
     );
 
     const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    const tabName = '접속로그';
 
     const now = new Date();
     const ts = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') +
       ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: '접속로그!A:B',
-      valueInputOption: 'RAW',
-      insertDataOption: 'INSERT_ROWS',
-      requestBody: { values: [[ts, name]] }
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const tab = meta.data.sheets.find(s => s.properties.title === tabName);
+
+    if (!tab) {
+      // 탭이 아직 없으면 기존 방식대로 추가 (헤더가 없는 새 탭이라 순서가 중요하지 않음)
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: sheetId,
+        range: tabName + '!A:B',
+        valueInputOption: 'RAW',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: { values: [[ts, name]] }
+      });
+      return res.status(200).json({ success: true });
+    }
+
+    // 최신 접속 기록이 맨 위(2번째 줄)에 오도록 삽입 (1번째 줄에 헤더가 있다고 가정)
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: { requests: [{
+        insertDimension: { range: { sheetId: tab.properties.sheetId, dimension: 'ROWS', startIndex: 1, endIndex: 2 }, inheritFromBefore: false }
+      }] }
+    });
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId, range: tabName + '!A2',
+      valueInputOption: 'RAW', requestBody: { values: [[ts, name]] }
     });
 
     res.status(200).json({ success: true });
