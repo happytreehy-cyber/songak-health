@@ -196,8 +196,8 @@
                             <div class="visit-stat-value" id="stat-year-total">-<span>건</span></div>
                         </div>
                         <div style="border-left:1px solid #e2e8f0;padding-left:24px;">
-                            <div style="font-size:11px;color:#64748b;margin-bottom:8px;display:flex;justify-content:space-between;gap:14px;"><span>학년별 이용현황</span><span class="cell-link" id="grade-chart-year-label"></span></div>
-                            <div style="height:60px;width:160px;"><canvas id="grade-bar-chart"></canvas></div>
+                            <div style="font-size:11px;color:#64748b;margin-bottom:8px;">학년별 이용현황</div>
+                            <div style="height:90px;width:160px;"><canvas id="grade-bar-chart"></canvas></div>
                         </div>
                     </div>
                 </div>
@@ -215,26 +215,28 @@
                         <div style="font-size:11px;color:#64748b;line-height:1.5">보안정책으로 화면 안에는 표시할 수 없습니다.</div>
                         <div style="font-size:13px;font-weight:700;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:8px 12px;margin:8px 0;line-height:1.7;">📌 실시간 확인은 <span style="color:#dc2626;font-size:15px;font-weight:800;">오늘 당일만</span> 이곳에서 가능하며<br>외부 사이트이기 때문에 <span style="color:#dc2626;font-size:15px;font-weight:800;">학급·시간·성별</span>로만 확인이 가능합니다.</div>
                         <div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:6px;">새 탭을 열면 이런 화면이 떠요</div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:8px;">
-                            <div style="text-align:left;">
-                                <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">입실기록</div>
-                                <div style="display:flex;align-items:center;gap:6px;background:#ecfdf5;border-radius:8px;padding:8px;font-size:11px;">
-                                    <span style="color:#2563eb;font-weight:700;">11:32</span>
-                                    <span style="font-weight:700;">1-1</span>
-                                    <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">남</span>
+                        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:10px;background:#fff;width:100%;margin-bottom:8px;box-sizing:border-box;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                                <div style="text-align:left;padding-right:10px;">
+                                    <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">입실기록</div>
+                                    <div style="display:flex;align-items:center;gap:6px;background:#ecfdf5;border-radius:8px;padding:8px;font-size:11px;">
+                                        <span style="color:#2563eb;font-weight:700;">11:32</span>
+                                        <span style="font-weight:700;">1-1</span>
+                                        <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">남</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="text-align:left;">
-                                <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">침상안정기록</div>
-                                <div style="display:flex;align-items:center;gap:6px;background:#eff6ff;border-radius:8px;padding:8px;font-size:11px;">
-                                    <span style="font-weight:700;">침상1</span>
-                                    <span style="color:#64748b;">13:05</span>
-                                    <span style="font-weight:700;">2-3</span>
-                                    <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">여</span>
+                                <div style="text-align:left;border-left:1px solid #e2e8f0;padding-left:10px;">
+                                    <div style="font-weight:700;color:#475569;margin-bottom:4px;font-size:11px;">침상안정기록</div>
+                                    <div style="display:flex;align-items:center;gap:6px;background:#eff6ff;border-radius:8px;padding:8px;font-size:11px;">
+                                        <span style="font-weight:700;">침상1</span>
+                                        <span style="color:#64748b;">13:05</span>
+                                        <span style="font-weight:700;">2-3</span>
+                                        <span style="display:inline-block;border:1px solid #93c5fd;color:#2563eb;border-radius:999px;padding:1px 7px;font-size:10px;">여</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div style="font-size:11px;color:#64748b;text-align:center;border-top:1px solid #e2e8f0;padding-top:8px;width:100%;">실시간확인창엔 이전으로 돌아가기 버튼이 없습니다. 확인 후 탭 닫으면 현재화면으로 돌아옵니다.</div>
+                        <div style="font-size:11px;color:#64748b;text-align:center;width:100%;">실시간확인창엔 이전으로 돌아가기 버튼이 없습니다. 확인 후 탭 닫으면 현재화면으로 돌아옵니다.</div>
                         <a class="smile-fallback-btn" id="smile-fallback-btn-today" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" style="display:inline-block;">↗ 새 탭에서 열기</a>
                     </div>
                 </div>
@@ -245,15 +247,6 @@
                 <div class="cell-head"><span>👩‍🏫 담임용 학급 보건실 이용 날짜별 조회</span></div>
                 <div style="font-size:12.5px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px 12px;margin:6px 0 10px;line-height:1.6;">
                     조회 가능 기간: 새학기 시작일 ~ <span style="color:#dc2626;font-weight:700;">어제</span>까지
-                </div>
-                <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:5px;">조회하면 이런 화면이 떠요</div>
-                <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:12px;font-size:10.5px;">
-                    <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:5px 8px;color:#64748b;font-weight:700;">
-                        <span>날짜</span><span>입실/퇴실</span><span>이름</span><span>증상</span>
-                    </div>
-                    <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:5px 8px;color:#1e293b;border-top:1px solid #f1f5f9;">
-                        <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
-                    </div>
                 </div>
                 <div class="lookup-summary" id="lookup-summary" style="display:none;">
                     <span><b id="lookup-summary-text"></b></span>
@@ -275,6 +268,15 @@
                         <option value="month">이번 달</option>
                         <option value="custom">기간 설정</option>
                     </select>
+                    <div style="font-size:11px;font-weight:700;color:#475569;margin:10px 0 5px;">조회하면 이런 화면이 떠요</div>
+                    <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:10px;font-size:10.5px;">
+                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:5px 8px;color:#64748b;font-weight:700;">
+                            <span>날짜</span><span>입실/퇴실</span><span>이름</span><span>증상</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:5px 8px;color:#1e293b;border-top:1px solid #f1f5f9;">
+                            <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
+                        </div>
+                    </div>
                     <div class="lock-row" id="lookup-custom-range" style="display:none;">
                         <input type="date" id="lookup-start">
                         <input type="date" id="lookup-end">
@@ -531,7 +533,6 @@ function loadVisitStatus() {
             renderDotPlot('rank-class-list', data.classRanking, function () { return '#3b82f6'; });
             renderDotPlot('rank-student-list', data.studentRanking, function () { return '#3b82f6'; });
             renderGradeBarChart(data.gradeYearly);
-            document.getElementById('grade-chart-year-label').textContent = data.schoolYearLabel || '';
         })
         .catch(function () {});
 }
@@ -647,7 +648,7 @@ function renderGradeBarChart(gradeYearly) {
             maintainAspectRatio: false,
             layout: { padding: { top: 16 } },
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 11 } } } }
+            scales: { y: { beginAtZero: true, min: 0, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 11 } } } }
         }
     });
 }
