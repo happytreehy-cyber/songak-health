@@ -643,7 +643,7 @@ function renderCharts(){
     <div class="case-row" ondblclick="openCaseEdit(${it.rowNum})" style="${!it.ended?'background:#eef9f1;cursor:pointer;':'cursor:pointer;'}">
       <span class="c-class">${g}-${c}</span>
       <span class="c-name">${it.studentNumber}번<br>${it.fullName}</span>
-      <span class="c-disease" style="font-size:12px;">${it.no}. ${it.disease}</span>
+      <span class="c-disease">${it.disease}</span>
       <span class="c-date">${shortDate(it.diagnosisDate)}</span>
       <span class="c-period">${shortDate(it.exclusionStart)}~${shortDate(it.exclusionEnd)}</span>
       <span class="c-return">${it.returnDate ? shortDate(it.returnDate) : '-'}</span>
@@ -655,7 +655,7 @@ function renderCharts(){
     <div class="case-row case-head">
       <span class="c-class">학년반</span>
       <span class="c-name">번호 이름</span>
-      <span class="c-disease">증상명</span>
+      <span class="c-disease" style="text-align:center;">증상명</span>
       <span class="c-date">확진일</span>
       <span class="c-period">등교중지기간</span>
       <span class="c-return">등교일</span>
