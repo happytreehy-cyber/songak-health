@@ -352,6 +352,8 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(checkSmileIframe, 4000);
     loadSymptomStats();
     loadVisitStatus();
+
+    fetch('/api/log-access?name=' + encodeURIComponent('익명')).catch(function () {});
 });
 
 function bindEvents() {
