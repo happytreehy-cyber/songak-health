@@ -450,6 +450,8 @@ const PDF_BASE = "assets/infection-pdfs/";
   }
 })();
 
+fetch('/api/log-access?name=' + encodeURIComponent('익명')).catch(()=>{});
+
 /* ---------- 관리자 비밀번호 세션 기억 ---------- */
 function getCachedAdminPw() { return sessionStorage.getItem("infectionAdminPw") || null; }
 function setCachedAdminPw(pw) { sessionStorage.setItem("infectionAdminPw", pw); }
