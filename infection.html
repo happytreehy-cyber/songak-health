@@ -344,7 +344,7 @@
       <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
       <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
-        <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
+        <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 비밀번호+이름 자동 기억하기
       </label>
       <button type="button" id="siteLockBtn">확인</button>
       <div class="site-lock-err" id="siteLockErr"></div>
@@ -464,9 +464,13 @@
   }
 
   const savedName = localStorage.getItem("songak_staff_name");
+  const savedPw = localStorage.getItem("songak_staff_pw");
   if (savedName) {
     document.getElementById("siteLockName").value = savedName;
     document.getElementById("siteLockRemember").checked = true;
+  }
+  if (savedPw) {
+    document.getElementById("siteLockInput").value = savedPw;
   }
 
   async function tryUnlock(){
@@ -485,7 +489,7 @@
       });
       const data = await res.json();
       if(!data.success){
-        errEl.innerHTML = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px;margin-top:6px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#b91c1c;margin-bottom:4px;">🚫 송악고등학교 교직원 외 접근 불가</div><div style="font-size:12px;color:#991b1b;">' + (data.message || "등록된 교직원이 아닙니다.") + '</div></div>';
+        errEl.innerHTML = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px;margin-top:6px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#b91c1c;margin-bottom:4px;">🚫 송악고등학교 교직원 외 접근 불가</div><div style="font-size:12px;color:#991b1b;">' + (data.message || "송악고등학교 교직원이 맞으시다면 정확히 비번,이름을 기입해주세요.<br>🙇 감사합니다.") + '</div></div>';
         return;
       }
     }catch(e){
@@ -496,8 +500,10 @@
 
     if (remember) {
       localStorage.setItem("songak_staff_name", name);
+      localStorage.setItem("songak_staff_pw", pw);
     } else {
       localStorage.removeItem("songak_staff_name");
+      localStorage.removeItem("songak_staff_pw");
     }
     localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
     fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
