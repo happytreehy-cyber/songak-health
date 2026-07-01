@@ -191,7 +191,7 @@
         <div class="reveal-wrap">
             <div id="blurred-content">
                 <div style="padding:8px 0;margin-bottom:8px;">
-                    <div class="visit-stat-box blur-target" style="display:inline-flex;gap:24px;align-items:center;padding:14px 18px;">
+                    <div class="visit-stat-box" style="display:inline-flex;gap:24px;align-items:center;padding:14px 18px;">
                         <div>
                             <div class="visit-stat-label" id="stat-year-label">학년도 누적 방문</div>
                             <div class="visit-stat-value" id="stat-year-total">-<span>건</span></div>
@@ -209,7 +209,7 @@
                     <span style="font-size:12.5px;">🏥 오늘의 실시간 보건실 현황</span>
                     <a class="cell-link" id="smile-open-link" href="https://school.smilebogun.org/share#G8IndFuwcfHAHz2o8uvit6_vZqEoZcrZ" target="_blank" rel="noopener" title="새 탭에서 오늘의 보건실 현황을 실시간으로 확인">실시간 확인 ↗</a>
                 </div>
-                <div class="smile-frame-box blur-target">
+                <div class="smile-frame-box">
                     <iframe id="smile-iframe-today" title="보건실 현황" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
                     <div class="smile-fallback" id="smile-fallback-today">
                         <div style="font-size:15px;">🏥</div>
@@ -254,7 +254,7 @@
                     <span><b id="lookup-summary-text"></b></span>
                     <button id="lookup-edit-btn">🔄 다시 조회</button>
                 </div>
-                <div class="lock-form blur-target" id="lookup-form-area">
+                <div class="lock-form" id="lookup-form-area">
                     <div class="lock-row">
                         <select id="lookup-grade">
                             <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
@@ -289,12 +289,12 @@
                     </button>
                     <div class="lock-error" id="lookup-error"></div>
                 </div>
-                <div class="lookup-result blur-target" id="lookup-result"></div>
+                <div class="lookup-result" id="lookup-result"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>📊 증상 대분류 비중</span><span class="cell-link" id="symptom-year-label" style="color:#94a3b8; cursor:default;"></span></div>
-                <div class="cell-body blur-target" style="display:flex; gap:10px;">
+                <div class="cell-body" style="display:flex; gap:10px;">
                     <div style="height:140px; width:140px; flex-shrink:0; position:relative;"><canvas id="symptom-donut"></canvas></div>
                     <div class="legend-list" id="symptom-legend"></div>
                 </div>
@@ -302,7 +302,7 @@
 
             <div class="grid-cell" style="min-height:auto;">
                 <div class="cell-head"><span>🧩 세부 증상 TOP 10</span><span class="cell-link" id="treemap-year-label" style="color:#94a3b8; cursor:default;"></span></div>
-                <div class="cell-body blur-target" id="symptom-treemap" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
+                <div class="cell-body" id="symptom-treemap" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
@@ -312,7 +312,7 @@
                     <button data-period="month">1개월</button>
                     <button data-period="quarter">3개월</button>
                 </div>
-                <div class="cell-body blur-target" id="rank-class-list"></div>
+                <div class="cell-body" id="rank-class-list"></div>
             </div>
 
             <div class="grid-cell" style="min-height:auto;">
@@ -322,24 +322,11 @@
                     <button data-period="month">1개월</button>
                     <button data-period="quarter">3개월</button>
                 </div>
-                <div class="cell-body blur-target" id="rank-student-list"></div>
+                <div class="cell-body" id="rank-student-list"></div>
             </div>
                 </div>
             </div>
 
-            <div class="auth-gate-box" id="auth-gate">
-               <div class="ico">🔒</div>
-                <h3>교직원 본인 확인</h3>
-                <p>비밀번호와 이름을 입력하면 보건실 현황 · 증상 통계 · 담임용 조회 · 이용 현황을<br>한 번에 모두 확인할 수 있어요.</p>
-                <input type="password" id="gate-pw" placeholder="비밀번호">
-                <input type="text" id="gate-name" placeholder="본인 이름">
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#64748b; margin-bottom:10px; justify-content:center;">
-                    <input type="checkbox" id="gate-remember" style="width:auto; margin:0;"> 이 기기에서 내 이름 기억하기
-                </label>
-                <button id="gate-btn">확인</button>
-<a href="index.html" class="nav-back" style="display:inline-flex;margin-top:12px;">← 이전으로 (대표화면)</a>
-                <div class="err" id="gate-err"></div>
-            </div>
         </div>
 
     </div>
@@ -360,42 +347,16 @@ window.addEventListener('DOMContentLoaded', function () {
         if (e) e.max = yStr;
     })();
 
-    var UNLOCK_KEY = 'songakStaffUnlocked';
-    var UNLOCK_HOURS = 6;
-    function isSharedUnlocked(){
-        var raw = localStorage.getItem(UNLOCK_KEY);
-        if(!raw) return false;
-        try{
-            var data = JSON.parse(raw);
-            var ageHours = (Date.now() - data.time) / (1000*60*60);
-            return ageHours < UNLOCK_HOURS;
-        }catch(e){ return false; }
-    }
-
-    var saved = localStorage.getItem('songak_staff_name');
-    if (saved) {
-        document.getElementById('gate-name').value = saved;
-        document.getElementById('gate-remember').checked = true;
-    }
-
-    if (isSharedUnlocked()) {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
-        var iframe = document.getElementById('smile-iframe-today');
-        iframe.src = SMILE_URL;
-        setTimeout(checkSmileIframe, 4000);
-        loadSymptomStats();
-        loadVisitStatus();
-    }
+    var iframe = document.getElementById('smile-iframe-today');
+    iframe.src = SMILE_URL;
+    setTimeout(checkSmileIframe, 4000);
+    loadSymptomStats();
+    loadVisitStatus();
 });
 
 function bindEvents() {
     bindRankPeriodToggles();
-    document.getElementById('gate-btn').addEventListener('click', handleGateAuth);
-    document.getElementById('gate-pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
-    document.getElementById('gate-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
 
-    
     document.getElementById('lookup-btn').addEventListener('click', handleLookup);
     document.getElementById('lookup-period').addEventListener('change', function () {
         document.getElementById('lookup-custom-range').style.display = this.value === 'custom' ? 'flex' : 'none';
@@ -405,59 +366,6 @@ function bindEvents() {
         document.getElementById('lookup-form-area').style.display = 'flex';
         document.getElementById('lookup-result').innerHTML = '';
     });
-}
-
-async function handleGateAuth() {
-    var pw = document.getElementById('gate-pw').value.trim();
-    var name = document.getElementById('gate-name').value.trim();
-    var remember = document.getElementById('gate-remember').checked;
-    var err = document.getElementById('gate-err');
-
-    if (pw !== '119') {
-        err.textContent = '비밀번호가 올바르지 않습니다.';
-        return;
-    }
-    if (!name) {
-        err.textContent = '이름을 입력해 주세요.';
-        return;
-    }
-    err.textContent = '확인 중...';
-
-    try {
-        var res = await fetch('/api/infection-report', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'checkstaffname', name: name })
-        });
-        var data = await res.json();
-        if (!data.success) {
-            err.innerHTML = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px;margin-top:6px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#b91c1c;margin-bottom:4px;">🚫 송악고등학교 교직원 외 접근 불가</div><div style="font-size:12px;color:#991b1b;">' + (data.message || '등록된 교직원이 아닙니다.') + '</div></div>';
-            return;
-        }
-    } catch (e) {
-        err.textContent = '확인 중 오류가 발생했습니다. 다시 시도해주세요.';
-        return;
-    }
-    err.textContent = '';
-
-    if (remember) {
-        localStorage.setItem('songak_staff_name', name);
-    } else {
-        localStorage.removeItem('songak_staff_name');
-    }
-
-    localStorage.setItem('songakStaffUnlocked', JSON.stringify({ time: Date.now(), name: name }));
-
-    fetch('/api/log-access?name=' + encodeURIComponent(name)).catch(function () {});
-
-    document.getElementById('auth-gate').style.display = 'none';
-    document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
-
-    var iframe = document.getElementById('smile-iframe-today');
-    iframe.src = SMILE_URL;
-    setTimeout(checkSmileIframe, 4000);
-
-    loadSymptomStats();
-    loadVisitStatus();
 }
 
 var symptomChartInstance = null;
