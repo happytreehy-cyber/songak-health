@@ -84,7 +84,7 @@
         .auth-gate-box button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:14px; font-weight:700; cursor:pointer; }
         .auth-gate-box .err { color:#ef4444; font-size:12.5px; min-height:16px; margin-top:8px; }
 
-        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+        .health-grid-2x2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch; }
         @media (max-width: 760px) { .health-grid-2x2 { grid-template-columns:1fr; } }
 
         .grid-cell { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:200px; }
@@ -272,13 +272,15 @@
                         <option value="custom">기간 설정</option>
                     </select>
                     <div style="font-size:12px;font-weight:700;color:#475569;margin:8px 0 5px;text-align:left;">조회하면 이런 화면이 떠요</div>
-                    <div style="position:relative;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px;font-size:10px;box-sizing:border-box;">
-                        <span style="position:absolute;top:6px;right:6px;background:#ef4444;color:#fff;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0.3px;z-index:1;">예시 화면</span>
-                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:6px 8px;color:#64748b;font-weight:700;">
-                            <span>날짜</span><span>입실/퇴실</span><span>이름</span><span>증상</span>
-                        </div>
-                        <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:6px 8px;color:#1e293b;border-top:1px solid #f1f5f9;">
-                            <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
+                    <div style="position:relative;margin-bottom:8px;">
+                        <span style="position:absolute;top:-8px;right:6px;background:#ef4444;color:#fff;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0.3px;z-index:1;">예시 화면</span>
+                        <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:10px;box-sizing:border-box;">
+                            <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;background:#f8fafc;padding:6px 8px;color:#64748b;font-weight:700;">
+                                <span>날짜</span><span>입실/퇴실</span><span>이름</span><span>증상</span>
+                            </div>
+                            <div style="display:grid;grid-template-columns:0.8fr 1fr 0.7fr 1.3fr;padding:6px 8px;color:#1e293b;border-top:1px solid #f1f5f9;">
+                                <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
+                            </div>
                         </div>
                     </div>
                     <div class="lock-row" id="lookup-custom-range" style="display:none;">
