@@ -282,6 +282,9 @@ td.col-note{white-space:normal !important;text-align:left !important;color:#b91c
     cal.appendChild(span);
   }
 })();
+
+fetch('/api/log-access?name=' + encodeURIComponent('익명')).catch(()=>{});
+
 let ALL_DATA = {};
 let currentGrade = "1";
 let listCollapsed = true;
