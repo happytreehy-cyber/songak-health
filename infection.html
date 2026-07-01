@@ -221,14 +221,14 @@
 
   <div class="reveal-wrap">
 
-  <div class="card intro-card locked-blur">
+  <div class="card intro-card">
     <p>📋 학생 감염병 발생 보고, 감염병 정보와 예방수칙 안내를 한 곳에서 제공하는 공간입니다.</p>
   </div>
 
 
   <!-- 감염병 현황 대시보드 -->
   <div class="section-divider-title status">📊 감염병 발생 현황</div>
-  <div class="card locked-blur">
+  <div class="card">
     <div id="dashHero" class="dash-hero"><div class="empty-msg">불러오는 중...</div></div>
     <div id="dashCharts"></div>
     <div class="dash-buttons">
@@ -238,7 +238,7 @@
 
   <!-- 물품신청 -->
   <div class="section-divider-title supply">😷 감염병예방 물품·소모품 신청</div>
-  <div class="card locked-blur">
+  <div class="card">
     <form id="supplyForm">
       <div class="field">
         <label><span class="step-num">1</span>학년/부서 선택</label>
@@ -310,7 +310,7 @@
 
   <!-- 신청 조회 -->
   <div class="section-title" style="position:relative;z-index:210;">🔎 내 신청 조회</div>
-  <div class="card locked-blur">
+  <div class="card">
     <div style="font-size:13px;color:var(--muted);margin-top:0;line-height:1.8;">
       <strong style="color:var(--text);">예) 신청번호</strong>
       <div style="display:flex;gap:6px;margin-top:4px;">
@@ -331,26 +331,11 @@
     <div class="admin-link" id="adminOpenBtn">관리자 확인 →</div>
   </div>
 
-  <div class="card hidden locked-blur" id="adminPanel">
+  <div class="card hidden" id="adminPanel">
     <div class="section-title" style="margin-top:0;">🔐 관리자 확인 (대기중인 신청)</div>
     <div id="adminList"><div class="empty-msg">불러오는 중...</div></div>
   </div>
 
-  <div class="site-lock" id="siteLock">
-    <div class="site-lock-box">
-      <div class="icon">🔒</div>
-      <h2>감염병 발생 현황 확인</h2>
-      <p>비밀번호와 이름을 입력하면 감염병 발생 현황 · 발생보고 · 물품신청을<br>한 번에 모두 확인할 수 있어요.</p>
-      <input type="password" id="siteLockInput" name="pw_field_xyz" placeholder="비밀번호" autocomplete="off" data-lpignore="true">
-      <input type="text" id="siteLockName" placeholder="본인 이름" autocomplete="off">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280;margin-bottom:14px;justify-content:center;">
-        <input type="checkbox" id="siteLockRemember" style="width:auto;margin:0;"> 이 기기에서 내 이름 기억하기
-      </label>
-      <button type="button" id="siteLockBtn">확인</button>
-      <div class="site-lock-err" id="siteLockErr"></div>
-      <a href="index.html" class="back-btn" style="display:inline-flex;margin-top:14px;">← 이전으로 (대표화면)</a>
-    </div>
-  </div>
   </div>
 
 </main>
@@ -443,74 +428,6 @@
 </div>
 
 <script>
-/* ---------- 사이트 잠금 (공용 키: 다른 민감 메뉴와 공유됨) ---------- */
-(function(){
-  const UNLOCK_KEY = "songakStaffUnlocked";
-  const UNLOCK_HOURS = 6;
-
-  function isUnlocked(){
-    const raw = localStorage.getItem(UNLOCK_KEY);
-    if(!raw) return false;
-    try{
-      const data = JSON.parse(raw);
-      const ageHours = (Date.now() - data.time) / (1000*60*60);
-      return ageHours < UNLOCK_HOURS;
-    }catch(e){ return false; }
-  }
-
-  if (isUnlocked()) {
-    document.querySelectorAll(".locked-blur").forEach(el => el.classList.remove("locked-blur"));
-    document.getElementById("siteLock").style.display = "none";
-  }
-
-  const savedName = localStorage.getItem("songak_staff_name");
-  if (savedName) {
-    document.getElementById("siteLockName").value = savedName;
-    document.getElementById("siteLockRemember").checked = true;
-  }
-
-  async function tryUnlock(){
-    const name = document.getElementById("siteLockName").value.trim();
-    const pw = document.getElementById("siteLockInput").value.trim();
-    const remember = document.getElementById("siteLockRemember").checked;
-    const errEl = document.getElementById("siteLockErr");
-    if(pw !== "119"){ errEl.textContent = "비밀번호가 올바르지 않습니다."; return; }
-    if(!name){ errEl.textContent = "이름을 입력해주세요."; return; }
-    errEl.textContent = "확인 중...";
-
-    try{
-      const res = await fetch("/api/infection-report", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "checkstaffname", name })
-      });
-      const data = await res.json();
-      if(!data.success){
-        errEl.innerHTML = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px;margin-top:6px;text-align:center;"><div style="font-size:15px;font-weight:800;color:#b91c1c;margin-bottom:4px;">🚫 송악고등학교 교직원 외 접근 불가</div><div style="font-size:12px;color:#991b1b;">' + (data.message || "등록된 교직원이 아닙니다.") + '</div></div>';
-        return;
-      }
-    }catch(e){
-      errEl.textContent = "확인 중 오류가 발생했습니다. 다시 시도해주세요.";
-      return;
-    }
-    errEl.textContent = "";
-
-    if (remember) {
-      localStorage.setItem("songak_staff_name", name);
-    } else {
-      localStorage.removeItem("songak_staff_name");
-    }
-    localStorage.setItem("songakStaffUnlocked", JSON.stringify({ time: Date.now(), name }));
-    fetch("/api/log-access?name=" + encodeURIComponent(name)).catch(()=>{});
-
-    document.querySelectorAll(".locked-blur").forEach(el => el.classList.remove("locked-blur"));
-    document.getElementById("siteLock").style.display = "none";
-  }
-  document.getElementById("siteLockBtn").addEventListener("click", tryUnlock);
-  document.getElementById("siteLockInput").addEventListener("keydown", (e) => {
-    if(e.key === "Enter") tryUnlock();
-  });
-})();
-
 const PDF_BASE = "assets/infection-pdfs/";
 
 (function(){
