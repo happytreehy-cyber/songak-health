@@ -3,7 +3,7 @@ const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "물품신청";
 const HEADER = ["신청번호","제출일시","학년","반","KF94덴탈마스크","방역마스크(새부리형)","소독티슈","손소독제","신청자","비고","처리상태","관리자메시지","처리일시"];
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbykwVQpmUzfPe_WdKMbu6agJ2hW9fc6eaMGmCe3rmoPGPtW_H5luzX68fnXH7RB5dl7/exec";
 
 async function notifyKakao(text) {
   try {
