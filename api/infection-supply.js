@@ -3,6 +3,19 @@ const { google } = require("googleapis");
 
 const SHEET_TAB_NAME = "물품신청";
 const HEADER = ["신청번호","제출일시","학년","반","KF94덴탈마스크","방역마스크(새부리형)","소독티슈","손소독제","신청자","비고","처리상태","관리자메시지","처리일시"];
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+
+async function notifyKakao(text) {
+  try {
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "카카오알림", text })
+    });
+  } catch (e) {
+    // 알림 실패해도 신청 처리는 계속 진행 (실패 무시)
+  }
+}
 
 function getSheetsClient(scopes) {
   return google.sheets({
@@ -79,6 +92,12 @@ async function handleSubmit(req, res) {
   const id = classCode(grade, classNum);
   const row = [id, submittedAt, grade, classNum, k, b, t, s, applicantName || "-", memo || "", "접수", "", ""];
   await insertRowAtTop(sheets, sheetId, SHEET_TAB_NAME, row);
+  const items = [];
+  if (k) items.push("KF94 " + k);
+  if (b) items.push("방역마스크 " + b);
+  if (t) items.push("소독티슈 " + t);
+  if (s) items.push("손소독제 " + s);
+  await notifyKakao("📦 방역물품 신청\n" + grade + " " + classNum + " (" + (applicantName || "-") + ")\n" + items.join(", "));
   res.status(200).json({ success: true, message: "신청이 접수되었습니다.", id, submittedAt });
 }
 
