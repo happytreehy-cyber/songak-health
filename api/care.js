@@ -2,6 +2,20 @@
 // "1학년 요보호" / "2학년 요보호" / "3학년 요보호" 탭에서 학생 요보호 데이터를 읽어온다.
 const { google } = require("googleapis");
 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+
+async function notifyKakao(text) {
+  try {
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "카카오알림", text })
+    });
+  } catch (e) {
+    // 알림 실패해도 저장 처리는 계속 진행 (실패 무시)
+  }
+}
+
 const TAB_BY_GRADE = {
   "1": "1학년 요보호",
   "2": "2학년 요보호",
@@ -224,6 +238,15 @@ async function handleAddStudent(req, res) {
   } catch (e) {
     return res.status(500).json({ success: false, message: "시트에 저장하는 중 오류가 발생했습니다: " + (e.message || e.toString()) });
   }
+
+  const symLabels = [];
+  if (sym.female) symLabels.push("여성질환");
+  if (sym.headache) symLabels.push("두통");
+  if (sym.rhinitis) symLabels.push("비염");
+  if (sym.atopy) symLabels.push("아토피");
+  if (sym.asthma) symLabels.push("천식");
+  if (sym.allergy) symLabels.push("알레르기");
+  await notifyKakao("💗 요보호 학생 추가\n" + grade + "학년 " + classNum + "반 " + number + "번 " + name + "\n" + (symLabels.length ? symLabels.join(", ") : "(특이사항 없음)"));
 
   res.status(200).json({ success: true, message: "요보호 학생이 추가되었습니다." });
 }
