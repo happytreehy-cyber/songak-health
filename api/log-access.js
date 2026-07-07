@@ -1,5 +1,19 @@
 const { google } = require('googleapis');
 
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec';
+
+async function notifyKakao(text) {
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: '카카오알림', text })
+    });
+  } catch (e) {
+    // 알림 실패해도 로그인 자체는 계속 진행 (실패 무시)
+  }
+}
+
 module.exports = async function handler(req, res) {
   try {
     const { name } = req.query;
@@ -32,6 +46,7 @@ module.exports = async function handler(req, res) {
         insertDataOption: 'INSERT_ROWS',
         requestBody: { values: [[ts, name]] }
       });
+      await notifyKakao('🔑 로그인 알림\n' + name + '님이 로그인했습니다. (' + ts + ')');
       return res.status(200).json({ success: true });
     }
 
@@ -47,6 +62,7 @@ module.exports = async function handler(req, res) {
       valueInputOption: 'RAW', requestBody: { values: [[ts, name]] }
     });
 
+    await notifyKakao('🔑 로그인 알림\n' + name + '님이 로그인했습니다. (' + ts + ')');
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: error.toString() });
