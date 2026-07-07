@@ -2,7 +2,7 @@
 // "1학년 요보호" / "2학년 요보호" / "3학년 요보호" 탭에서 학생 요보호 데이터를 읽어온다.
 const { google } = require("googleapis");
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxywdJoi66cnblvlO1BMXpVFPzvG4vJ_E-fr1GoaEwc_VYz4ONJrhN1t_2SGoGotySoKg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbykwVQpmUzfPe_WdKMbu6agJ2hW9fc6eaMGmCe3rmoPGPtW_H5luzX68fnXH7RB5dl7/exec";
 
 async function notifyKakao(text) {
   try {
