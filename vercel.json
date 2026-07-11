@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/tb-checkup.js": {
+      "maxDuration": 30
+    }
+  }
+}
