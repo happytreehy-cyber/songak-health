@@ -16,10 +16,13 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
+      // req.body가 문자열(text/plain)로 올 수도, 객체(JSON)로 올 수도 있어서 둘 다 처리합니다.
+      const bodyStr = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+
       const gasRes = await fetch(GAS_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(req.body)
+        body: bodyStr
       });
       const text = await gasRes.text();
       res.setHeader("Content-Type", "application/json");
