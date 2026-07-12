@@ -146,17 +146,15 @@
   .class-scroll .choice-btn{flex:0 0 auto;}
   .hidden{display:none !important;}
 
-  .item-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
-  .item-grid-2x2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
-  .item-cell{border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;}
-  .item-cell-top{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:6px;}
+  /* 물품신청 - 한 줄 리스트형 수량 선택 (아이콘+이름 좌측, 수량조절 우측) */
+  .item-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:8px;}
   .item-left{display:flex;align-items:center;gap:10px;}
-  .item-emoji{font-size:26px;}
+  .item-emoji{font-size:22px;flex-shrink:0;}
   .item-name{font-weight:700;font-size:13.5px;}
   .item-desc{font-size:11px;color:var(--muted);font-weight:400;}
-  .qty-row{display:flex;align-items:center;gap:10px;}
-  .qty-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:#fff;font-size:16px;cursor:pointer;}
-  .qty-val{font-size:16px;font-weight:700;min-width:20px;text-align:center;}
+  .qty-row{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .qty-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:#fff;font-size:16px;cursor:pointer;line-height:1;}
+  .qty-val{font-size:15px;font-weight:700;min-width:18px;text-align:center;}
 
   input[type=text], textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit;}
   textarea{resize:vertical;min-height:60px;}
@@ -222,7 +220,7 @@
   <div class="reveal-wrap">
 
   <div class="card intro-card locked-blur">
-    <p>📋 학생 감염병 발생 보고, 감염병 정보와 예방수칙 안내를 한 곳에서 제공하는 공간입니다.</p>
+    <p>📋 학생 감염병 발생 보고를 위한 공간입니다.</p>
   </div>
 
 
@@ -262,40 +260,54 @@
       <div class="field">
         <label><span class="step-num">3</span>품목별 수량</label>
 
-        <div class="item-grid-2x2">
-          <div class="item-cell">
-            <div class="item-cell-top"><span class="item-emoji">😷</span><div class="item-name">KF94 덴탈마스크 <span class="item-desc">(Box)</span></div></div>
-            <div class="qty-row" style="justify-content:center;">
-              <button type="button" class="qty-btn" data-target="kf94" data-dir="-1">−</button>
-              <span class="qty-val" id="qty-kf94">0</span>
-              <button type="button" class="qty-btn" data-target="kf94" data-dir="1">+</button>
-            </div>
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">😷</span>
+            <div><div class="item-name">KF94 덴탈마스크 <span class="item-desc">(Box)</span></div></div>
           </div>
-          <div class="item-cell">
-            <div class="item-cell-top"><span class="item-emoji">😷</span><div class="item-name">방역마스크 <span class="item-desc">(Box)</span></div></div>
-            <div class="qty-row" style="justify-content:center;">
-              <button type="button" class="qty-btn" data-target="beak" data-dir="-1">−</button>
-              <span class="qty-val" id="qty-beak">0</span>
-              <button type="button" class="qty-btn" data-target="beak" data-dir="1">+</button>
-            </div>
-          </div>
-          <div class="item-cell">
-            <div class="item-cell-top"><span class="item-emoji">🧻</span><div class="item-name">소독티슈 <span class="item-desc">(개별포장)</span></div></div>
-            <div class="qty-row" style="justify-content:center;">
-              <button type="button" class="qty-btn" data-target="tissues" data-dir="-1">−</button>
-              <span class="qty-val" id="qty-tissues">0</span>
-              <button type="button" class="qty-btn" data-target="tissues" data-dir="1">+</button>
-            </div>
-          </div>
-          <div class="item-cell">
-            <div class="item-cell-top"><span class="item-emoji">🧴</span><div class="item-name">손소독제 <span class="item-desc">(알코올계)</span></div></div>
-            <div class="qty-row" style="justify-content:center;">
-              <button type="button" class="qty-btn" data-target="sanitizer" data-dir="-1">−</button>
-              <span class="qty-val" id="qty-sanitizer">0</span>
-              <button type="button" class="qty-btn" data-target="sanitizer" data-dir="1">+</button>
-            </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="kf94" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-kf94">0</span>
+            <button type="button" class="qty-btn" data-target="kf94" data-dir="1">+</button>
           </div>
         </div>
+
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">😷</span>
+            <div><div class="item-name">방역마스크 <span class="item-desc">(Box)</span></div></div>
+          </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="beak" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-beak">0</span>
+            <button type="button" class="qty-btn" data-target="beak" data-dir="1">+</button>
+          </div>
+        </div>
+
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">🧻</span>
+            <div><div class="item-name">소독티슈 <span class="item-desc">(개별포장)</span></div></div>
+          </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="tissues" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-tissues">0</span>
+            <button type="button" class="qty-btn" data-target="tissues" data-dir="1">+</button>
+          </div>
+        </div>
+
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-emoji">🧴</span>
+            <div><div class="item-name">손소독제 <span class="item-desc">(알코올계)</span></div></div>
+          </div>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-target="sanitizer" data-dir="-1">−</button>
+            <span class="qty-val" id="qty-sanitizer">0</span>
+            <button type="button" class="qty-btn" data-target="sanitizer" data-dir="1">+</button>
+          </div>
+        </div>
+
       </div>
 
       <div class="field">
@@ -446,7 +458,7 @@
 /* ---------- 사이트 잠금 (공용 키: 다른 민감 메뉴와 공유됨) ---------- */
 (function(){
   const UNLOCK_KEY = "songakStaffUnlocked";
-  const UNLOCK_HOURS = 6;
+  const UNLOCK_HOURS = 1;
 
   function isUnlocked(){
     const raw = localStorage.getItem(UNLOCK_KEY);
@@ -458,9 +470,26 @@
     }catch(e){ return false; }
   }
 
+  // [보안 강화] 예전에 인증됐던 기록(캐시)이 있어도 무조건 믿지 않고,
+  // 매번 페이지를 열 때 지금도 교직원명단에 있는 이름인지 서버에 다시 확인합니다.
+  // (공용 PC를 여러 사람이 같이 쓸 때, 이전 사람 인증으로 다른 사람이 그냥 통과되는 것을 막기 위함)
   if (isUnlocked()) {
-    document.querySelectorAll(".locked-blur").forEach(el => el.classList.remove("locked-blur"));
-    document.getElementById("siteLock").style.display = "none";
+    const __raw = localStorage.getItem(UNLOCK_KEY);
+    let __cachedName = "";
+    try { __cachedName = JSON.parse(__raw).name || ""; } catch(e) {}
+    if (__cachedName) {
+      fetch("/api/infection-report", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "checkstaffname", name: __cachedName })
+      }).then(r => r.json()).then(data => {
+        if (data.success) {
+          document.querySelectorAll(".locked-blur").forEach(el => el.classList.remove("locked-blur"));
+          document.getElementById("siteLock").style.display = "none";
+        } else {
+          localStorage.removeItem(UNLOCK_KEY);
+        }
+      }).catch(() => { /* 확인 실패 시 안전하게 다시 인증 화면을 보여줍니다 */ });
+    }
   }
 
   const savedName = localStorage.getItem("songak_staff_name");
@@ -555,7 +584,6 @@ let lastSummary = null;
 let heroMode = "7";
 const PALETTE = ["#2563eb","#16a34a","#f59e0b","#dc2626","#9333ea","#0d9488","#db2777","#65a30d","#0891b2","#ea580c"];
 
-// 인플루엔자/인플루엔자A형/인플루엔자B형은 같은 질병의 유형 구분일 뿐이므로 차트에서는 하나로 합쳐서 보여줍니다.
 function groupDiseaseEntries(byDisease){
   const merged = {};
   const fluBreakdown = {};
@@ -648,7 +676,7 @@ function renderCharts(){
   allCases.forEach((it,i) => it.no = i+1);
   window.allCasesData = allCases;
   const ongoingCases = allCases.filter(it => !it.ended);
-  const endedCases = allCases.filter(it => it.ended); // 서버에서 진단일 내림차순으로 이미 정렬되어 옴
+  const endedCases = allCases.filter(it => it.ended);
   const PAGE_SIZE = 6;
   window.endedCasesData = endedCases;
   window.casePage = 0;
@@ -849,7 +877,7 @@ document.getElementById("rNoExclusion").addEventListener("change", (e) => {
 });
 
 /* ---------- 진단일 입력 시 등교중지종료일 자동계산 (인플루엔자 기준 5일) ---------- */
-let exclusionDateConfirmed = true; // 자동계산이 아니라 직접 입력/수정된 상태인지 여부
+let exclusionDateConfirmed = true;
 
 function addDaysToDateStr(dateStr, days){
   if(!dateStr) return "";
@@ -879,7 +907,6 @@ function maybeAutoCalcExclusion(){
   const diagDate = document.getElementById("rDiagDate").value;
   const exEndInput = document.getElementById("rExEnd");
   if(!diagDate) return;
-  // 사용자가 직접 입력해 확정한 값이 있으면 자동계산으로 덮어쓰지 않음
   if(exclusionDateConfirmed && exEndInput.value) return;
   exEndInput.value = addDaysToDateStr(diagDate, 5);
   exclusionDateConfirmed = false;
@@ -899,7 +926,7 @@ document.getElementById("rExEnd").addEventListener("input", () => {
   applyExclusionAutoStyle();
 });
 
-/* ---------- 학생 이름 검색 선택 (메뉴3 요보호 추가와 동일한 방식) ---------- */
+/* ---------- 학생 이름 검색 선택 ---------- */
 let studentListCache = [];
 
 async function loadStudentPicker(){
@@ -942,7 +969,7 @@ function renderStudentDropdown(query){
   const dropdown = document.getElementById("studentSearchDropdown");
   const matches = query
     ? studentListCache.filter(s => (s.name||"").includes(query))
-    : studentListCache; // 입력 없으면 전체 명단을 보여줘요 (메뉴3 요보호 추가와 동일)
+    : studentListCache;
   if(!matches.length){
     dropdown.innerHTML = '<div class="student-search-item" style="color:var(--muted);">일치하는 학생이 없어요</div>';
     dropdown.classList.add("show");
