@@ -365,7 +365,7 @@ window.addEventListener('DOMContentLoaded', function () {
     })();
 
     var UNLOCK_KEY = 'songakStaffUnlocked';
-    var UNLOCK_HOURS = 6;
+    var UNLOCK_HOURS = 1;
     function isSharedUnlocked(){
         var raw = localStorage.getItem(UNLOCK_KEY);
         if(!raw) return false;
@@ -386,14 +386,30 @@ window.addEventListener('DOMContentLoaded', function () {
         document.getElementById('gate-pw').value = savedPw;
     }
 
+    // [보안 강화] 예전에 인증됐던 기록(캐시)이 있어도 무조건 믿지 않고,
+    // 매번 페이지를 열 때 지금도 교직원명단에 있는 이름인지 서버에 다시 확인합니다.
     if (isSharedUnlocked()) {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
-        var iframe = document.getElementById('smile-iframe-today');
-        iframe.src = SMILE_URL;
-        setTimeout(checkSmileIframe, 4000);
-        loadSymptomStats();
-        loadVisitStatus();
+        var __cachedRaw = localStorage.getItem(UNLOCK_KEY);
+        var __cachedName = '';
+        try { __cachedName = JSON.parse(__cachedRaw).name || ''; } catch (e) {}
+        if (__cachedName) {
+            fetch('/api/infection-report', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'checkstaffname', name: __cachedName })
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (data.success) {
+                    document.getElementById('auth-gate').style.display = 'none';
+                    document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
+                    var iframe = document.getElementById('smile-iframe-today');
+                    iframe.src = SMILE_URL;
+                    setTimeout(checkSmileIframe, 4000);
+                    loadSymptomStats();
+                    loadVisitStatus();
+                } else {
+                    localStorage.removeItem(UNLOCK_KEY);
+                }
+            }).catch(function () { /* 확인 실패 시 안전하게 다시 인증 화면을 보여줍니다 */ });
+        }
     }
 });
 
