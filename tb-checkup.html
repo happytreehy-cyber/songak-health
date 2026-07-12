@@ -22,7 +22,6 @@
   }
   a { text-decoration: none; color: inherit; }
 
-  /* ===== index.html과 동일한 헤더 ===== */
   .sticky-header-wrapper {
       position: sticky; top: 0; z-index: 1000;
       background-color: #ffffff;
@@ -51,7 +50,6 @@
   .day-item.sun { color: #ef4444; }
   .day-item.today { background-color: #2563eb; color: #ffffff; border-radius: 50%; padding: 0 5px; }
 
-  /* ===== 본문 ===== */
   .wrap{ max-width:1240px; margin:0 auto; padding:22px 24px 60px; }
   .wrap > section{ margin-bottom:38px; }
   .section-title{ display:flex; align-items:baseline; gap:8px; margin:0 0 12px; }
@@ -73,6 +71,9 @@
   .deadline-pill{ background:#eef1ff; color:#3450c9; font-size:.88rem; font-weight:600; padding:7px 14px; border-radius:999px; }
   .deadline-pill.new-hire{ background:#ffe9e9; color:#c23c3c; }
   .note-row{ background:#fff7e0; color:#8a6300; font-size:.9rem; border-radius:8px; padding:10px 14px; margin-top:12px; line-height:1.6; }
+
+  .guide-board-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+  @media (max-width:900px){ .guide-board-grid{ grid-template-columns:1fr; } }
 
   .table-card{ background:#fff; border-radius:14px; padding:18px 18px 8px; margin-bottom:26px; border:1px solid #e8e8e8; overflow-x:auto; }
   table.roster{ width:100%; border-collapse:collapse; font-size:.92rem; min-width:840px; }
@@ -125,7 +126,7 @@
   .submit-btn{ width:100%; background:#1f3d8f; color:#fff; border:none; padding:14px; border-radius:10px; font-size:1.02rem; font-weight:700; cursor:pointer; margin-top:6px; }
   .submit-btn:disabled{ background:#3a5bb0; color:#fff; cursor:not-allowed; }
   .submit-btn:hover:not(:disabled){ background:#16307a; }
-  .status-msg{ font-size:.9rem; margin-top:10px; text-align:center; }
+  .status-msg{ font-size:.9rem; margin-top:10px; text-align:center; line-height:1.6; }
   .status-msg.ok{ color:#2e7d32; }
   .status-msg.err{ color:#c23c3c; }
   .blur-target { filter: blur(6px); pointer-events: none; user-select: none; }
@@ -136,6 +137,7 @@
   .auth-gate-box input { width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; margin-bottom:10px; text-align:center; box-sizing:border-box; }
   .auth-gate-box button { width:100%; background:#2563eb; color:#fff; border:none; border-radius:8px; padding:10px 0; font-size:14px; font-weight:700; cursor:pointer; }
   .auth-gate-box .err { color:#ef4444; font-size:12.5px; min-height:16px; margin-top:8px; }
+  .year-type-note{ background:#fff7e0; color:#8a6300; font-size:.88rem; font-weight:600; border-radius:8px; padding:10px 14px; margin-bottom:14px; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -180,25 +182,30 @@
 
   <section>
     <div class="title-box title-box-blue">🫁 교직원 검사안내<span class="sub-label">2026년 전체 교직원 검사실시</span></div>
-    <div class="guide-card blur-target">
-      <div class="law-row"><b>결핵검진대상</b> 유치원 및 각급학교 교직원 및 종사자 (결핵예방법 제11조)</div>
-      <ul>
-        <li><b>결핵검진(흉부 X-ray)</b> : <span style="color:#e0455a;font-weight:700;">매년</span> 실시</li>
-        <li><b>잠복결핵검진(혈액검사)</b> : 소속된 기간(다른 기관·학교 등으로 소속을 변경하여 근무한 기간 포함) 중 <span style="color:#e0455a;font-weight:700;">1회</span> 실시</li>
-        <li>휴직·파견 등으로 6개월 이상 업무에 종사하지 않다가 복귀한 경우, 복귀일로부터 <span style="color:#e0455a;font-weight:700;">1개월 이내</span>에 결핵검진을 다시 실시해야 함</li>
-      </ul>
-      <div class="deadline-row">
-        <span class="deadline-pill">1학기 조사실시 : 26.8.30까지 입력</span>
-        <span class="deadline-pill">2학기 조사실시 : 26.12.31까지 입력</span>
-      </div>
-    </div>
 
-    <div class="table-card blur-target" style="margin-top:18px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <strong style="font-size:.98rem;color:#1f3d8f;">📋 공지사항 게시판</strong>
-        <button class="refresh-btn" onclick="openModal('modal-post')" style="font-weight:700;">+ 새 글 작성</button>
+    <div class="guide-board-grid blur-target">
+
+      <div class="table-card" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <strong style="font-size:.98rem;color:#1f3d8f;">📋 공지사항 게시판</strong>
+          <button class="refresh-btn" onclick="openModal('modal-post')" style="font-weight:700;">+ 새 글 작성</button>
+        </div>
+        <div id="postListWrap"><div class="table-loading">게시글을 불러오는 중입니다...</div></div>
       </div>
-      <div id="postListWrap"><div class="table-loading">게시글을 불러오는 중입니다...</div></div>
+
+      <div class="guide-card" style="margin-bottom:0;">
+        <div class="law-row"><b>결핵검진대상</b> 유치원 및 각급학교 교직원 및 종사자 (결핵예방법 제11조)</div>
+        <ul>
+          <li><b>결핵검진(흉부 X-ray)</b> : <span style="color:#e0455a;font-weight:700;">매년</span> 실시</li>
+          <li><b>잠복결핵검진(혈액검사)</b> : 소속된 기간(다른 기관·학교 등으로 소속을 변경하여 근무한 기간 포함) 중 <span style="color:#e0455a;font-weight:700;">1회</span> 실시</li>
+          <li>휴직·파견 등으로 6개월 이상 업무에 종사하지 않다가 복귀한 경우, 복귀일로부터 <span style="color:#e0455a;font-weight:700;">1개월 이내</span>에 결핵검진을 다시 실시해야 함</li>
+        </ul>
+        <div class="deadline-row">
+          <span class="deadline-pill">1학기 조사실시 : 26.8.30까지 입력</span>
+          <span class="deadline-pill">2학기 조사실시 : 26.12.31까지 입력</span>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -217,9 +224,12 @@
           <div><span class="k">대상</span><span>학교검진, 개별검진예정 또는 완료 교직원</span></div>
           <div><span class="k">자료</span><span>결핵검진(흉부 X-ray)</span></div>
           <div><span class="k">마감</span><span>12월 31일까지</span></div>
-          <div><span class="k">링크</span><span id="tb-direct-link" style="word-break:break-all; cursor:pointer; color:#1f3d8f; text-decoration:underline;" onclick="copyDirectLink('tb-direct-link', this)" title="클릭하면 복사됩니다"></span></div>
         </div>
-        <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">흉부 X-ray 결과 소견, 검진일자, 검진기관명만 필요합니다.</span><br>다른 검사항목 결과지 전체는 받지 않습니다. <span style="font-size:1.6em; vertical-align:middle;">🙅</span></div>
+        <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">흉부 X-ray 검진일자, 검진기관명만 필요합니다.</span><br>
+          - 검사결과 정상: 검사소견 첨부 안해도 됨<br>
+          - 검사결과 유소견: 검사소견 첨부 또는 담당자에게 설명 필요<br>
+          <span style="color:#888;">(다른 검사항목 결과지는 받지 않습니다 🙅.)</span>
+        </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:auto;">
           <button class="tile-btn tile-btn-outline" onclick="openTbModal('scheduled')">✅ 개별건강검진<br>예정입니다</button>
           <button class="tile-btn" onclick="openTbModal('upload')">📁 확인증 업로드하기</button>
@@ -234,9 +244,12 @@
           <div><span class="k">대상</span><span>결핵검진 대체인정확인이 필요한 교직원</span></div>
           <div><span class="k">자료</span><span>결핵검진(흉부 X-ray), 혈액 잠복결핵검사</span></div>
           <div><span class="k">마감</span><span>입사 후 1개월 이내</span></div>
-          <div><span class="k">링크</span><span id="hire-direct-link" style="word-break:break-all; cursor:pointer; color:#1f3d8f; text-decoration:underline;" onclick="copyDirectLink('hire-direct-link', this)" title="클릭하면 복사됩니다"></span></div>
         </div>
-        <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">흉부 X-ray, 혈액잠복결핵검사 결과 소견, 검진일자, 검진기관명만 필요합니다.</span> 다른 검사항목 결과지 전체는 받지 않습니다. <span style="font-size:1.6em; vertical-align:middle;">🙅</span></div>
+        <div class="hint-box">보건실에서는 <span style="color:#e0455a;font-weight:700;">혈액잠복결핵검사, 흉부 X-ray 검진일자, 검진기관명만 필요합니다.</span><br>
+          1) 검사결과 정상: 검사소견 첨부 안해도 됨<br>
+          2) 검사결과 유소견: 검사소견 첨부 또는 담당자에게 설명 필요<br>
+          <span style="color:#888;">(다른 검사항목 결과지 받지 않음 🙅.)</span>
+        </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:auto;">
           <button class="tile-btn tile-btn-outline" onclick="openHireModal('confirm')">✅ 행정실에 이미<br>제출했습니다</button>
           <button class="tile-btn" onclick="openHireModal('upload')">📁 확인증 업로드하기</button>
@@ -248,6 +261,7 @@
   </section>
   <section>
     <div class="title-box title-box-pink">✏️ 교직원 검사기록(실시간 입력·확인용)</div>
+    <div id="year-type-note" class="year-type-note"></div>
     <div class="table-card blur-target">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <strong style="font-size:.88rem;color:#1f3d8f;">교직원 건강검사기록 시트</strong>
@@ -412,10 +426,21 @@
   }
   window.addEventListener('DOMContentLoaded', renderDate);
 
-  /* ---------- 사이트 잠금 (공용 키: today/infection/care와 공유됨) ---------- */
+  // 짝수년생/홀수년생 검진 구분 안내문구 (매년 자동 전환)
+  function renderYearTypeNote(){
+    var el = document.getElementById('year-type-note');
+    if(!el) return;
+    var year = new Date().getFullYear();
+    var isEven = (year % 2 === 0);
+    var evenGroup = isEven ? '직장인 건강검진' : '학교단체검진';
+    var oddGroup = isEven ? '학교단체검진' : '직장인 건강검진';
+    el.textContent = '📌 ' + year + '년(' + (isEven ? '짝수해' : '홀수해') + ') 기준 — 짝수년생 교직원: ' + evenGroup + ' 대상 / 홀수년생 교직원: ' + oddGroup + ' 대상 (매년 자동 전환됩니다)';
+  }
+  window.addEventListener('DOMContentLoaded', renderYearTypeNote);
+
   (function(){
     var UNLOCK_KEY = 'songakStaffUnlocked';
-    var UNLOCK_HOURS = 6;
+    var UNLOCK_HOURS = 1;
     function isSharedUnlocked(){
         var raw = localStorage.getItem(UNLOCK_KEY);
         if(!raw) return false;
@@ -436,9 +461,26 @@
         document.getElementById('gate-pw').value = savedPw;
     }
 
+    // [보안 강화] 예전에 인증됐던 기록(캐시)이 있어도 무조건 믿지 않고,
+    // 매번 페이지를 열 때 지금도 교직원명단에 있는 이름인지 서버에 다시 확인합니다.
+    // (공용 PC를 여러 사람이 같이 쓸 때, 이전 사람 인증으로 다른 사람이 그냥 통과되는 것을 막기 위함)
     if (isSharedUnlocked()) {
-        document.getElementById('auth-gate').style.display = 'none';
-        document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
+        var __cachedRaw = localStorage.getItem(UNLOCK_KEY);
+        var __cachedName = '';
+        try { __cachedName = JSON.parse(__cachedRaw).name || ''; } catch (e) {}
+        if (__cachedName) {
+            fetch('/api/infection-report', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'checkstaffname', name: __cachedName })
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (data.success) {
+                    document.getElementById('auth-gate').style.display = 'none';
+                    document.querySelectorAll('.blur-target').forEach(function (el) { el.classList.remove('blur-target'); });
+                } else {
+                    localStorage.removeItem(UNLOCK_KEY);
+                }
+            }).catch(function () { /* 확인 실패 시 안전하게 다시 인증 화면을 보여줍니다 */ });
+        }
     }
 
     async function handleGateAuth() {
@@ -493,28 +535,6 @@
     document.getElementById('gate-name').addEventListener('keydown', function (e) { if (e.key === 'Enter') handleGateAuth(); });
   })();
 
-  // 재직중/신규 업로드창으로 바로 들어오는 링크를 만들어서 화면에 표시 (복사해서 전달용)
-  function setupDirectLinks(){
-    const base = window.location.origin + window.location.pathname.replace(/[^/]+$/, '');
-    const tbLink = document.getElementById('tb-direct-link');
-    const hireLink = document.getElementById('hire-direct-link');
-    if(tbLink) tbLink.textContent = base + 'u.html?t';
-    if(hireLink) hireLink.textContent = base + 'u.html?t=h';
-  }
-  window.addEventListener('DOMContentLoaded', setupDirectLinks);
-
-  function copyDirectLink(elId, el){
-    const text = document.getElementById(elId).textContent;
-    navigator.clipboard.writeText(text).then(()=>{
-      const original = el.textContent;
-      el.textContent = '✅ 복사되었습니다!';
-      setTimeout(()=>{ el.textContent = original; }, 1200);
-    }).catch(()=>{
-      alert('복사에 실패했습니다. 링크: ' + text);
-    });
-  }
-
-  // ===== 공지사항 게시판 =====
   function statusDiamond(status){
     if(status === '마감') return '<span style="color:#e0455a;font-weight:700;">◆ 마감</span>';
     return '<span style="color:#2e7d32;font-weight:700;">◆ 진행중</span>';
@@ -699,7 +719,6 @@
     openModal('modal-hire');
   }
 
-  // 주소 끝에 ?open=tb-upload 또는 ?open=hire-upload 를 붙이면 해당 업로드창이 바로 열립니다
   (function autoOpenFromUrl(){
     const params = new URLSearchParams(window.location.search);
     const open = params.get('open');
@@ -774,11 +793,11 @@
       const result = await res.json();
 
       if(result.result === 'success'){
-        statusEl.textContent = '✅ 제출이 완료되었습니다. 구글 시트에 실시간으로 기록되었습니다.';
+        statusEl.innerHTML = '✅ 제출완료!<br>담당자가 확인 후 기록 업데이트 할 예정입니다.<br>감사합니다.';
         statusEl.className = 'status-msg ok';
         form.reset();
         document.querySelectorAll('.drop-zone').forEach(dz=>dz.classList.remove('has-file'));
-        setTimeout(()=>{ document.getElementById(modalId).classList.remove('open'); statusEl.textContent=''; }, 1500);
+        setTimeout(()=>{ document.getElementById(modalId).classList.remove('open'); statusEl.textContent=''; }, 2200);
       } else {
         statusEl.textContent = '제출 중 오류가 발생했습니다: ' + (result.message || '알 수 없는 오류');
         statusEl.className = 'status-msg err';
