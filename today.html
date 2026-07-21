@@ -266,12 +266,23 @@
                             <option value="7">7반</option><option value="8">8반</option><option value="9">9반</option>
                         </select>
                     </div>
-                    <select id="lookup-period">
-                        <option value="week">이번 주</option>
-                        <option value="month">이번 달</option>
-                        <option value="custom">기간 설정</option>
-                    </select>
-                    <div style="font-size:12px;font-weight:700;color:#475569;margin:8px 0 5px;text-align:left;">조회하면 이런 화면이 떠요</div>
+                    <input type="hidden" id="lookup-period" value="week">
+                    <div style="display:flex;gap:6px;margin-bottom:6px;">
+                        <button type="button" id="qbtn-week" onclick="setQuickPeriod('week')" style="flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid #2563eb;background:#2563eb;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">이번 주</button>
+                        <button type="button" id="qbtn-month" onclick="setQuickPeriod('month')" style="flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">이번 달</button>
+                        <button type="button" id="qbtn-custom" onclick="setQuickPeriod('custom')" style="flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">기간 직접설정</button>
+                    </div>
+                    <div id="lookup-custom-range" style="display:none;gap:6px;margin-bottom:4px;" class="lock-row">
+                        <div style="flex:1;">
+                            <div style="font-size:10.5px;color:#64748b;margin-bottom:3px;">시작일</div>
+                            <input type="date" id="lookup-start" style="width:100%;">
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:10.5px;color:#64748b;margin-bottom:3px;">종료일</div>
+                            <input type="date" id="lookup-end" style="width:100%;">
+                        </div>
+                    </div>
+                    <div style="font-size:12px;font-weight:700;color:#475569;margin:6px 0 5px;text-align:left;">조회하면 이런 화면이 떠요</div>
                     <div style="position:relative;margin-bottom:8px;">
                         <span style="position:absolute;top:-8px;right:6px;background:#ef4444;color:#fff;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0.3px;z-index:1;">예시 화면</span>
                         <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;font-size:10px;box-sizing:border-box;">
@@ -282,10 +293,6 @@
                                 <span>04.20</span><span>09:10–09:25</span><span>김수현</span><span>두통</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="lock-row" id="lookup-custom-range" style="display:none;">
-                        <input type="date" id="lookup-start">
-                        <input type="date" id="lookup-end">
                     </div>
                     <button id="lookup-btn" style="display:flex;flex-direction:column;align-items:center;gap:3px;height:auto;padding:9px;margin-top:8px;">
                         <span style="font-size:13px;font-weight:700;">조회하기</span>
@@ -421,14 +428,25 @@ function bindEvents() {
 
     
     document.getElementById('lookup-btn').addEventListener('click', handleLookup);
-    document.getElementById('lookup-period').addEventListener('change', function () {
-        document.getElementById('lookup-custom-range').style.display = this.value === 'custom' ? 'flex' : 'none';
-    });
     document.getElementById('lookup-edit-btn').addEventListener('click', function () {
         document.getElementById('lookup-summary').style.display = 'none';
         document.getElementById('lookup-form-area').style.display = 'flex';
         document.getElementById('lookup-result').innerHTML = '';
     });
+}
+
+function setQuickPeriod(val) {
+    document.getElementById('lookup-period').value = val;
+    var btns = { week: 'qbtn-week', month: 'qbtn-month', custom: 'qbtn-custom' };
+    Object.keys(btns).forEach(function(k) {
+        var btn = document.getElementById(btns[k]);
+        var active = k === val;
+        btn.style.background = active ? '#2563eb' : '#fff';
+        btn.style.color = active ? '#fff' : '#475569';
+        btn.style.borderColor = active ? '#2563eb' : '#cbd5e1';
+    });
+    var customRange = document.getElementById('lookup-custom-range');
+    customRange.style.display = val === 'custom' ? 'flex' : 'none';
 }
 
 async function handleGateAuth() {
